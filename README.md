@@ -1,2 +1,5 @@
-# sistema-classificacao-ativos-informacao
-Sistema que permite avaliação dos riscos expostos pelos ativos de informação de uma empresa
+# Sistema de Classificação de Ativos de Informação
+
+Este é um trabalho de final de curso de Engenharia Eletrônica e de Computação da Universidade Federal do Rio de Janeiro.
+- [Requisitos e Modelagem](./MODELING.md)
+- [Configurações de sistema](./SYSTEMCONFIGURATION.md)
