@@ -12,24 +12,24 @@ Implementar um sistema que permita avaliação dos riscos dos ativos de informa�
 ## Premissas
 
 - Uma empresa possui ativos de informação.
-- Ativos de informação possuem vulnerabilidades para uma empresa.
-- Ativos de informação possuem relevância para uma empresa.
-- Ameaças existem por si só e afetam diferentes ativos de informação de acordo com a empresa.
+- Um ativo de informação possui vulnerabilidades para uma empresa.
+- Um ativo de informação possui relevância para uma empresa.
+- Uma ameaça existe por si só e afeta diferentes ativos de informação de acordo com a empresa.
 - Uma ameaça não afeta ativos sem vulnerabilidades. (?)
 - Uma ameaça pode afetar um ativo em uma localidade, mas não afetar o mesmo ativo em outra localidade. Ex: terremoto.
-- Ativos de informação possuem investimento inicial, e sofrem com depreciação ou valorização.
-- Ativos de informação possuem nome, tipo e _tags_.
+- Um ativo de informação possui investimento inicial, e sofre com depreciação ou valorização.
+- Um ativo de informação possui nome, tipo e _tags_.
 - Os tipos de um ativo de informação são:
   - Hardware
   - Software
-  - People
-  - Supplies
-  - Environment
+  - Person
+  - Supply
+  - Place
   - Process
 - O impacto do ataque à vulnerabilidade de um ativo pode ser obtido automaticamente em função da relevância e vulnerabilidade.  
     impacto = f(ativo, relevancia, vulnerabilidade)
-- Vulnerabilidades são graduadas.
-- Vulnerabilidades são inerentes ao ativo independente da empresa.
+- Uma vulnerabilidade é graduada.
+- Uma vulnerabilidade é inerente ao ativo independente da empresa.
   Porém, cada empresa pode tomar medidas de controle diferentes de forma a reduzir a vulnerabilidade.
 - Ameaças naturais geralmente não atacam um ativo, mas todos os ativos localizados em uma dada região, impactando a empresa como um todo.
 - Uma ameaça pode explorar mais de uma vulnerabilidade de uma ativo, ou vulnerabilidades avulsas de diferentes ativos.
@@ -49,12 +49,18 @@ Implementar um sistema que permita avaliação dos riscos dos ativos de informa�
 - As modificações na vulnerabilidade de um ativo pode ser para fins de simulação ou decorrente de algum investimento em segurança.
 - Simulações devem ser persistidas à parte?
 - Estratégias de classificação: manter a básica = _fuzzy_.
-- Incidentes de segurança da informação devem ser registrados indicando qual ativo teve sua vulnerabilidade explorada, para saber se ela estava coberta e o que pode ser feito para melhorar.  
+- Um incidentes de segurança da informação deve ser registrado indicando quais ativos tiveram suas vulnerabilidades exploradas, para saber se ela estava coberta e o que pode ser feito para melhorar.  
   - Data do incidente
   - Descrição do incidente
-  - Ativo explorado
+  - Ativos explorados
   - Processos de negócio impactados
   - Classificação de relevância e vulnerabilidade do ativo no dia do incidente
   - Como prevenir
 - A inexistência de alguns processos pode constituir uma vulnerabilidade, portanto deve ser possível avaliar isso sem o ativo cadastrado.
     Ex: Ausência de Política de SI. Como avaliar a vulnerabilidade se o ativo não existe (está ausente)?
+
+## Modelo do banco de dados
+
+O banco de dados, chamado de `information_assets`, é modelado como mostrado pelo diagrama na imagem abaixo, seguindo as premissas listadas acima.
+
+![database-diagram-full](https://user-images.githubusercontent.com/16355712/32494677-ad22f250-c3a9-11e7-80ef-c359cd6f8113.png)
