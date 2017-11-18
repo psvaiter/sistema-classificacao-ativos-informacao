@@ -7,20 +7,29 @@ Database name: `db_information_asset_security`
 Below there's a list of sentences describing the relationships between the entities of the system.  
 Our intention is to extract entities from specification.
 
-- Each **organization** have one or more **departments**.
-- Each **department** have one or more **macroprocesses**.
-- Each **macroprocess** is divided into one or more **processes**.
-- Each **process** is supported by one or more **information services**.
-- Each **information service** is supported by one or more **information assets**.
+- Each **organization** has zero or more **departments**.
+- Each **department** belongs to zero or more **organizations**.
+- Each **department** has zero or more **macroprocesses**.
+- Each **macroprocess** is used by zero or more **departments**.
+- Each **macroprocess** comprehends zero or more **processes**.
+- Each **process** is used by zero or more **macroprocesses**.
+- Each **process** is supported by zero or more **information services**.
+- Each **information service** supports zero or more **processes**.
+- Each **information service** is supported by zero or more **information assets**.
+- Each **information asset** supports zero or more **information services**.
 - Each **information asset** belongs to one **category**.
-- Each **information asset** have zero or more **vulnerabilities**.
-- Each **security threat** targets one or more **vulnerabilities** of different information assets.
-- Each **organization** implements one or more **controls** to mitigate vulnerabilities of information assets.
-- Each **organization** have zero or one head office **address**.
-- Each **system user** have one or more **system adminsitrative roles**.
+- Each **organization** is exposed to zero or more **security threats**.
+- Each **security threat** exposes zero or more **organizations** to security incidents.
+- Each **security threat** explores vulnerabilities of zero or more **information assets** of an **organization**.
+- Each **information asset** of an **organization** has a degree of vulnerability to a **security threat** to which the **organization** is exposed **(= organization information asset vulnerability)**. An information asset belongs to an organization if it supports at least one information service that supports a process inside the macroprocess of an organization department, thus this relationship is not explicit in database.
+- Each **organization infromation asset vulnerability** to a security threat can be mitigated by implementing one or more **controls**.
+- Each **organization vulnerability control** targets a specific **organization information asset vulnerability** to a security threat.
+- Each **organization vulnerability control** for an **information asset** can be implemented with another **information asset** or not **`<-- CONFIRM: can or must?`**.
+- Each **organization** has zero or one head office **address**.
+- Each **system user** has zero or more **system adminsitrative roles**.
 - Each **system user** creates one or more **risk analysis reports** of information security incidents.
 - Each **risk analysis report** belongs to only one **organization**.
-- Each **risk analysis report** have consolidated information about many of the other entities, thus no relationships are established with them.
+- Each **risk analysis report** has consolidated information about many of the other entities, thus no relationships are established with them.
 
 From the sentences above, we extract the following entities:
 
@@ -31,16 +40,18 @@ From the sentences above, we extract the following entities:
 - Business process
 - Information service
 - Information asset
-- Information asset vulnerability
 - Information asset category
 - Security threat
+- Organization security threat
+- Organization information asset vulnerability
+- Organization vulnerability control
 - System user
-- System permission
+- System administrative role
 - Risk analysis report
 
 A department can be reused for different organizations, a macroproecess can be reused for different deparments, and so on. So all these entities must be independent, allowing a M:N relationship cardinality between them, except for Organization location (depends on Organization) and Information asset vulnerability (depends on Information asset).
 
-## Entities' fields
+## Data Dictionary
 
 Items prefixed with * are mandatory in database.
 
@@ -58,29 +69,26 @@ All entities have the record metadata `created_on` and `last_modified_on` repres
 
 - *Organization identifier
 - Latitude, Longitude
+- Country code as defined in [ISO 3166-1 alpha 2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
 - Postal Code
-- Country subdivision code as defined in [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2)
+- Country subdivision code as defined in [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) (second part)
 - City name
 - Street address 1
 - Street address 2
 
 All fields are optional because either (lat, long) or the other fields must be informed. If (lat, long) is informed the other fields can be searched and vice-versa.
 
-#### Business department, Business macroprocess and Business process and Information service
+#### Business department, Business macroprocess, Business process and Information service
 
 - *Name _(must be unique)_
 
 #### Information asset
 
-- *Information asset category identifier
-- *Name _(must be unique)_
+- *Identifier of the information asset category
+- *Name
 - Description
 
-#### Information asset vulnerability
-
-- *Information asset identifier
-- *Name _(must be unique)_
-- Description
+Name must be unique for a given category.
 
 #### Information asset category
 
@@ -92,10 +100,37 @@ All fields are optional because either (lat, long) or the other fields must be i
 - *Name _(must be unique)_
 - Description
 
+#### Organization security threat
+
+Each organization is exposed to a security threat at a specific degree.
+
+- *Organization identifier
+- *Security threat identifier
+- *Exposure level (see Basic classification level)
+
+#### Organization information asset vulnerability
+
+Each information asset may have a different vulnerability level to a security threat inside an organization.
+
+- *Organization identifier
+- *Identifier of the information asset
+- *Identifier of the security threat
+- *Vulnerability level (see Basic classification level)
+
+#### Organization vulnerability control
+
+- *Identifier of organization information asset vulnerability
+- Identifier of information asset that mitigates the vulnerability
+- Description
+
 #### System user
 
 - *Email _(must be unique)_
 - *Name
+- Password
+- Last login date and time
+
+Password is optional because system user may use other authentication method to login.
 
 #### System administrative role
 
@@ -116,10 +151,6 @@ All fields are optional because either (lat, long) or the other fields must be i
 
 
 
-Faltam as tabelas associativas
-
-
-
 ## Domain data
 
 Information asset categories:
@@ -134,24 +165,27 @@ Information asset categories:
 System administrative roles:
 
 - Admin - full access
-- MaintenanceAdmin - grants rights to manage domain data only
 - UserAdmin - grants rights to manage users only
 - User - grants rights to manage organizations, departments, analysis report etc.
 
 ## Naming conventions
 
-The naming conventions used for database objects' names follows those used by MySQL database users.
+The naming conventions used for database objects follows those used by MySQL database users.
 
-MySQL is case-sensitive, so it's commonly preferred to write object names in snake_case.  
-All tables are named in the singular form.  
-Associative tables' names are usually the combination of the parent table names.
+- `snake_case`
+- Tables are named in the singular form.
+- Names of associative tables are usually the combination of the parent table names.
 
-Indexes, foreign keys, uniques etc. are written in a convention different than that MySQL creates automatically.
+Foreign keys, indexes, and unique constraints are written in a convention different than that MySQL suggests when creating them.
 
-- Primary keys are named `PRIMARY`.
-- Foreign keys are prefixed with `fkey_` followed by the table name being referenced.
-- Indexes are prefixed with `ix_`.
-- Unique indexes are prefixed with `ux_` followed by the names of the columns that are unique together, each one separated by an underscore.
+| Object       | Name convention                          |
+| ------------ | ---------------------------------------- |
+| Primary key  | `PRIMARY`                                |
+| Foreign key  | `FK_TableName_OtherTableName`            |
+| Index        | `IX_TableName_IndexedColumn1_IndexedColumn2` |
+| Unique index | `UQ_TableName_IndexedColumn1_IndexedColumn2` |
+
+*You may find table names abbreviated on some indexes and foreign keys. That's because the max length allowed for object names in MySQL is 64 characters and the concatenation of table names overflows this limit.*
 
 ## EER diagram
 

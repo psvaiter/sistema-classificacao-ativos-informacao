@@ -118,16 +118,9 @@ A deeper comparison can be seen at https://www.2ndquadrant.com/en/postgresql/pos
     
     Routes:
         
-    ORM?
+    ORM: SQLAlchemy
 
-## MySQL database
 
-Database name: InformationAssets
-
-EER diagram:
-[](link to image)
-    
-    
 PyPy vs CPython
 
 API Documentation  
