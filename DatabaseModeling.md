@@ -123,6 +123,8 @@ Each information asset may have a different vulnerability level to a security th
 - Identifier of information asset that mitigates the vulnerability
 - Description
 
+Either (information asset that acts as a controller) or (description) is mandatory.
+
 #### System user
 
 - *Email _(must be unique)_

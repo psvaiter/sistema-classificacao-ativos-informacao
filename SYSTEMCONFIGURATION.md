@@ -119,6 +119,7 @@ A deeper comparison can be seen at https://www.2ndquadrant.com/en/postgresql/pos
     Routes:
         
     ORM: SQLAlchemy
+		Acoplado usando Declarative Mapping. Problema: maior manutencao para trocar para NoSQL.
 
 
 PyPy vs CPython
