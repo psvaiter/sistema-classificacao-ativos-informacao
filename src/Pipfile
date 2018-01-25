@@ -8,8 +8,10 @@ name = "pypi"
 [packages]
 
 hug = "*"
-sqlalchemy = "*"
-pymysql = "*"
+SQLAlchemy = "*"
+PyMySQL = "*"
+marshmallow = "*"
+waitress = "*"
 
 
 [dev-packages]

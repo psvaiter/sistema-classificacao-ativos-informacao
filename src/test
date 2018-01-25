@@ -1,0 +1,256 @@
+#!/usr/bin/env python
+
+"""
+usage:
+  flaskrest_test03.py [-h] [-v] database_file
+
+synopsis:
+  Run flask-rest app with SQLAlchemy database. Implements REST CRUD
+  access to a set of tasks (name, description).
+
+positional arguments:
+  database_file  The name of the database file
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --verbose  Print messages during actions.
+"""
+
+# Try to make our app run under both Python 2 and Python 3.
+from __future__ import print_function
+import os
+import argparse
+from flask import Flask, request
+from flask_restful import Api, Resource
+import sqlalchemy
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+app = Flask(__name__)
+api = Api(app)
+
+#
+# The following can be used for configuration.
+##app.config.update(
+##    DEBUG=True,
+##    #SERVER_NAME='localhost:8080',
+##    #SERVER_NAME='localhost:5000',
+##    SERVER_NAME='localhost:8001',
+##)
+
+# Define the host and post.
+SERVER_HOST = 'localhost'
+SERVER_PORT = 8001
+
+CMD_LINE_OPTIONS = None
+
+SQLEngine = None
+SQLSession = None
+
+
+def dbg_msg(msg):
+    """Print a message if verbose is on."""
+    if CMD_LINE_OPTIONS.verbose:
+        print(msg)
+
+SQLBase = declarative_base()
+
+
+#
+# Define the objects to be stored in the SQLAlchemy database.
+class TaskDef(SQLBase):
+    __tablename__ = 'tasks'
+    task_name = sqlalchemy.Column(sqlalchemy.String, primary_key=True)
+    description = sqlalchemy.Column(sqlalchemy.String)
+
+    def __repr__(self):
+        return '<task_name: "{}"  description: "{}">'.format(
+            self.task_name, self.description)
+
+
+def open_db(db_filename):
+    """Open the database.  If it does not exist, create it."""
+    global SQLEngine, SQLSession
+    db_filename = os.path.abspath(db_filename)
+    create = True
+    if os.path.exists(db_filename):
+        create = False
+    SQLEngine = sqlalchemy.create_engine(
+        'sqlite:///{}'.format(db_filename),
+        echo=True)
+    SQLSessionClass = sessionmaker(bind=SQLEngine)
+    SQLSession = SQLSessionClass()
+    if create:
+        SQLBase.metadata.create_all(SQLEngine)
+    dbg_msg('Openned database file: {}.'.format(db_filename))
+
+
+def get_task_by_name(task_name):
+    """Retrieve a task from the DB.  Abort if it does not exist."""
+    results = SQLSession.query(TaskDef).filter(TaskDef.task_name == task_name)
+    if results.count() < 1:
+        task = None
+    else:
+        task = results.first()
+    return task
+
+
+class TaskList(Resource):
+    """Handle operations on the list of tasks.
+
+    Enable a GET command to get a list of tasks or a single task.
+    Enable a POST command to create and add a new task.
+    Enable a PUT command to update a task.
+    """
+    def __init__(self, *args, **kwargs):
+        super(TaskList, self).__init__(*args, **kwargs)
+
+    def get(self, task_name=None):
+        """Return a collection of existing tasks or a single task."""
+        #
+        # begin fill-in
+        # ---------------------------------------
+        if task_name is None:
+            dbg_msg('Retrieving list of tasks')
+            collection = {}
+            results = SQLSession.query(TaskDef)
+            for task in results:
+                collection[task.task_name] = task.description
+            content = {
+                'action': 'get-list',
+                'collection': collection}
+            return content
+        else:
+            dbg_msg('Retrieving task: {}'.format(task_name))
+            task = get_task_by_name(task_name)
+            content = {
+                'action': 'get-item',
+                'task_name': task_name,
+                'description': task.description,
+            }
+            return content
+        # ---------------------------------------
+        # end fill-in
+        #
+
+    def delete(self, task_name):
+        """Delete a single task."""
+        #
+        # begin fill-in
+        # ---------------------------------------
+        dbg_msg('Deleting task: {}'.format(task_name))
+        task = get_task_by_name(task_name)
+        if task is None:
+            task_json = {
+                'action': 'error',
+                'reason': 'task {} does not exist'.format(task_name)}
+        else:
+            SQLSession.delete(task)
+            SQLSession.commit()
+            task_json = {
+                'action': 'delete',
+                'task_name': task_name,
+                'description': task.description}
+        return task_json
+        #return '', 204
+        # ---------------------------------------
+        # end fill-in
+        #
+
+    def post(self):
+        """Create and save a new task."""
+        #
+        # begin fill-in
+        # ---------------------------------------
+        task_name = request.form['task_name']
+        description = request.form['description']
+        task = get_task_by_name(task_name)
+        if task is not None:
+            task_json = {
+                'action': 'error',
+                'reason': 'task {} already exists'.format(task_name)}
+        else:
+            new_task = TaskDef(
+                task_name=task_name,
+                description=description)
+            SQLSession.add(new_task)
+            SQLSession.commit()
+            dbg_msg('Created task: {}'.format(new_task))
+            task_json = {
+                'action': 'create',
+                'task_name': task_name,
+                'description': description}
+        return task_json
+        # ---------------------------------------
+        # end fill-in
+        #
+
+    def put(self):
+        """Create and save a new task."""
+        #
+        # begin fill-in
+        # ---------------------------------------
+        task_name = request.form['task_name']
+        dbg_msg('Updating task: {}'.format(task_name))
+        description = request.form['description']
+        task = get_task_by_name(task_name)
+        if task is None:
+            task_json = {
+                'action': 'error',
+                'reason': 'task {} already exists'.format(task_name)}
+        else:
+            task.description = description
+            SQLSession.commit()
+            task_json = {
+                'action': 'update',
+                'task_name': task_name,
+                'description': description}
+        return task_json
+        # ---------------------------------------
+        # end fill-in
+        #
+
+
+#
+# Set up the api resource routing.
+#
+api.add_resource(
+    TaskList,
+    # Get a list of tasks.
+    '/tasks/gettask',
+    # Get one task by name.
+    '/tasks/gettask/<task_name>',
+    # Add a task.  Form data: task_name, description.
+    '/tasks/addtask',
+    # Update a task.  Form data: task_name, description.
+    '/tasks/updatetask',
+    # Delete one task.`
+    '/tasks/delete/<string:task_name>',
+)
+
+
+def main():
+    global CMD_LINE_OPTIONS
+    description = """\
+Run flask-rest app with SQLAlchemy database.
+Implements REST CRUD access to a set of tasks (name, description).
+"""
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument(
+        "database_file",
+        help="The name of the database file"
+    )
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Print messages during actions.",
+    )
+    CMD_LINE_OPTIONS = parser.parse_args()
+    db_filename = CMD_LINE_OPTIONS.database_file
+    open_db(db_filename)
+    app.run(debug=True, host=SERVER_HOST, port=SERVER_PORT)
+
+
+if __name__ == '__main__':
+    #import pdb; pdb.set_trace()
+    main()
