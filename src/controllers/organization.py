@@ -23,7 +23,6 @@ class Collection:
 
 
 def query_page(query, page, records_per_page):
-
     total_records = query.count()
     total_pages = int(total_records / records_per_page) + 1
 
