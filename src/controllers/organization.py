@@ -19,7 +19,7 @@ class Collection:
         :param resp: See Falcon Response documentation.
         :return:
         """
-        
+
         page = req.get_param_as_int('page') or 1
         records_per_page = req.get_param_as_int('recordsPerPage') or constants.DEFAULT_RECORDS_PER_PAGE
         records_per_page = min(records_per_page, constants.MAX_RECORDS_PER_PAGE)
@@ -42,7 +42,24 @@ class Collection:
         :param resp: See Falcon Response documentation.
         :return:
         """
-        pass
+
+        session = Session()
+        try:
+            errors = validate_organization(req.media, session)
+            if errors is not None:
+                resp.status = falcon.HTTPUnprocessableEntity
+                resp.media = errors
+                return
+
+            organization = map_from_request(req.media)
+            session.add(organization)
+            session.commit()
+            response_data = map_to_response(organization)
+        finally:
+            session.close()
+
+        resp.status = falcon.HTTP_CREATED
+        resp.media = dict(data=response_data)
 
 
 class Item:
@@ -66,6 +83,18 @@ class Item:
         body = dict(data=data)
 
         resp.body = json.dumps(body)
+
+
+def validate_organization(organization_request, session):
+    pass
+
+
+def map_from_request(request):
+    return Organization(
+        tax_id=request['taxId'],
+        legal_name=request['legalName'],
+        trade_name=request['tradeName']
+    )
 
 
 def map_to_response(organization):
