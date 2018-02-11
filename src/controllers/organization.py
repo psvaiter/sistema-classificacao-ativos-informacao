@@ -3,6 +3,7 @@ import falcon
 from models import Session, Organization
 from . import utils
 import app_constants as constants
+from errors import Message
 
 
 class Collection:
@@ -47,8 +48,8 @@ class Collection:
         try:
             errors = validate_organization(req.media, session)
             if errors is not None:
-                resp.status = falcon.HTTPUnprocessableEntity
-                resp.media = errors
+                resp.status = falcon.HTTP_422
+                resp.media = dict(errors=errors)
                 return
 
             organization = map_from_request(req.media)
@@ -85,8 +86,44 @@ class Item:
         resp.body = json.dumps(body)
 
 
-def validate_organization(organization_request, session):
-    pass
+def validate_organization(request, session):
+    errors = []
+
+    # Tax ID is mandatory and must be unique. Validate length.
+    tax_id = request.get('taxId')
+    if tax_id is None:
+        errors.append(crerror(Message.ERR_TAX_ID_MANDATORY))
+    elif session.query(Organization.tax_id)\
+            .filter_by(tax_id=request.get('taxId'))\
+            .exists() is not None:
+        errors.append(crerror(Message.ERR_TAX_ID_ALREADY_EXISTS))
+    elif len(tax_id) > constants.TAX_ID_MAX_LENGTH:
+        errors.append(crerror(Message.ERR_TAX_ID_MAX_LENGTH))
+
+    # Legal name is mandatory. Validate length.
+    legal_name = request.get('legalName')
+    if legal_name is None:
+        errors.append(crerror(Message.ERR_LEGAL_NAME_MANDATORY))
+    elif len(legal_name) > constants.GENERAL_NAME_MAX_LENGTH:
+        errors.append(crerror(Message.ERR_LEGAL_NAME_MAX_LENGTH))
+
+    # Trade name is optional. Validate length when informed.
+    trade_name = request.get('tradeName')
+    if len(trade_name) > constants.GENERAL_NAME_MAX_LENGTH:
+        errors.append(crerror(Message.ERR_TRADE_NAME_MAX_LENGTH))
+
+    return errors
+
+
+def get_message(message_enum, lang):
+    return message_enum.value
+
+
+def crerror(message_enum, lang="pt-BR", field_name=None):
+    return dict(
+        code=message_enum.name,
+        message=get_message(message_enum, lang)
+    )
 
 
 def map_from_request(request):
