@@ -1,11 +1,19 @@
 import falcon
+from controllers import extensions
 from controllers import department, macroprocess, process, information_service, information_asset, \
                         organization, organization_department, organization_macroprocess, \
                         organization_process, organization_infoservice, organization_infoasset, \
                         system_user, system_user_role
 # from wsgiref.simple_server import make_server
 
+json_handlers = {
+    'application/json': extensions.JSONHandler(),
+    'application/json; charset=UTF-8': extensions.JSONHandler()
+}
+
 api = application = falcon.API()
+api.req_options.media_handlers.update(json_handlers)
+api.resp_options.media_handlers.update(json_handlers)
 
 # Routes for domain data
 api.add_route('/departments', department.Collection())
