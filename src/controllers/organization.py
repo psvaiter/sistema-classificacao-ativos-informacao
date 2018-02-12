@@ -1,9 +1,10 @@
-import json
 import falcon
-from models import Session, Organization
-from . import utils
+
 import app_constants as constants
+from .extensions import HTTPUnprocessableEntity
+from .utils import get_collection_page
 from errors import Message
+from models import Session, Organization
 
 
 class Collection:
@@ -20,20 +21,14 @@ class Collection:
         :param resp: See Falcon Response documentation.
         :return:
         """
-
-        page = req.get_param_as_int('page') or 1
-        records_per_page = req.get_param_as_int('recordsPerPage') or constants.DEFAULT_RECORDS_PER_PAGE
-        records_per_page = min(records_per_page, constants.MAX_RECORDS_PER_PAGE)
-
         session = Session()
         query = session.query(Organization).order_by(Organization.created_on)
-        organizations, page, total_records = utils.query_page(query, page, records_per_page)
 
-        data = [map_to_response(organization) for organization in organizations]
-        paging = utils.build_paging_info(page, records_per_page, total_records)
-        body = dict(data=data, paging=paging)
-
-        resp.body = json.dumps(body)
+        data, paging = get_collection_page(req, query)
+        resp.media = {
+            'data': data,
+            'paging': paging
+        }
 
     def on_post(self, req, resp):
         """
@@ -47,20 +42,21 @@ class Collection:
         session = Session()
         try:
             errors = validate_organization(req.media, session)
-            if errors is not None:
-                resp.status = falcon.HTTP_422
-                resp.media = dict(errors=errors)
-                return
-
-            organization = map_from_request(req.media)
+            if errors:
+                raise HTTPUnprocessableEntity(errors)
+            organization = Organization.fromdict(req.media)
             session.add(organization)
             session.commit()
-            response_data = map_to_response(organization)
+            response_data = organization.asdict()
         finally:
             session.close()
 
         resp.status = falcon.HTTP_CREATED
-        resp.media = dict(data=response_data)
+        resp.media = {'data': response_data}
+
+
+def validate_organization_patch(request, session):
+    return []
 
 
 class Item:
@@ -71,19 +67,15 @@ class Item:
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
-        :param organization_code: A organization code.
+        :param organization_code: The code of organization to retrieve.
         :return:
         """
-
         session = Session()
         organization = session.query(Organization).get(organization_code)
         if organization is None:
             raise falcon.HTTPNotFound()
 
-        data = map_to_response(organization)
-        body = dict(data=data)
-
-        resp.body = json.dumps(body)
+        resp.media = {'data': organization.asdict()}
 
 
 def validate_organization(request, session):

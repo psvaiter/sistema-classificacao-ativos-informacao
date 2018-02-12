@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "afc58bee177f954170d2ad0653a821263d6803542a2c7a5e4e78c128552b4eed"
+            "sha256": "deea778d773e629eea6e87d590e9105f705348e3d5d333f4238afb0863858b7b"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -27,6 +27,12 @@
         ]
     },
     "default": {
+        "dictalchemy": {
+            "hashes": [
+                "sha256:a08b1463b5cd849158c77701da67be4fbb3080de3ad08abb165710aa63987809"
+            ],
+            "version": "==0.1.2.7"
+        },
         "falcon": {
             "hashes": [
                 "sha256:0a66b33458fab9c1e400a9be1a68056abda178eb02a8cb4b8f795e9df20b053b",

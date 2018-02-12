@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from dictalchemy import DictableModel
 from datetime import datetime
 
 
@@ -9,7 +10,7 @@ conn_string = "mysql+pymysql://psvaiter:admin@localhost:3306/db_information_asse
 # Creating engine to work with MySQL database
 engine = create_engine(conn_string, echo=True)
 Session = sessionmaker(bind=engine)
-DbModel = declarative_base()
+DbModel = declarative_base(cls=DictableModel)  # Declaring db model and making it dictable
 
 
 class Organization(DbModel):

@@ -10,6 +10,7 @@ name = "pypi"
 sqlalchemy = "*"
 pymysql = "*"
 falcon = "*"
+dictalchemy = "*"
 
 
 [dev-packages]
