@@ -1,9 +1,10 @@
 import falcon
+from datetime import datetime
 
 import app_constants as constants
 from .extensions import HTTPUnprocessableEntity
 from .utils import get_collection_page
-from errors import Message
+from errors import Message, build_error
 from models import Session, Organization
 
 
@@ -38,7 +39,6 @@ class Collection:
         :param resp: See Falcon Response documentation.
         :return:
         """
-
         session = Session()
         try:
             errors = validate_organization(req.media, session)
@@ -53,10 +53,6 @@ class Collection:
 
         resp.status = falcon.HTTP_CREATED
         resp.media = {'data': response_data}
-
-
-def validate_organization_patch(request, session):
-    return []
 
 
 class Item:
@@ -77,61 +73,93 @@ class Item:
 
         resp.media = {'data': organization.asdict()}
 
+    def on_patch(self, req, resp, organization_code):
+        """
+        Updates (partially) the organization.
 
-def validate_organization(request, session):
+        :param req: See Falcon Request documentation.
+        :param resp: See Falcon Response documentation.
+        :param organization_code: The code of organization to be patched.
+        :return:
+        """
+        session = Session()
+        try:
+            organization = session.query(Organization).get(organization_code)
+            if organization is None:
+                raise falcon.HTTPNotFound()
+
+            errors = validate_organization_patch(req.media, session)
+            if errors:
+                raise HTTPUnprocessableEntity(errors)
+
+            old_organization = organization.asdict()
+            organization.fromdict(req.media, only=['tax_id', 'legal_name', 'trade_name'])
+            new_organization = organization.asdict()
+            if new_organization != old_organization:
+                organization.last_modified_on = datetime.utcnow()
+
+            session.commit()
+
+            resp.status = falcon.HTTP_OK
+            resp.media = {'data': organization.asdict()}
+        finally:
+            session.close()
+
+
+def validate_organization(request_media, session):
     errors = []
 
     # Tax ID is mandatory and must be unique. Validate length.
-    tax_id = request.get('tax_id')
+    tax_id = request_media.get('tax_id')
     if tax_id is None:
-        errors.append(crerror(Message.ERR_TAX_ID_MANDATORY))
+        errors.append(build_error(Message.ERR_TAX_ID_MANDATORY))
     elif len(tax_id) > constants.TAX_ID_MAX_LENGTH:
-        errors.append(crerror(Message.ERR_TAX_ID_MAX_LENGTH))
+        errors.append(build_error(Message.ERR_TAX_ID_MAX_LENGTH))
     elif session.query(Organization.tax_id)\
             .filter_by(tax_id=tax_id)\
             .first():
-        errors.append(crerror(Message.ERR_TAX_ID_ALREADY_EXISTS))
+        errors.append(build_error(Message.ERR_TAX_ID_ALREADY_EXISTS))
 
     # Legal name is mandatory. Validate length.
-    legal_name = request.get('legal_name')
+    legal_name = request_media.get('legal_name')
     if legal_name is None:
-        errors.append(crerror(Message.ERR_LEGAL_NAME_MANDATORY))
+        errors.append(build_error(Message.ERR_LEGAL_NAME_MANDATORY))
     elif len(legal_name) > constants.GENERAL_NAME_MAX_LENGTH:
-        errors.append(crerror(Message.ERR_LEGAL_NAME_MAX_LENGTH))
+        errors.append(build_error(Message.ERR_LEGAL_NAME_MAX_LENGTH))
 
     # Trade name is optional. Validate length when informed.
-    trade_name = request.get('trade_name')
+    trade_name = request_media.get('trade_name')
     if trade_name and len(trade_name) > constants.GENERAL_NAME_MAX_LENGTH:
-        errors.append(crerror(Message.ERR_TRADE_NAME_MAX_LENGTH))
+        errors.append(build_error(Message.ERR_TRADE_NAME_MAX_LENGTH))
 
     return errors
 
 
-def get_message(message_enum, lang):
-    return message_enum.value
+def validate_organization_patch(request_media, session):
+    errors = []
 
+    if not request_media:
+        errors.append(build_error(Message.ERR_NO_CONTENT))
+        return errors
 
-def crerror(message_enum, lang="pt-BR", field_name=None):
-    return dict(
-        code=message_enum.name,
-        message=get_message(message_enum, lang)
-    )
+    # Tax ID can be informed and must be unique. Validate length.
+    tax_id = request_media.get('tax_id')
+    if tax_id:
+        if len(tax_id) > constants.TAX_ID_MAX_LENGTH:
+            errors.append(build_error(Message.ERR_TAX_ID_MAX_LENGTH))
+        elif session.query(Organization.tax_id) \
+                .filter_by(tax_id=tax_id) \
+                .first():
+            errors.append(build_error(Message.ERR_TAX_ID_ALREADY_EXISTS))
 
+    # Legal name is optional. Validate length when informed.
+    legal_name = request_media.get('legal_name')
+    if legal_name and len(legal_name) > constants.GENERAL_NAME_MAX_LENGTH:
+        errors.append(build_error(Message.ERR_LEGAL_NAME_MAX_LENGTH))
 
-def map_from_request(request):
-    return Organization(
-        tax_id=request['taxId'],
-        legal_name=request['legalName'],
-        trade_name=request['tradeName']
-    )
+    # Trade name is optional. Validate length when informed.
+    trade_name = request_media.get('trade_name')
+    if trade_name and len(trade_name) > constants.GENERAL_NAME_MAX_LENGTH:
+        errors.append(build_error(Message.ERR_TRADE_NAME_MAX_LENGTH))
 
-
-def map_to_response(organization):
-    return dict(
-        organizationId=organization.organization_id,
-        legalName=organization.legal_name,
-        tradeName=organization.trade_name,
-        taxId=organization.tax_id,
-        createdOn=organization.created_on.isoformat(),
-        lastModifiedOn=organization.last_modified_on.isoformat()
-    )
+    return errors
