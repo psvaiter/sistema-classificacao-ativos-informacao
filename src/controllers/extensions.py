@@ -7,6 +7,7 @@ import falcon
 import falcon.errors
 from falcon.media import BaseHandler
 from falcon.util import json
+import inflection
 
 
 class HTTPUnprocessableEntity(falcon.HTTPUnprocessableEntity):
@@ -39,9 +40,15 @@ class HTTPUnprocessableEntity(falcon.HTTPUnprocessableEntity):
 class JSONHandler(BaseHandler):
     """Handler built using Python's :py:mod:`json` module."""
 
+    def __init__(self, contract_in_camel_case=False):
+        self.contract_in_camel_case = contract_in_camel_case
+
     def deserialize(self, raw):
         try:
-            return json.loads(raw.decode('utf-8'))
+            obj = json.loads(raw.decode('utf-8'))
+            if self.contract_in_camel_case:
+                obj = self.snake_case_keys(obj)
+            return obj
         except ValueError as err:
             raise falcon.errors.HTTPBadRequest(
                 'Invalid JSON',
@@ -49,8 +56,9 @@ class JSONHandler(BaseHandler):
             )
 
     def serialize(self, obj):
-        camel_cased_obj = self.camel_case_keys(obj)
-        result = json.dumps(camel_cased_obj, ensure_ascii=False, default=self.extended_encoder)
+        if self.contract_in_camel_case:
+            obj = self.camel_case_keys(obj)
+        result = json.dumps(obj, ensure_ascii=False, default=self.extended_encoder)
         if six.PY3 or not isinstance(result, bytes):
             return result.encode('utf-8')
 
@@ -113,3 +121,33 @@ class JSONHandler(BaseHandler):
             camel_cased_text = first_word + ''.join(capitalized_words)
             return camel_cased_text
         return text
+
+    @classmethod
+    def snake_case_keys(cls, obj):
+        """
+        Converts object keys expected to be in camelCase to snake_case.
+
+        :param obj: Object to be converted.
+        :return: A new object of the same type (dict or list) with keys
+            converted to snake_case. If ``obj`` is not a dict or a list
+            the ``obj`` is returned unchanged.
+        """
+
+        # Snake case keys of object provided
+        if isinstance(obj, dict):
+            new_dictionary = {}
+            for (key, value) in obj.items():
+                if isinstance(key, str):
+                    key = inflection.underscore(key)
+                new_dictionary[key] = cls.snake_case_keys(value)
+            return new_dictionary
+
+        # If obj is a list it MAY contain objects to be snake cased
+        if isinstance(obj, list):
+            new_list = []
+            for element in obj:
+                new_list.append(cls.snake_case_keys(element))
+            return new_list
+
+        # Nothing to snake case so return as is
+        return obj

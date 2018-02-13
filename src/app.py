@@ -7,8 +7,8 @@ from controllers import department, macroprocess, process, information_service, 
 # from wsgiref.simple_server import make_server
 
 json_handlers = {
-    'application/json': extensions.JSONHandler(),
-    'application/json; charset=UTF-8': extensions.JSONHandler()
+    'application/json': extensions.JSONHandler(contract_in_camel_case=True),
+    'application/json; charset=UTF-8': extensions.JSONHandler(contract_in_camel_case=True)
 }
 
 api = application = falcon.API()

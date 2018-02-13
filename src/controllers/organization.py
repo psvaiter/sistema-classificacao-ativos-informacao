@@ -44,7 +44,7 @@ class Collection:
             errors = validate_organization(req.media, session)
             if errors:
                 raise HTTPUnprocessableEntity(errors)
-            organization = Organization.fromdict(req.media)
+            organization = Organization().fromdict(req.media)
             session.add(organization)
             session.commit()
             response_data = organization.asdict()
@@ -82,26 +82,26 @@ def validate_organization(request, session):
     errors = []
 
     # Tax ID is mandatory and must be unique. Validate length.
-    tax_id = request.get('taxId')
+    tax_id = request.get('tax_id')
     if tax_id is None:
         errors.append(crerror(Message.ERR_TAX_ID_MANDATORY))
-    elif session.query(Organization.tax_id)\
-            .filter_by(tax_id=request.get('taxId'))\
-            .exists() is not None:
-        errors.append(crerror(Message.ERR_TAX_ID_ALREADY_EXISTS))
     elif len(tax_id) > constants.TAX_ID_MAX_LENGTH:
         errors.append(crerror(Message.ERR_TAX_ID_MAX_LENGTH))
+    elif session.query(Organization.tax_id)\
+            .filter_by(tax_id=tax_id)\
+            .first():
+        errors.append(crerror(Message.ERR_TAX_ID_ALREADY_EXISTS))
 
     # Legal name is mandatory. Validate length.
-    legal_name = request.get('legalName')
+    legal_name = request.get('legal_name')
     if legal_name is None:
         errors.append(crerror(Message.ERR_LEGAL_NAME_MANDATORY))
     elif len(legal_name) > constants.GENERAL_NAME_MAX_LENGTH:
         errors.append(crerror(Message.ERR_LEGAL_NAME_MAX_LENGTH))
 
     # Trade name is optional. Validate length when informed.
-    trade_name = request.get('tradeName')
-    if len(trade_name) > constants.GENERAL_NAME_MAX_LENGTH:
+    trade_name = request.get('trade_name')
+    if trade_name and len(trade_name) > constants.GENERAL_NAME_MAX_LENGTH:
         errors.append(crerror(Message.ERR_TRADE_NAME_MAX_LENGTH))
 
     return errors

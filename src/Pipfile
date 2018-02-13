@@ -11,6 +11,7 @@ sqlalchemy = "*"
 pymysql = "*"
 falcon = "*"
 dictalchemy = "*"
+inflection = "*"
 
 
 [dev-packages]
