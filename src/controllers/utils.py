@@ -20,10 +20,18 @@ def get_collection_page(req, query):
     :param query: Session query from SQL Alchemy to fetch records.
     :return: A dict with 'data' and 'paging' keys.
     """
-    page = req.get_param_as_int('page') or 1
-    records_per_page = req.get_param_as_int('recordsPerPage') or app_constants.DEFAULT_RECORDS_PER_PAGE
+    # Get (or adjust) page
+    page = req.get_param_as_int('page')
+    if page is None or page < 1:
+        page = 1
+
+    # Get (or adjust) records per page
+    records_per_page = req.get_param_as_int('recordsPerPage')
+    if records_per_page is None or records_per_page < 1:
+        records_per_page = app_constants.DEFAULT_RECORDS_PER_PAGE
     records_per_page = min(records_per_page, app_constants.MAX_RECORDS_PER_PAGE)
 
+    # Go fetch data
     records, page, total_records = query_page(query, page, records_per_page)
     data = [record.asdict() for record in records]
     paging = build_paging_info(page, records_per_page, total_records)
@@ -33,12 +41,11 @@ def get_collection_page(req, query):
 
 def query_page(query, page, records_per_page):
     total_records = query.count()
-    total_pages = math.ceil(total_records / records_per_page)
+    total_pages = math.ceil(total_records / records_per_page) or 1
 
     # Adjust page and offset after fetching the actual number of records
-    # that would be returned from database. This ensures safe limits.
-    if page <= 0:
-        page = 1
+    # that would be returned from database. This ensures safe limits
+    # and return the last page when requested page is too high.
     page = min(page, total_pages)
     offset = (page - 1) * records_per_page
 
@@ -54,6 +61,6 @@ def build_paging_info(page, records_per_page, total_records):
     return {
         'current_page': page,
         'records_per_page': records_per_page,
-        'total_pages': math.ceil(total_records / records_per_page),
+        'total_pages': math.ceil(total_records / records_per_page) or 1,
         'total_records': total_records
     }
