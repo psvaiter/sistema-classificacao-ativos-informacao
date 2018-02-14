@@ -41,18 +41,19 @@ class Collection:
         """
         session = Session()
         try:
-            errors = validate_organization(req.media, session)
+            errors = validate_create_organization(req.media, session)
             if errors:
                 raise HTTPUnprocessableEntity(errors)
+
+            # Copy fields from request to an Organization object
             organization = Organization().fromdict(req.media)
+
             session.add(organization)
             session.commit()
-            response_data = organization.asdict()
+            resp.status = falcon.HTTP_CREATED
+            resp.media = {'data': organization.asdict()}
         finally:
             session.close()
-
-        resp.status = falcon.HTTP_CREATED
-        resp.media = {'data': response_data}
 
 
 class Item:
@@ -88,17 +89,18 @@ class Item:
             if organization is None:
                 raise falcon.HTTPNotFound()
 
-            errors = validate_organization_patch(req.media, session)
+            errors = validate_patch_organization(req.media, session)
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
+            # Apply fields informed in request, compare before and after
+            # and save patch only if record has changed.
             old_organization = organization.asdict()
             organization.fromdict(req.media, only=['tax_id', 'legal_name', 'trade_name'])
             new_organization = organization.asdict()
             if new_organization != old_organization:
                 organization.last_modified_on = datetime.utcnow()
-
-            session.commit()
+                session.commit()
 
             resp.status = falcon.HTTP_OK
             resp.media = {'data': organization.asdict()}
@@ -106,13 +108,13 @@ class Item:
             session.close()
 
 
-def validate_organization(request_media, session):
+def validate_create_organization(request_media, session):
     errors = []
 
     # Tax ID is mandatory and must be unique. Validate length.
     tax_id = request_media.get('tax_id')
     if tax_id is None:
-        errors.append(build_error(Message.ERR_TAX_ID_MANDATORY))
+        errors.append(build_error(Message.ERR_TAX_ID_CANNOT_BE_NULL))
     elif len(tax_id) > constants.TAX_ID_MAX_LENGTH:
         errors.append(build_error(Message.ERR_TAX_ID_MAX_LENGTH))
     elif session.query(Organization.tax_id)\
@@ -123,7 +125,7 @@ def validate_organization(request_media, session):
     # Legal name is mandatory. Validate length.
     legal_name = request_media.get('legal_name')
     if legal_name is None:
-        errors.append(build_error(Message.ERR_LEGAL_NAME_MANDATORY))
+        errors.append(build_error(Message.ERR_LEGAL_NAME_CANNOT_BE_NULL))
     elif len(legal_name) > constants.GENERAL_NAME_MAX_LENGTH:
         errors.append(build_error(Message.ERR_LEGAL_NAME_MAX_LENGTH))
 
@@ -135,31 +137,49 @@ def validate_organization(request_media, session):
     return errors
 
 
-def validate_organization_patch(request_media, session):
+def validate_patch_organization(request_media, session):
     errors = []
-
     if not request_media:
         errors.append(build_error(Message.ERR_NO_CONTENT))
         return errors
 
-    # Tax ID can be informed and must be unique. Validate length.
-    tax_id = request_media.get('tax_id')
-    if tax_id:
-        if len(tax_id) > constants.TAX_ID_MAX_LENGTH:
+    # Validate tax ID if informed
+    if 'tax_id' in request_media:
+        tax_id = request_media.get('tax_id')
+
+        # Tax ID cannot be null if informed
+        if tax_id is None:
+            errors.append(build_error(Message.ERR_TAX_ID_CANNOT_BE_NULL))
+
+        # Length must be valid
+        elif len(tax_id) > constants.TAX_ID_MAX_LENGTH:
             errors.append(build_error(Message.ERR_TAX_ID_MAX_LENGTH))
+
+        # Must be unique
         elif session.query(Organization.tax_id) \
                 .filter_by(tax_id=tax_id) \
                 .first():
             errors.append(build_error(Message.ERR_TAX_ID_ALREADY_EXISTS))
 
-    # Legal name is optional. Validate length when informed.
-    legal_name = request_media.get('legal_name')
-    if legal_name and len(legal_name) > constants.GENERAL_NAME_MAX_LENGTH:
-        errors.append(build_error(Message.ERR_LEGAL_NAME_MAX_LENGTH))
+    # Validate legal name if informed
+    if 'legal_name' in request_media:
+        legal_name = request_media.get('legal_name')
 
-    # Trade name is optional. Validate length when informed.
-    trade_name = request_media.get('trade_name')
-    if trade_name and len(trade_name) > constants.GENERAL_NAME_MAX_LENGTH:
-        errors.append(build_error(Message.ERR_TRADE_NAME_MAX_LENGTH))
+        # Legal name cannot be null if informed
+        if legal_name is None:
+            errors.append(build_error(Message.ERR_LEGAL_NAME_CANNOT_BE_NULL))
+
+        # Validate length
+        elif len(legal_name) > constants.GENERAL_NAME_MAX_LENGTH:
+            errors.append(build_error(Message.ERR_LEGAL_NAME_MAX_LENGTH))
+
+    # Validate trade name if informed
+    if 'trade_name' in request_media:
+        trade_name = request_media.get('trade_name')
+
+        # Trade name can be null
+        # Validate length
+        if trade_name and len(trade_name) > constants.GENERAL_NAME_MAX_LENGTH:
+            errors.append(build_error(Message.ERR_TRADE_NAME_MAX_LENGTH))
 
     return errors
