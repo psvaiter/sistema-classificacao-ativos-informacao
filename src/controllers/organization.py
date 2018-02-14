@@ -14,13 +14,8 @@ class Collection:
         """
         GETs a paged collection of organizations.
 
-        Paging parameters can be informed in querystring:
-            'recordsPerPage': Number of records that each page will contain. Default is 10.
-            'page': desired page number. Default is 1.
-
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
-        :return:
         """
         session = Session()
         query = session.query(Organization).order_by(Organization.created_on)
@@ -37,7 +32,6 @@ class Collection:
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
-        :return:
         """
         session = Session()
         try:
@@ -65,7 +59,6 @@ class Item:
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
         :param organization_code: The code of organization to retrieve.
-        :return:
         """
         session = Session()
         organization = session.query(Organization).get(organization_code)
@@ -81,7 +74,6 @@ class Item:
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
         :param organization_code: The code of organization to be patched.
-        :return:
         """
         session = Session()
         try:
@@ -110,6 +102,9 @@ class Item:
 
 def validate_create_organization(request_media, session):
     errors = []
+    if not request_media:
+        errors.append(build_error(Message.ERR_NO_CONTENT))
+        return errors
 
     # Tax ID is mandatory and must be unique. Validate length.
     tax_id = request_media.get('tax_id')
