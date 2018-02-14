@@ -147,7 +147,7 @@ class BasicClassificationLevel(DbModel):
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
 
 
-class OrganizationBusinessDepartment(DbModel):
+class OrganizationDepartment(DbModel):
     __tablename__ = "organization_business_department"
 
     organization_business_department_id = Column(Integer, primary_key=True)
@@ -157,7 +157,7 @@ class OrganizationBusinessDepartment(DbModel):
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
 
 
-class OrganizationBusinessMacroprocess(DbModel):
+class OrganizationMacroprocess(DbModel):
     __tablename__ = "organization_business_macroprocess"
 
     organization_business_macroprocess_id = Column(Integer, primary_key=True)
@@ -168,7 +168,7 @@ class OrganizationBusinessMacroprocess(DbModel):
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
 
 
-class OrganizationBusinessProcess(DbModel):
+class OrganizationProcess(DbModel):
     __tablename__ = "organization_business_process"
 
     organization_business_process_id = Column(Integer, primary_key=True)
