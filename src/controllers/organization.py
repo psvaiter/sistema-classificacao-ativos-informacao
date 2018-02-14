@@ -9,10 +9,10 @@ from models import Session, Organization
 
 
 class Collection:
+    """GET and POST organizations."""
 
     def on_get(self, req, resp):
-        """
-        GETs a paged collection of organizations.
+        """GETs a paged collection of organizations.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
@@ -27,8 +27,7 @@ class Collection:
         }
 
     def on_post(self, req, resp):
-        """
-        Creates a new organization.
+        """Creates a new organization.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
@@ -51,10 +50,10 @@ class Collection:
 
 
 class Item:
+    """GET and PATCH an organization."""
 
     def on_get(self, req, resp, organization_code):
-        """
-        GETs a single organization by its code.
+        """GETs a single organization by its code.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
@@ -68,8 +67,7 @@ class Item:
         resp.media = {'data': organization.asdict()}
 
     def on_patch(self, req, resp, organization_code):
-        """
-        Updates (partially) the organization.
+        """Updates (partially) the organization.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
