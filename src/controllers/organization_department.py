@@ -116,11 +116,7 @@ def validate_put_item(organization_code, department_id, request_media, session):
 
 
 def add_or_update(organization_code, department_id, session):
-    # Try to get the existing department of an organization
-    organization_department = session \
-        .query(OrganizationDepartment) \
-        .filter(OrganizationDepartment.organization_id == organization_code,
-                OrganizationDepartment.business_department_id == department_id)
+    organization_department = find_organization_department(department_id, organization_code, session)
 
     # Add if doesn't exist
     if organization_department is None:
