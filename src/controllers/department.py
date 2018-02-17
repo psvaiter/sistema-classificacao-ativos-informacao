@@ -9,10 +9,10 @@ from models import Session, BusinessDepartment
 
 
 class Collection:
-    """GET and POST departments."""
+    """GET and POST departments in catalog."""
 
     def on_get(self, req, resp):
-        """GETs a paged collection of departments.
+        """GETs a paged collection of departments available.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
@@ -27,7 +27,7 @@ class Collection:
         }
 
     def on_post(self, req, resp):
-        """Creates a new department.
+        """Creates a new department in catalog.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
@@ -50,7 +50,7 @@ class Collection:
 
 
 class Item:
-    """GET and PATCH an organization."""
+    """GET and PATCH a department in catalog."""
 
     def on_get(self, req, resp, department_id):
         """GETs a single department by id.
@@ -67,7 +67,8 @@ class Item:
         resp.media = {'data': item.asdict()}
 
     def on_patch(self, req, resp, department_id):
-        """Updates (partially) the department.
+        """Updates (partially) the department requested.
+        All entities that reference the department will be affected by the update.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
