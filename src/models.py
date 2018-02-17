@@ -83,6 +83,7 @@ class ITAsset(DbModel):
     information_asset_category_id = Column(Integer, ForeignKey("information_asset_category.information_asset_category_id"), nullable=False)
     name = Column(String, nullable=False)
     description = Column(String)
+    category_id = Column(Integer, nullable=False)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
 

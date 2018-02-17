@@ -27,3 +27,6 @@ class Message(Enum):
     ERR_NAME_CANNOT_BE_NULL = "Name cannot be null"
     ERR_NAME_MAX_LENGTH = "Name length is above allowed limit."
     ERR_NAME_ALREADY_EXISTS = "Name already exists."
+    ERR_DESCRIPTION_MAX_LENGTH = "Description length is above allowed limit."
+    ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL = "IT asset category id cannot be null."
+    ERR_INVALID_IT_ASSET_CATEGORY_ID = "Invalid IT asset category id."

@@ -38,7 +38,7 @@ class Collection:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
-            # Copy fields from request to an InformationService object
+            # Copy fields from request to an ITService object
             item = ITService().fromdict(req.media)
 
             session.add(item)
