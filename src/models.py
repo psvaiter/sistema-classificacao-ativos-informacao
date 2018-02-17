@@ -67,7 +67,7 @@ class BusinessProcess(DbModel):
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
 
 
-class InformationService(DbModel):
+class ITService(DbModel):
     __tablename__ = "information_service"
 
     information_service_id = Column(Integer, primary_key=True)
