@@ -1,8 +1,8 @@
 import falcon
 from controllers import extensions
-from controllers import department, macroprocess, process, information_service, information_asset, \
+from controllers import department, macroprocess, process, it_service, it_asset, \
                         organization, organization_department, organization_macroprocess, \
-                        organization_process, organization_infoservice, organization_infoasset, \
+                        organization_process, organization_it_service, organization_it_asset, \
                         system_user, system_user_role
 # from wsgiref.simple_server import make_server
 
@@ -22,10 +22,10 @@ api.add_route('/macroprocesses', macroprocess.Collection())
 api.add_route('/macroprocesses/{macroprocess_id}', macroprocess.Item())
 api.add_route('/processes', process.Collection())
 api.add_route('/processes/{process_id}', process.Item())
-api.add_route('/itServices', information_service.Collection())
-api.add_route('/itServices/{it_service_id}', information_service.Item())
-api.add_route('/itAssets', information_asset.Collection())
-api.add_route('/itAssets/{it_asset_id}', information_asset.Item())
+api.add_route('/itServices', it_service.Collection())
+api.add_route('/itServices/{it_service_id}', it_service.Item())
+api.add_route('/itAssets', it_asset.Collection())
+api.add_route('/itAssets/{it_asset_id}', it_asset.Item())
 
 # Routes to handle organizations and their sub-resources
 api.add_route('/organizations', organization.Collection())
@@ -36,10 +36,10 @@ api.add_route('/organizations/{organization_code}/macroprocesses', organization_
 api.add_route('/organizations/{organization_code}/macroprocesses/{macroprocess_instance_id}', organization_macroprocess.Item())
 api.add_route('/organizations/{organization_code}/processes', organization_process.Collection())
 api.add_route('/organizations/{organization_code}/processes/{process_instance_id}', organization_process.Item())
-api.add_route('/organizations/{organization_code}/itServices', organization_infoservice.Collection())
-api.add_route('/organizations/{organization_code}/itServices/{service_instance_id}', organization_infoservice.Item())
-api.add_route('/organizations/{organization_code}/itAssets', organization_infoasset.Collection())
-api.add_route('/organizations/{organization_code}/itAssets/{asset_instance_id}', organization_infoasset.Item())
+api.add_route('/organizations/{organization_code}/itServices', organization_it_service.Collection())
+api.add_route('/organizations/{organization_code}/itServices/{service_instance_id}', organization_it_service.Item())
+api.add_route('/organizations/{organization_code}/itAssets', organization_it_asset.Collection())
+api.add_route('/organizations/{organization_code}/itAssets/{asset_instance_id}', organization_it_asset.Item())
 
 # Routes for system management and access control
 api.add_route('/management/users', system_user.Collection())

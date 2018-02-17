@@ -76,7 +76,7 @@ class ITService(DbModel):
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
 
 
-class InformationAsset(DbModel):
+class ITAsset(DbModel):
     __tablename__ = "information_asset"
 
     information_asset_id = Column(Integer, primary_key=True)
@@ -87,7 +87,7 @@ class InformationAsset(DbModel):
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
 
 
-class InformationAssetCategory(DbModel):
+class ITAssetCategory(DbModel):
     __tablename__ = "information_asset_category"
 
     information_asset_category_id = Column(Integer, primary_key=True)
@@ -180,7 +180,7 @@ class OrganizationProcess(DbModel):
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
 
 
-class OrganizationInformationService(DbModel):
+class OrganizationITService(DbModel):
     __tablename__ = "organization_information_service"
 
     organization_information_service_id = Column(Integer, primary_key=True)
@@ -192,7 +192,7 @@ class OrganizationInformationService(DbModel):
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
 
 
-class OrganizationInformationAsset(DbModel):
+class OrganizationITAsset(DbModel):
     __tablename__ = "organization_information_asset"
 
     organization_information_asset_id = Column(Integer, primary_key=True)
@@ -215,7 +215,7 @@ class OrganizationSecurityThreat(DbModel):
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
 
 
-class OrganizationInformationAssetVulnerability(DbModel):
+class OrganizationITAssetVulnerability(DbModel):
     __tablename__ = "organization_information_asset_vulnerability"
 
     organization_information_asset_vulnerability_id = Column(Integer, primary_key=True)
