@@ -24,3 +24,6 @@ class Message(Enum):
     ERR_LEGAL_NAME_MAX_LENGTH = "Legal name length is above allowed limit."
     ERR_TRADE_NAME_MAX_LENGTH = "Trade name length is above allowed limit."
     ERR_DEPARTMENT_ID_NOT_FOUND = "Department requested not found."
+    ERR_NAME_CANNOT_BE_NULL = "Name cannot be null"
+    ERR_NAME_MAX_LENGTH = "Name length is above allowed limit."
+    ERR_NAME_ALREADY_EXISTS = "Name already exists."
