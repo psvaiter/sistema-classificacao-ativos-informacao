@@ -19,6 +19,10 @@ def build_error(message_enum, message_args=None, field_name=None, lang="pt-BR"):
 class Message(Enum):
     ERR_NO_CONTENT = "No content was received."
     ERR_INVALID_VALUE_TYPE = "Invalid value type."
+    ERR_FIELD_CANNOT_BE_NULL = "Field must be informed."
+    ERR_FIELD_CANNOT_BE_EMPTY = "Field cannot be empty."
+    ERR_FIELD_MAX_LENGTH = "Field max length is above allowed limit."
+    ERR_FIELD_VALUE_ALREADY_EXISTS = "Field value already exists."
 
     ERR_TAX_ID_CANNOT_BE_NULL = "Tax ID must be informed."
     ERR_TAX_ID_MAX_LENGTH = "Tax ID length is above allowed limit."

@@ -3,6 +3,7 @@ Utility and helper methods to be used in controllers.
 """
 import math
 import app_constants
+from errors import build_error, Message
 
 
 def get_collection_page(req, query):
@@ -64,3 +65,52 @@ def build_paging_info(page, records_per_page, total_records):
         'total_pages': math.ceil(total_records / records_per_page) or 1,
         'total_records': total_records
     }
+
+
+def validate_str(field_name, field_value, is_mandatory=False, max_length=None, exists_strategy=None):
+    """Validates a string with general predefined rules.
+
+    :param field_name: The field name to put in error object.
+    :param field_value: The field value to be validated.
+    :param is_mandatory: Indicates that the field is mandatory. That means that
+        an error is returned if value is None, empty or whitespaces only.
+        Default is false.
+    :param max_length: Maximum length allowed. An error is returned if len(field_value)
+        is above this value. When None, this validation will be skipped.
+        Default is None.
+    :param exists_strategy: A function that returns something or True when value
+        already exists. If the function returns None or False, the value is
+        considered new and validation will pass. If function is None, this
+        validation will be skipped.
+        Default is None.
+    :return: A dict containing an error code, a message and the field name.
+    """
+    # Field was not informed...
+    if field_value is None:
+        if is_mandatory:
+            return build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name=field_name)
+
+        # OK, it's not mandatory.
+        return None
+
+    # Must be of type 'string'
+    if not isinstance(field_value, str):
+        return build_error(Message.ERR_INVALID_VALUE_TYPE, field_name=field_name)
+
+    # Remove leading and trailing whitespaces from value before continuing
+    # It's better to trim here in order to validate the length that will be
+    # actually saved and to compare with existing values appropriately.
+    # Also a value with only whitespaces will become an empty string.
+    field_value = field_value.strip()
+
+    # Cannot be empty (general safe rule whether it's mandatory or not)
+    if not field_value:
+        return build_error(Message.ERR_FIELD_CANNOT_BE_EMPTY, field_name=field_name)
+
+    # Length must be valid
+    if len(field_value) > max_length:
+        return build_error(Message.ERR_FIELD_MAX_LENGTH, field_name=field_name)
+
+    # Must be unique
+    if exists_strategy and exists_strategy():
+        return build_error(Message.ERR_FIELD_VALUE_ALREADY_EXISTS, field_name=field_name)
