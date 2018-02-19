@@ -42,7 +42,7 @@ class Collection:
                 raise HTTPUnprocessableEntity(errors)
 
             # Copy fields from request to a BusinessMacroprocess object
-            item = BusinessMacroprocess().fromdict(req.media)
+            item = BusinessMacroprocess().fromdict(req.media, only=['name'])
             item.name = item.name.strip()
 
             session.add(item)

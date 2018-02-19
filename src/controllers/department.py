@@ -42,7 +42,7 @@ class Collection:
                 raise HTTPUnprocessableEntity(errors)
 
             # Copy fields from request to a BusinessDepartment object
-            item = BusinessDepartment().fromdict(req.media)
+            item = BusinessDepartment().fromdict(req.media, only=['name'])
             item.name = item.name.strip()
 
             session.add(item)

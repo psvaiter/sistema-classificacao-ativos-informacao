@@ -42,7 +42,7 @@ class Collection:
                 raise HTTPUnprocessableEntity(errors)
 
             # Copy fields from request to an ITService object
-            item = ITService().fromdict(req.media)
+            item = ITService().fromdict(req.media, only=['name'])
             item.name = item.name.strip()
 
             session.add(item)
