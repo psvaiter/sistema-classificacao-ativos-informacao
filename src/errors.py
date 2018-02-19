@@ -4,16 +4,16 @@ Error code definitions and helper methods.
 from enum import Enum
 
 
-def get_message(message_enum, message_args, lang):
-    return message_enum.value.format(message_args)
-
-
 def build_error(message_enum, message_args=None, field_name=None, lang="pt-BR"):
     return {
         'code': message_enum.name,
         'message': get_message(message_enum, message_args, lang),
         'field': field_name
     }
+
+
+def get_message(message_enum, message_args, lang):
+    return message_enum.value.format(message_args)
 
 
 class Message(Enum):
