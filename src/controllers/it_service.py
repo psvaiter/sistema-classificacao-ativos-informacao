@@ -3,7 +3,7 @@ from datetime import datetime
 
 import app_constants as constants
 from .extensions import HTTPUnprocessableEntity
-from .utils import get_collection_page
+from .utils import get_collection_page, validate_str
 from errors import Message, build_error
 from models import Session, ITService
 
@@ -40,6 +40,7 @@ class Collection:
 
             # Copy fields from request to an ITService object
             item = ITService().fromdict(req.media)
+            item.name = item.name.strip()
 
             session.add(item)
             session.commit()
@@ -88,6 +89,7 @@ class Item:
             # and save patch only if record has changed.
             old_it_service = it_service.asdict()
             it_service.fromdict(req.media, only=['name'])
+            it_service.name = it_service.name.strip()
             new_it_service = it_service.asdict()
             if new_it_service != old_it_service:
                 it_service.last_modified_on = datetime.utcnow()
@@ -101,46 +103,44 @@ class Item:
 
 def validate_post(request_media, session):
     errors = []
-    if not request_media:
-        errors.append(build_error(Message.ERR_NO_CONTENT))
-        return errors
 
-    # Name is mandatory and must be unique. Validate length.
+    # Validate name
+    # -----------------------------------------------------
     name = request_media.get('name')
-    if name is None:
-        errors.append(build_error(Message.ERR_NAME_CANNOT_BE_NULL))
-    elif len(name) > constants.GENERAL_NAME_MAX_LENGTH:
-        errors.append(build_error(Message.ERR_NAME_MAX_LENGTH))
-    elif session.query(ITService.name)\
-            .filter(ITService.name == name)\
-            .first():
-        errors.append(build_error(Message.ERR_NAME_ALREADY_EXISTS))
+    error = validate_str('name', name,
+                         is_mandatory=True,
+                         max_length=constants.GENERAL_NAME_MAX_LENGTH,
+                         exists_strategy=exists_name(name, session))
+    if error:
+        errors.append(error)
 
     return errors
 
 
 def validate_patch(request_media, session):
     errors = []
+
     if not request_media:
         errors.append(build_error(Message.ERR_NO_CONTENT))
         return errors
 
     # Validate name if informed
+    # -----------------------------------------------------
     if 'name' in request_media:
         name = request_media.get('name')
-
-        # Cannot be null if informed
-        if name is None:
-            errors.append(build_error(Message.ERR_NAME_CANNOT_BE_NULL))
-
-        # Length must be valid
-        elif len(name) > constants.GENERAL_NAME_MAX_LENGTH:
-            errors.append(build_error(Message.ERR_NAME_MAX_LENGTH))
-
-        # Must be unique
-        elif session.query(ITService.name) \
-                .filter(ITService.name == name) \
-                .first():
-            errors.append(build_error(Message.ERR_NAME_ALREADY_EXISTS))
+        error = validate_str('name', name,
+                             is_mandatory=True,
+                             max_length=constants.GENERAL_NAME_MAX_LENGTH,
+                             exists_strategy=exists_name(name, session))
+        if error:
+            errors.append(error)
 
     return errors
+
+
+def exists_name(name, session):
+    def exists():
+        return session.query(ITService.name) \
+            .filter(ITService.name == name) \
+            .first()
+    return exists
