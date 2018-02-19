@@ -20,8 +20,8 @@ class Organization(DbModel):
     tax_id = Column(String, nullable=False)
     legal_name = Column(String, nullable=False)
     trade_name = Column(String)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class OrganizationLocation(DbModel):
@@ -44,8 +44,8 @@ class BusinessDepartment(DbModel):
 
     business_department_id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class BusinessMacroprocess(DbModel):
@@ -53,8 +53,8 @@ class BusinessMacroprocess(DbModel):
 
     business_macroprocess_id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class BusinessProcess(DbModel):
@@ -62,8 +62,8 @@ class BusinessProcess(DbModel):
 
     business_process_id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class ITService(DbModel):
@@ -71,8 +71,8 @@ class ITService(DbModel):
 
     information_service_id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class ITAsset(DbModel):
@@ -83,8 +83,8 @@ class ITAsset(DbModel):
     name = Column(String, nullable=False)
     description = Column(String)
     category_id = Column(Integer, nullable=False)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class ITAssetCategory(DbModel):
@@ -92,8 +92,8 @@ class ITAssetCategory(DbModel):
 
     information_asset_category_id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class SecurityThreat(DbModel):
@@ -102,8 +102,8 @@ class SecurityThreat(DbModel):
     security_threat_id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     description = Column(String)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class SystemUser(DbModel):
@@ -114,8 +114,8 @@ class SystemUser(DbModel):
     email = Column(String, nullable=False)
     password = Column(String)
     last_logged_in_on = Column(DateTime)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class SystemAdministrativeRole(DbModel):
@@ -124,8 +124,8 @@ class SystemAdministrativeRole(DbModel):
     system_administrative_role_id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     description = Column(String)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class SystemUserAdministrativeRole(DbModel):
@@ -134,8 +134,8 @@ class SystemUserAdministrativeRole(DbModel):
     system_user_administrative_role_id = Column(Integer, primary_key=True)
     system_user_id = Column(Integer, ForeignKey("system_user.system_user_id"), nullable=False)
     system_administrative_role_id = Column(Integer, ForeignKey("system_administrative_role.system_administrative_role_id"), nullable=False)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class BasicClassificationLevel(DbModel):
@@ -143,8 +143,8 @@ class BasicClassificationLevel(DbModel):
 
     basic_classification_level_id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class OrganizationDepartment(DbModel):
@@ -153,8 +153,8 @@ class OrganizationDepartment(DbModel):
     organization_business_department_id = Column(Integer, primary_key=True)
     organization_id = Column(Integer, ForeignKey("organization.organization_id"), nullable=False)
     business_department_id = Column(Integer, ForeignKey("business_department.business_department_id"), nullable=False)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class OrganizationMacroprocess(DbModel):
@@ -164,8 +164,8 @@ class OrganizationMacroprocess(DbModel):
     organization_id = Column(Integer, ForeignKey("organization.organization_id"), nullable=False)
     business_department_id = Column(Integer, ForeignKey("business_department.business_department_id"), nullable=False)
     business_macroprocess_id = Column(Integer, ForeignKey("business_macroprocess.business_macroprocess_id"), nullable=False)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class OrganizationProcess(DbModel):
@@ -176,8 +176,8 @@ class OrganizationProcess(DbModel):
     business_macroprocess_id = Column(Integer, ForeignKey("business_macroprocess.business_macroprocess_id"), nullable=False)
     business_process_id = Column(Integer, ForeignKey("business_process.business_process_id"), nullable=False)
     relevance_level_id = Column(Integer, ForeignKey("basic_classification_level.basic_classification_level_id"))
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class OrganizationITService(DbModel):
@@ -188,8 +188,8 @@ class OrganizationITService(DbModel):
     business_process_id = Column(Integer, ForeignKey("business_process.business_process_id"), nullable=False)
     information_service_id = Column(Integer, ForeignKey("information_service.information_service_id"), nullable=False)
     relevance_level_id = Column(Integer, ForeignKey("basic_classification_level.basic_classification_level_id"))
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class OrganizationITAsset(DbModel):
@@ -200,8 +200,8 @@ class OrganizationITAsset(DbModel):
     information_service_id = Column(Integer, ForeignKey("information_service.information_service_id"), nullable=False)
     information_asset_id = Column(Integer, ForeignKey("information_asset.information_asset_id"), nullable=False)
     relevance_level_id = Column(Integer, ForeignKey("basic_classification_level.basic_classification_level_id"))
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class OrganizationSecurityThreat(DbModel):
@@ -211,8 +211,8 @@ class OrganizationSecurityThreat(DbModel):
     organization_id = Column(Integer, ForeignKey("organization.organization_id"), nullable=False)
     security_threat_id = Column(Integer, ForeignKey("security_threat.security_threat_id"), nullable=False)
     exposure_level_id = Column(Integer, ForeignKey("basic_classification_level.basic_classification_level_id"), nullable=False)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class OrganizationITAssetVulnerability(DbModel):
@@ -223,8 +223,8 @@ class OrganizationITAssetVulnerability(DbModel):
     security_threat_id = Column(Integer, ForeignKey("security_threat.security_threat_id"), nullable=False)
     information_asset_id = Column(Integer, ForeignKey("information_asset.information_asset_id"), nullable=False)
     vulnerability_level_id = Column(Integer, ForeignKey("basic_classification_level.basic_classification_level_id"), nullable=False)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class OrganizationVulnerabilityControl(DbModel):
@@ -234,5 +234,5 @@ class OrganizationVulnerabilityControl(DbModel):
     organization_information_asset_vulnerability_id = Column(Integer, ForeignKey("organization_information_asset_vulnerability.organization_information_asset_vulnerability_id"), nullable=False)
     controller_information_asset_id = Column(Integer, ForeignKey("organization_information_asset.organization_information_asset_id"))
     description = Column(String)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow())
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow())
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
