@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization` (
   `tax_id` VARCHAR(16) NOT NULL,
   `legal_name` VARCHAR(128) NOT NULL,
   `trade_name` VARCHAR(128) NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_id`))
 ENGINE = InnoDB;
 
@@ -29,9 +29,9 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`information_asset_category` (
   `information_asset_category_id` INT NOT NULL,
-  `name` VARCHAR(32) NOT NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `name` VARCHAR(128) NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`information_asset_category_id`),
   UNIQUE INDEX `UQ_name` (`name` ASC))
 ENGINE = InnoDB;
@@ -43,10 +43,10 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`information_asset` (
   `information_asset_id` INT NOT NULL AUTO_INCREMENT,
   `information_asset_category_id` INT NOT NULL,
-  `name` VARCHAR(32) NOT NULL,
+  `name` VARCHAR(128) NOT NULL,
   `description` VARCHAR(255) NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`information_asset_id`),
   INDEX `IX_information_asset_category_id` (`information_asset_category_id` ASC),
   UNIQUE INDEX `UQ_name` (`name` ASC),
@@ -101,8 +101,8 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_locatio
   `city_name` VARCHAR(128) NULL,
   `street_address_1` VARCHAR(128) NULL,
   `street_address_2` VARCHAR(128) NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_location_id`),
   INDEX `IX_organization_id` (`organization_id` ASC),
   INDEX `IX_country_subdivision_id` (`country_subdivision_id` ASC),
@@ -124,10 +124,10 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`security_threat` (
   `security_threat_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(32) NOT NULL,
+  `name` VARCHAR(128) NOT NULL,
   `description` VARCHAR(255) NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`security_threat_id`),
   UNIQUE INDEX `UQ_name` (`name` ASC))
 ENGINE = InnoDB;
@@ -138,7 +138,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`basic_classification_level` (
   `basic_classification_level_id` INT NOT NULL,
-  `name` VARCHAR(32) NOT NULL,
+  `name` VARCHAR(128) NOT NULL,
   PRIMARY KEY (`basic_classification_level_id`),
   UNIQUE INDEX `UQ_name` (`name` ASC))
 ENGINE = InnoDB;
@@ -153,8 +153,8 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_informa
   `information_asset_id` INT NOT NULL,
   `security_threat_id` INT NOT NULL,
   `vulnerability_level_id` INT NOT NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_information_asset_vulnerability_id`),
   INDEX `IX_information_asset_id` (`information_asset_id` ASC),
   INDEX `IX_organization_id` (`organization_id` ASC),
@@ -213,9 +213,9 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`business_process` (
   `business_process_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(32) NOT NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `name` VARCHAR(128) NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`business_process_id`),
   UNIQUE INDEX `UQ_name` (`name` ASC))
 ENGINE = InnoDB;
@@ -226,9 +226,9 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`business_department` (
   `business_department_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(32) NOT NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `name` VARCHAR(128) NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`business_department_id`),
   UNIQUE INDEX `UQ_name` (`name` ASC))
 ENGINE = InnoDB;
@@ -239,9 +239,9 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`information_service` (
   `information_service_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(32) NOT NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `name` VARCHAR(128) NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`information_service_id`),
   UNIQUE INDEX `UQ_name` (`name` ASC))
 ENGINE = InnoDB;
@@ -252,9 +252,9 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`business_macroprocess` (
   `business_macroprocess_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(32) NOT NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `name` VARCHAR(128) NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`business_macroprocess_id`),
   UNIQUE INDEX `UQ_name` (`name` ASC))
 ENGINE = InnoDB;
@@ -267,8 +267,8 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_busines
   `organization_business_department_id` INT NOT NULL AUTO_INCREMENT,
   `organization_id` INT NOT NULL,
   `business_department_id` INT NOT NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_business_department_id`),
   INDEX `IX_organization_id` (`organization_id` ASC),
   INDEX `IX_business_department_id` (`business_department_id` ASC),
@@ -294,8 +294,8 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_busines
   `organization_id` INT NOT NULL,
   `business_department_id` INT NOT NULL,
   `business_macroprocess_id` INT NOT NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_business_macroprocess_id`),
   INDEX `IX_business_department_id` (`business_department_id` ASC),
   INDEX `IX_business_macroprocess_id` (`business_macroprocess_id` ASC),
@@ -328,8 +328,8 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_busines
   `business_macroprocess_id` INT NOT NULL,
   `business_process_id` INT NOT NULL,
   `relevance_level_id` INT NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_business_process_id`),
   INDEX `IX_business_macroprocess_id` (`business_macroprocess_id` ASC),
   INDEX `IX_business_process_id` (`business_process_id` ASC),
@@ -368,8 +368,8 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_informa
   `business_process_id` INT NOT NULL,
   `information_service_id` INT NOT NULL,
   `relevance_level_id` INT NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_information_service_id`),
   INDEX `IX_business_process_id` (`business_process_id` ASC),
   INDEX `IX_information_service_id` (`information_service_id` ASC),
@@ -408,8 +408,8 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_informa
   `information_service_id` INT NOT NULL,
   `information_asset_id` INT NOT NULL,
   `relevance_level_id` INT NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_information_asset_id`),
   INDEX `IX_information_service_id` (`information_service_id` ASC),
   INDEX `IX_information_asset_id` (`information_asset_id` ASC),
@@ -447,8 +447,8 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_securit
   `organization_id` INT NOT NULL,
   `security_threat_id` INT NOT NULL,
   `exposure_level_id` INT NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_security_threat_id`),
   INDEX `IX_organization_id` (`organization_id` ASC),
   INDEX `IX_security_threat_id` (`security_threat_id` ASC),
@@ -480,8 +480,8 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`system_user` (
   `email` VARCHAR(255) NOT NULL,
   `full_name` VARCHAR(128) NOT NULL,
   `password` VARCHAR(32) NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   `last_logged_in_on` DATETIME NULL,
   PRIMARY KEY (`system_user_id`),
   UNIQUE INDEX `UQ_email` (`email` ASC))
@@ -493,10 +493,10 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`system_administrative_role` (
   `system_administrative_role_id` INT NOT NULL,
-  `name` VARCHAR(32) NOT NULL,
+  `name` VARCHAR(128) NOT NULL,
   `description` VARCHAR(255) NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`system_administrative_role_id`),
   UNIQUE INDEX `UQ_name` (`name` ASC))
 ENGINE = InnoDB;
@@ -509,8 +509,8 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`system_user_administ
   `system_user_administrative_role_id` INT NOT NULL AUTO_INCREMENT,
   `system_user_id` INT NOT NULL,
   `system_administrative_role_id` INT NOT NULL,
-  `created_on` DATETIME NOT NULL,
-  `last_modified_on` DATETIME NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`system_user_administrative_role_id`),
   INDEX `IX_user_role_system_user` (`system_user_id` ASC),
   INDEX `IX_user_role_system_administrative_role` (`system_administrative_role_id` ASC),
