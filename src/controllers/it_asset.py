@@ -3,9 +3,9 @@ from datetime import datetime
 
 import app_constants as constants
 from .extensions import HTTPUnprocessableEntity
-from .utils import get_collection_page
+from .utils import get_collection_page, validate_str
 from errors import Message, build_error
-from models import Session, ITAsset
+from models import Session, ITAsset, ITAssetCategory
 
 
 class Collection:
@@ -42,7 +42,9 @@ class Collection:
                 raise HTTPUnprocessableEntity(errors)
 
             # Copy fields from request to an ITAsset object
-            item = ITAsset().fromdict(req.media)
+            item = ITAsset().fromdict(req.media, only=['name', 'description', 'category_id'])
+            item.name = item.name.strip()
+            item.description = item.description.strip()
 
             session.add(item)
             session.commit()
@@ -94,6 +96,8 @@ class Item:
             # and save patch only if record has changed.
             old_it_asset = it_asset.asdict()
             it_asset.fromdict(req.media, only=['name', 'description', 'category_id'])
+            it_asset.name = it_asset.name.strip()
+            it_asset.description = it_asset.description.strip()
             new_it_asset = it_asset.asdict()
             if new_it_asset != old_it_asset:
                 it_asset.last_modified_on = datetime.utcnow()
@@ -107,83 +111,78 @@ class Item:
 
 def validate_post(request_media, session):
     errors = []
-    if not request_media:
-        errors.append(build_error(Message.ERR_NO_CONTENT))
-        return errors
 
-    # Name is mandatory and must be unique. Validate length.
+    # Validate name
+    # -----------------------------------------------------
     name = request_media.get('name')
-    if name is None:
-        errors.append(build_error(Message.ERR_NAME_CANNOT_BE_NULL))
-    elif len(name) > constants.GENERAL_NAME_MAX_LENGTH:
-        errors.append(build_error(Message.ERR_NAME_MAX_LENGTH))
-    elif session.query(ITAsset.name)\
-            .filter(ITAsset.name == name)\
-            .first():
-        errors.append(build_error(Message.ERR_NAME_ALREADY_EXISTS))
+    error = validate_str('name', name,
+                         is_mandatory=True,
+                         max_length=constants.GENERAL_NAME_MAX_LENGTH,
+                         exists_strategy=exists_name(name, session))
+    if error:
+        errors.append(error)
 
-    # Description is optional. Validate length when informed.
+    # Validate description
+    # -----------------------------------------------------
     description = request_media.get('description')
-    if description and len(description) > constants.GENERAL_DESCRIPTION_MAX_LENGTH:
-        errors.append(build_error(Message.ERR_DESCRIPTION_MAX_LENGTH))
+    error = validate_str('description', description, max_length=constants.GENERAL_DESCRIPTION_MAX_LENGTH)
+    if error:
+        errors.append(error)
 
     # Asset category id is mandatory and must be valid.
+    # -----------------------------------------------------
     category_id = request_media.get('category_id')
     if category_id is None:
-        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL))
-    elif not session.query(ITAsset.category_id) \
-            .filter(ITAsset.category_id == category_id) \
-            .first():
-        errors.append(build_error(Message.ERR_INVALID_IT_ASSET_CATEGORY_ID))
+        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL, field_name='category_id'))
+    elif not session.query(ITAssetCategory.category_id).get(category_id):
+        errors.append(build_error(Message.ERR_INVALID_IT_ASSET_CATEGORY_ID, field_name='category_id'))
 
     return errors
 
 
 def validate_patch(request_media, session):
     errors = []
+
     if not request_media:
         errors.append(build_error(Message.ERR_NO_CONTENT))
         return errors
 
     # Validate name if informed
+    # -----------------------------------------------------
     if 'name' in request_media:
         name = request_media.get('name')
-
-        # Cannot be null if informed
-        if name is None:
-            errors.append(build_error(Message.ERR_NAME_CANNOT_BE_NULL))
-
-        # Length must be valid
-        elif len(name) > constants.GENERAL_NAME_MAX_LENGTH:
-            errors.append(build_error(Message.ERR_NAME_MAX_LENGTH))
-
-        # Must be unique
-        elif session.query(ITAsset.name) \
-                .filter(ITAsset.name == name) \
-                .first():
-            errors.append(build_error(Message.ERR_NAME_ALREADY_EXISTS))
+        error = validate_str('name', name,
+                             is_mandatory=True,
+                             max_length=constants.GENERAL_NAME_MAX_LENGTH,
+                             exists_strategy=exists_name(name, session))
+        if error:
+            errors.append(error)
 
     # Validate description if informed
+    # -----------------------------------------------------
     if 'description' in request_media:
         description = request_media.get('description')
-
-        # Can be null
-        # Validate length
-        if description and len(description) > constants.GENERAL_DESCRIPTION_MAX_LENGTH:
-            errors.append(build_error(Message.ERR_TRADE_NAME_MAX_LENGTH))
+        error = validate_str('description', description, max_length=constants.GENERAL_DESCRIPTION_MAX_LENGTH)
+        if error:
+            errors.append(error)
 
     # Validate asset category id if informed
+    # -----------------------------------------------------
     if 'category_id' in request_media:
         category_id = request_media.get('category_id')
 
-        # Cannot be null if informed
+        # Cannot be null if informed and must be valid
         if category_id is None:
-            errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL))
-
-        # Must be valid
-        elif not session.query(ITAsset.category_id) \
-                .filter(ITAsset.category_id == category_id) \
-                .first():
-            errors.append(build_error(Message.ERR_INVALID_IT_ASSET_CATEGORY_ID))
+            errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL, field_name='category_id'))
+        elif not session.query(ITAssetCategory.category_id).get(category_id):
+            errors.append(build_error(Message.ERR_INVALID_IT_ASSET_CATEGORY_ID, field_name='category_id'))
 
     return errors
+
+
+def exists_name(name, session):
+    def exists():
+        return session.query(ITAsset.name) \
+            .filter(ITAsset.name == name) \
+            .first()
+    return exists
