@@ -18,13 +18,16 @@ class Collection:
         :param resp: See Falcon Response documentation.
         """
         session = Session()
-        query = session.query(BusinessProcess).order_by(BusinessProcess.created_on)
+        try:
+            query = session.query(BusinessProcess).order_by(BusinessProcess.created_on)
 
-        data, paging = get_collection_page(req, query)
-        resp.media = {
-            'data': data,
-            'paging': paging
-        }
+            data, paging = get_collection_page(req, query)
+            resp.media = {
+                'data': data,
+                'paging': paging
+            }
+        finally:
+            session.close()
 
     def on_post(self, req, resp):
         """Creates a new process in catalog.
@@ -61,11 +64,14 @@ class Item:
         :param process_id: The id of process to retrieve.
         """
         session = Session()
-        item = session.query(BusinessProcess).get(process_id)
-        if item is None:
-            raise falcon.HTTPNotFound()
+        try:
+            item = session.query(BusinessProcess).get(process_id)
+            if item is None:
+                raise falcon.HTTPNotFound()
 
-        resp.media = {'data': item.asdict()}
+            resp.media = {'data': item.asdict()}
+        finally:
+            session.close()
 
     def on_patch(self, req, resp, process_id):
         """Updates (partially) the process requested.

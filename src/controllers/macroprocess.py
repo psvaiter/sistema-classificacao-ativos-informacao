@@ -18,13 +18,16 @@ class Collection:
         :param resp: See Falcon Response documentation.
         """
         session = Session()
-        query = session.query(BusinessMacroprocess).order_by(BusinessMacroprocess.created_on)
+        try:
+            query = session.query(BusinessMacroprocess).order_by(BusinessMacroprocess.created_on)
 
-        data, paging = get_collection_page(req, query)
-        resp.media = {
-            'data': data,
-            'paging': paging
-        }
+            data, paging = get_collection_page(req, query)
+            resp.media = {
+                'data': data,
+                'paging': paging
+            }
+        finally:
+            session.close()
 
     def on_post(self, req, resp):
         """Creates a new macroprocess in catalog.
@@ -61,11 +64,14 @@ class Item:
         :param macroprocess_id: The id of macroprocess to retrieve.
         """
         session = Session()
-        item = session.query(BusinessMacroprocess).get(macroprocess_id)
-        if item is None:
-            raise falcon.HTTPNotFound()
+        try:
+            item = session.query(BusinessMacroprocess).get(macroprocess_id)
+            if item is None:
+                raise falcon.HTTPNotFound()
 
-        resp.media = {'data': item.asdict()}
+            resp.media = {'data': item.asdict()}
+        finally:
+            session.close()
 
     def on_patch(self, req, resp, macroprocess_id):
         """Updates (partially) the macroprocess requested.

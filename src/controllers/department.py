@@ -18,13 +18,16 @@ class Collection:
         :param resp: See Falcon Response documentation.
         """
         session = Session()
-        query = session.query(BusinessDepartment).order_by(BusinessDepartment.created_on)
+        try:
+            query = session.query(BusinessDepartment).order_by(BusinessDepartment.created_on)
 
-        data, paging = get_collection_page(req, query)
-        resp.media = {
-            'data': data,
-            'paging': paging
-        }
+            data, paging = get_collection_page(req, query)
+            resp.media = {
+                'data': data,
+                'paging': paging
+            }
+        finally:
+            session.close()
 
     def on_post(self, req, resp):
         """Creates a new department in catalog.
@@ -61,11 +64,14 @@ class Item:
         :param department_id: The id of department to retrieve.
         """
         session = Session()
-        item = session.query(BusinessDepartment).get(department_id)
-        if item is None:
-            raise falcon.HTTPNotFound()
+        try:
+            item = session.query(BusinessDepartment).get(department_id)
+            if item is None:
+                raise falcon.HTTPNotFound()
 
-        resp.media = {'data': item.asdict()}
+            resp.media = {'data': item.asdict()}
+        finally:
+            session.close()
 
     def on_patch(self, req, resp, department_id):
         """Updates (partially) the department requested.

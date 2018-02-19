@@ -18,13 +18,16 @@ class Collection:
         :param resp: See Falcon Response documentation.
         """
         session = Session()
-        query = session.query(Organization).order_by(Organization.created_on)
+        try:
+            query = session.query(Organization).order_by(Organization.created_on)
 
-        data, paging = get_collection_page(req, query)
-        resp.media = {
-            'data': data,
-            'paging': paging
-        }
+            data, paging = get_collection_page(req, query)
+            resp.media = {
+                'data': data,
+                'paging': paging
+            }
+        finally:
+            session.close()
 
     def on_post(self, req, resp):
         """Creates a new organization.
@@ -60,11 +63,14 @@ class Item:
         :param organization_code: The code of organization to retrieve.
         """
         session = Session()
-        organization = session.query(Organization).get(organization_code)
-        if organization is None:
-            raise falcon.HTTPNotFound()
+        try:
+            organization = session.query(Organization).get(organization_code)
+            if organization is None:
+                raise falcon.HTTPNotFound()
 
-        resp.media = {'data': organization.asdict()}
+            resp.media = {'data': organization.asdict()}
+        finally:
+            session.close()
 
     def on_patch(self, req, resp, organization_code):
         """Updates (partially) the organization.

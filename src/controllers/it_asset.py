@@ -18,13 +18,16 @@ class Collection:
         :param resp: See Falcon Response documentation.
         """
         session = Session()
-        query = session.query(ITAsset).order_by(ITAsset.created_on)
+        try:
+            query = session.query(ITAsset).order_by(ITAsset.created_on)
 
-        data, paging = get_collection_page(req, query)
-        resp.media = {
-            'data': data,
-            'paging': paging
-        }
+            data, paging = get_collection_page(req, query)
+            resp.media = {
+                'data': data,
+                'paging': paging
+            }
+        finally:
+            session.close()
 
     def on_post(self, req, resp):
         """Creates a new IT asset in catalog.
@@ -60,11 +63,14 @@ class Item:
         :param it_asset_id: The id of IT asset to retrieve.
         """
         session = Session()
-        item = session.query(ITAsset).get(it_asset_id)
-        if item is None:
-            raise falcon.HTTPNotFound()
+        try:
+            item = session.query(ITAsset).get(it_asset_id)
+            if item is None:
+                raise falcon.HTTPNotFound()
 
-        resp.media = {'data': item.asdict()}
+            resp.media = {'data': item.asdict()}
+        finally:
+            session.close()
 
     def on_patch(self, req, resp, it_asset_id):
         """Updates (partially) the IT asset requested.
