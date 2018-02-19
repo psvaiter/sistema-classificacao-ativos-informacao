@@ -1,8 +1,8 @@
 
 MySQL = {
     'driver': "mysql+pymysql",
-    'user': "psvaiter",
-    'pass': "admin",
+    'user': "ITSecurityControlAppUser",
+    'pass': "app_pass",
     'host': "localhost",
     'port': "3306",
     'db_name': "db_information_asset_security"
