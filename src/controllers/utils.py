@@ -95,7 +95,7 @@ def validate_str(field_name, field_value, is_mandatory=False, max_length=None, e
 
     # Must be of type 'string'
     if not isinstance(field_value, str):
-        return build_error(Message.ERR_INVALID_VALUE_TYPE, field_name=field_name)
+        return build_error(Message.ERR_FIELD_VALUE_MUST_BE_STRING, field_name=field_name)
 
     # Remove leading and trailing whitespaces from value before continuing
     # It's better to trim here in order to validate the length that will be
