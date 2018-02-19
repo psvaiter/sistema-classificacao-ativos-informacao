@@ -3,9 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dictalchemy import make_class_dictable
 from datetime import datetime
+from settings import conn_string
 
-
-conn_string = "mysql+pymysql://psvaiter:admin@localhost:3306/db_information_asset_security"
 
 # Creating engine to work with MySQL database
 engine = create_engine(conn_string, echo=True)
