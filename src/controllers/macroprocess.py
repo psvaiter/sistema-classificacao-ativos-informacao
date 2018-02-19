@@ -89,6 +89,7 @@ class Item:
             # and save patch only if record has changed.
             old_macroprocess = macroprocess.asdict()
             macroprocess.fromdict(req.media, only=['name'])
+            macroprocess.name = macroprocess.name.strip()
             new_macroprocess = macroprocess.asdict()
             if new_macroprocess != old_macroprocess:
                 macroprocess.last_modified_on = datetime.utcnow()
@@ -118,6 +119,7 @@ def validate_post(request_media, session):
 
 def validate_patch(request_media, session):
     errors = []
+
     if not request_media:
         errors.append(build_error(Message.ERR_NO_CONTENT))
         return errors
