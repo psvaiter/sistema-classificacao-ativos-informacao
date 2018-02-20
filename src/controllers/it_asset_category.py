@@ -118,11 +118,15 @@ def validate_post(request_media, session):
     if error:
         errors.append(error)
 
-    # Asset category id is mandatory and must be available
+    # Category id is mandatory and must be valid and available
     # -----------------------------------------------------
     category_id = request_media.get('category_id')
     if category_id is None:
         errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL, field_name='category_id'))
+    elif not isinstance(category_id, int):
+        errors.append(build_error(Message.ERR_INVALID_VALUE_TYPE, field_name='category_id'))
+    elif category_id <= 0:
+        errors.append(build_error(Message.ERR_INVALID_IT_ASSET_CATEGORY_ID, field_name='category_id'))
     elif session.query(ITAssetCategory).get(category_id) is not None:
         errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_ALREADY_EXISTS, field_name='category_id'))
 
