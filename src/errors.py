@@ -39,4 +39,5 @@ class Message(Enum):
     ERR_NAME_ALREADY_EXISTS = "Name already exists."
     ERR_DESCRIPTION_MAX_LENGTH = "Description length is above allowed limit."
     ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL = "IT asset category id must be informed."
+    ERR_IT_ASSET_CATEGORY_ID_ALREADY_EXISTS = "IT asset category id already exists."
     ERR_INVALID_IT_ASSET_CATEGORY_ID = "Invalid IT asset category id."

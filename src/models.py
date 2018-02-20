@@ -92,7 +92,7 @@ class ITAsset(DbModel):
 class ITAssetCategory(DbModel):
     __tablename__ = "it_asset_category"
 
-    it_asset_category_id = Column(Integer, primary_key=True)
+    category_id = Column("it_asset_category_id", Integer, primary_key=True)
     name = Column(String, nullable=False)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)

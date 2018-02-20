@@ -5,21 +5,21 @@ import app_constants as constants
 from .extensions import HTTPUnprocessableEntity
 from .utils import get_collection_page, validate_str
 from errors import Message, build_error
-from models import Session, ITAsset, ITAssetCategory
+from models import Session, ITAssetCategory
 
 
 class Collection:
-    """GET and POST IT assets in catalog."""
+    """GET and POST IT asset categories in catalog."""
 
     def on_get(self, req, resp):
-        """GETs a paged collection of IT assets available.
+        """GETs a paged collection of IT asset categories available.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
         """
         session = Session()
         try:
-            query = session.query(ITAsset).order_by(ITAsset.created_on)
+            query = session.query(ITAssetCategory).order_by(ITAssetCategory.created_on)
 
             data, paging = get_collection_page(req, query)
             resp.media = {
@@ -30,7 +30,7 @@ class Collection:
             session.close()
 
     def on_post(self, req, resp):
-        """Creates a new IT asset in catalog.
+        """Creates a new IT asset category in catalog.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
@@ -41,8 +41,8 @@ class Collection:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
-            # Copy fields from request to an ITAsset object
-            item = ITAsset().fromdict(req.media, only=['name', 'description', 'category_id'])
+            # Copy fields from request to an ITAssetCategory object
+            item = ITAssetCategory().fromdict(req.media, only=['category_id', 'name'])
 
             session.add(item)
             session.commit()
@@ -53,18 +53,18 @@ class Collection:
 
 
 class Item:
-    """GET and PATCH an IT asset in catalog."""
+    """GET and PATCH an IT asset category in catalog."""
 
-    def on_get(self, req, resp, it_asset_id):
+    def on_get(self, req, resp, it_asset_category_id):
         """GETs a single IT asset by id.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
-        :param it_asset_id: The id of IT asset to retrieve.
+        :param it_asset_category_id: The id of IT asset category to retrieve.
         """
         session = Session()
         try:
-            item = session.query(ITAsset).get(it_asset_id)
+            item = session.query(ITAssetCategory).get(it_asset_category_id)
             if item is None:
                 raise falcon.HTTPNotFound()
 
@@ -72,17 +72,17 @@ class Item:
         finally:
             session.close()
 
-    def on_patch(self, req, resp, it_asset_id):
-        """Updates (partially) the IT asset requested.
-        All entities that reference the IT asset will be affected by the update.
+    def on_patch(self, req, resp, it_asset_category_id):
+        """Updates (partially) the IT asset category requested.
+        All entities that reference the IT asset category will be affected by the update.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
-        :param it_asset_id: The id of IT asset to be patched.
+        :param it_asset_category_id: The id of IT asset category to be patched.
         """
         session = Session()
         try:
-            it_asset = session.query(ITAsset).get(it_asset_id)
+            it_asset = session.query(ITAssetCategory).get(it_asset_category_id)
             if it_asset is None:
                 raise falcon.HTTPNotFound()
 
@@ -93,7 +93,7 @@ class Item:
             # Apply fields informed in request, compare before and after
             # and save patch only if record has changed.
             old_it_asset = it_asset.asdict()
-            it_asset.fromdict(req.media, only=['name', 'description', 'category_id'])
+            it_asset.fromdict(req.media, only=['name'])
             new_it_asset = it_asset.asdict()
             if new_it_asset != old_it_asset:
                 it_asset.last_modified_on = datetime.utcnow()
@@ -118,20 +118,13 @@ def validate_post(request_media, session):
     if error:
         errors.append(error)
 
-    # Validate description
-    # -----------------------------------------------------
-    description = request_media.get('description')
-    error = validate_str('description', description, max_length=constants.GENERAL_DESCRIPTION_MAX_LENGTH)
-    if error:
-        errors.append(error)
-
-    # Asset category id is mandatory and must be valid
+    # Asset category id is mandatory and must be available
     # -----------------------------------------------------
     category_id = request_media.get('category_id')
     if category_id is None:
         errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL, field_name='category_id'))
-    elif not session.query(ITAssetCategory).get(category_id):
-        errors.append(build_error(Message.ERR_INVALID_IT_ASSET_CATEGORY_ID, field_name='category_id'))
+    elif session.query(ITAssetCategory).get(category_id) is not None:
+        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_ALREADY_EXISTS, field_name='category_id'))
 
     return errors
 
@@ -154,31 +147,12 @@ def validate_patch(request_media, session):
         if error:
             errors.append(error)
 
-    # Validate description if informed
-    # -----------------------------------------------------
-    if 'description' in request_media:
-        description = request_media.get('description')
-        error = validate_str('description', description, max_length=constants.GENERAL_DESCRIPTION_MAX_LENGTH)
-        if error:
-            errors.append(error)
-
-    # Validate asset category id if informed
-    # -----------------------------------------------------
-    if 'category_id' in request_media:
-        category_id = request_media.get('category_id')
-
-        # Cannot be null if informed and must be valid
-        if category_id is None:
-            errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL, field_name='category_id'))
-        elif not session.query(ITAssetCategory).get(category_id):
-            errors.append(build_error(Message.ERR_INVALID_IT_ASSET_CATEGORY_ID, field_name='category_id'))
-
     return errors
 
 
 def exists_name(name, session):
     def exists():
-        return session.query(ITAsset.name) \
-            .filter(ITAsset.name == name) \
+        return session.query(ITAssetCategory.name) \
+            .filter(ITAssetCategory.name == name) \
             .first()
     return exists

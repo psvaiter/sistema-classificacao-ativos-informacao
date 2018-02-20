@@ -1,5 +1,5 @@
 import falcon
-from controllers import extensions
+from controllers import extensions, it_asset_category
 from controllers import department, macroprocess, process, it_service, it_asset, \
                         organization, organization_department, organization_macroprocess, \
                         organization_process, organization_it_service, organization_it_asset, \
@@ -26,6 +26,8 @@ api.add_route('/itServices', it_service.Collection())
 api.add_route('/itServices/{it_service_id}', it_service.Item())
 api.add_route('/itAssets', it_asset.Collection())
 api.add_route('/itAssets/{it_asset_id}', it_asset.Item())
+api.add_route('/itAssetCategories', it_asset_category.Collection())
+api.add_route('/itAssetCategories/{it_asset_category_id}', it_asset_category.Item())
 
 # Routes to handle organizations and their sub-resources
 api.add_route('/organizations', organization.Collection())
