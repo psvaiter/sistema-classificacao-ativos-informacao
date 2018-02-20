@@ -76,21 +76,23 @@ class ITService(DbModel):
 
 
 class ITAsset(DbModel):
-    __tablename__ = "information_asset"
+    __tablename__ = "it_asset"
 
-    information_asset_id = Column(Integer, primary_key=True)
-    information_asset_category_id = Column(Integer, ForeignKey("information_asset_category.information_asset_category_id"), nullable=False)
+    it_asset_id = Column(Integer, primary_key=True)
+    category_id = Column("it_asset_category_id", Integer, nullable=False)
     name = Column(String, nullable=False)
     description = Column(String)
-    category_id = Column(Integer, nullable=False)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
+    # Removed ForeignKey("it_asset_category.it_asset_category_id"),
+    # from definition of category_id.
+
 
 class ITAssetCategory(DbModel):
-    __tablename__ = "information_asset_category"
+    __tablename__ = "it_asset_category"
 
-    information_asset_category_id = Column(Integer, primary_key=True)
+    it_asset_category_id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
