@@ -97,15 +97,13 @@ def validate_str(field_name, field_value, is_mandatory=False, max_length=None, e
     if not isinstance(field_value, str):
         return build_error(Message.ERR_FIELD_VALUE_MUST_BE_STRING, field_name=field_name)
 
-    # Remove leading and trailing whitespaces from value before continuing
-    # It's better to trim here in order to validate the length that will be
-    # actually saved and to compare with existing values appropriately.
-    # Also a value with only whitespaces will become an empty string.
-    field_value = field_value.strip()
-
     # Cannot be empty (general safe rule whether it's mandatory or not)
-    if not field_value:
+    if not field_value or field_value.isspace():
         return build_error(Message.ERR_FIELD_CANNOT_BE_EMPTY, field_name=field_name)
+
+    # Prevent values with leading or trailing spaces
+    if len(field_value) != len(field_value.strip()):
+        return build_error(Message.ERR_FIELD_WITH_LEADING_OR_TRAILING_SPACES, field_name=field_name)
 
     # Length must be valid
     if len(field_value) > max_length:

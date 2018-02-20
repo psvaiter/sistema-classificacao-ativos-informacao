@@ -24,6 +24,7 @@ class Message(Enum):
     ERR_FIELD_MAX_LENGTH = "Field max length is above allowed limit."
     ERR_FIELD_VALUE_ALREADY_EXISTS = "Field value already exists."
     ERR_FIELD_VALUE_MUST_BE_STRING = "Field value must be a string."
+    ERR_FIELD_WITH_LEADING_OR_TRAILING_SPACES = "Field value cannot contain leading and/or trailing spaces."
 
     ERR_TAX_ID_CANNOT_BE_NULL = "Tax ID must be informed."
     ERR_TAX_ID_MAX_LENGTH = "Tax ID length is above allowed limit."
