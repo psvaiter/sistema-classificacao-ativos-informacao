@@ -70,10 +70,14 @@ def build_paging_info(page, records_per_page, total_records):
 def validate_str(field_name, field_value, is_mandatory=False, max_length=None, exists_strategy=None):
     """Validates a string with general predefined rules.
 
+    The string cannot be empty or contain any leading or trailing whitespace.
+    This rule is always applied as long as the value of the field is informed
+    and is a string.
+
     :param field_name: The field name to put in error object.
     :param field_value: The field value to be validated.
     :param is_mandatory: Indicates that the field is mandatory. That means that
-        an error is returned if value is None, empty or whitespaces only.
+        an error is returned if value is None.
         Default is false.
     :param max_length: Maximum length allowed. An error is returned if len(field_value)
         is above this value. When None, this validation will be skipped.
