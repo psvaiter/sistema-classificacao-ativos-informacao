@@ -43,7 +43,6 @@ class Collection:
 
             # Copy fields from request to a BusinessMacroprocess object
             item = BusinessMacroprocess().fromdict(req.media, only=['name'])
-            item.name = item.name.strip()
 
             session.add(item)
             session.commit()
@@ -95,7 +94,6 @@ class Item:
             # and save patch only if record has changed.
             old_macroprocess = macroprocess.asdict()
             macroprocess.fromdict(req.media, only=['name'])
-            macroprocess.name = macroprocess.name.strip()
             new_macroprocess = macroprocess.asdict()
             if new_macroprocess != old_macroprocess:
                 macroprocess.last_modified_on = datetime.utcnow()

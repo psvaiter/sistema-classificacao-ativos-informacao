@@ -43,7 +43,6 @@ class Collection:
 
             # Copy fields from request to an ITService object
             item = ITService().fromdict(req.media, only=['name'])
-            item.name = item.name.strip()
 
             session.add(item)
             session.commit()
@@ -95,7 +94,6 @@ class Item:
             # and save patch only if record has changed.
             old_it_service = it_service.asdict()
             it_service.fromdict(req.media, only=['name'])
-            it_service.name = it_service.name.strip()
             new_it_service = it_service.asdict()
             if new_it_service != old_it_service:
                 it_service.last_modified_on = datetime.utcnow()

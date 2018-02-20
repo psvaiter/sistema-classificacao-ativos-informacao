@@ -43,7 +43,6 @@ class Collection:
 
             # Copy fields from request to a BusinessProcess object
             item = BusinessProcess().fromdict(req.media, only=['name'])
-            item.name = item.name.strip()
 
             session.add(item)
             session.commit()
@@ -95,7 +94,6 @@ class Item:
             # and save patch only if record has changed.
             old_process = process.asdict()
             process.fromdict(req.media, only=['name'])
-            process.name = process.name.strip()
             new_process = process.asdict()
             if new_process != old_process:
                 process.last_modified_on = datetime.utcnow()

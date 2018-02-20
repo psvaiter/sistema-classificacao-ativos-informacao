@@ -43,7 +43,6 @@ class Collection:
 
             # Copy fields from request to a BusinessDepartment object
             item = BusinessDepartment().fromdict(req.media, only=['name'])
-            item.name = item.name.strip()
 
             session.add(item)
             session.commit()
@@ -95,7 +94,6 @@ class Item:
             # and save patch only if record has changed.
             old_department = department.asdict()
             department.fromdict(req.media, only=['name'])
-            department.name = department.name.strip()
             new_department = department.asdict()
             if new_department != old_department:
                 department.last_modified_on = datetime.utcnow()

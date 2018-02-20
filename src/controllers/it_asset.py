@@ -43,8 +43,6 @@ class Collection:
 
             # Copy fields from request to an ITAsset object
             item = ITAsset().fromdict(req.media, only=['name', 'description', 'category_id'])
-            item.name = item.name.strip()
-            item.description = item.description.strip()
 
             session.add(item)
             session.commit()
@@ -96,8 +94,6 @@ class Item:
             # and save patch only if record has changed.
             old_it_asset = it_asset.asdict()
             it_asset.fromdict(req.media, only=['name', 'description', 'category_id'])
-            it_asset.name = it_asset.name.strip()
-            it_asset.description = it_asset.description.strip()
             new_it_asset = it_asset.asdict()
             if new_it_asset != old_it_asset:
                 it_asset.last_modified_on = datetime.utcnow()
