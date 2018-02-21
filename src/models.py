@@ -5,10 +5,10 @@ from dictalchemy import make_class_dictable
 from datetime import datetime
 from settings import conn_string
 
-
-# Creating engine to work with MySQL database
+# Setup database connector
 engine = create_engine(conn_string, echo=True)
 Session = sessionmaker(bind=engine)
+
 DbModel = declarative_base()
 make_class_dictable(DbModel)
 
