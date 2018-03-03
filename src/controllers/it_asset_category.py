@@ -42,7 +42,7 @@ class Collection:
                 raise HTTPUnprocessableEntity(errors)
 
             # Copy fields from request to an ITAssetCategory object
-            item = ITAssetCategory().fromdict(req.media, only=['category_id', 'name'])
+            item = ITAssetCategory().fromdict(req.media, only=['id', 'name'])
 
             session.add(item)
             session.commit()
@@ -120,15 +120,16 @@ def validate_post(request_media, session):
 
     # Category id is mandatory and must be valid and available
     # -----------------------------------------------------
-    category_id = request_media.get('category_id')
+    category_id_field = 'id'
+    category_id = request_media.get(category_id_field)
     if category_id is None:
-        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL, field_name='category_id'))
+        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL, field_name=category_id_field))
     elif not isinstance(category_id, int):
-        errors.append(build_error(Message.ERR_INVALID_VALUE_TYPE, field_name='category_id'))
+        errors.append(build_error(Message.ERR_INVALID_VALUE_TYPE, field_name=category_id_field))
     elif category_id <= 0:
-        errors.append(build_error(Message.ERR_INVALID_IT_ASSET_CATEGORY_ID, field_name='category_id'))
+        errors.append(build_error(Message.ERR_INVALID_IT_ASSET_CATEGORY_ID, field_name=category_id_field))
     elif session.query(ITAssetCategory).get(category_id) is not None:
-        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_ALREADY_EXISTS, field_name='category_id'))
+        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_ALREADY_EXISTS, field_name=category_id_field))
 
     return errors
 

@@ -26,7 +26,7 @@ class Collection:
 
         query = session\
             .query(OrganizationDepartment)\
-            .filter(Organization.organization_id == organization_code)\
+            .filter(Organization.id == organization_code)\
             .order_by(OrganizationDepartment.created_on)
 
         data, paging = get_collection_page(req, query)
