@@ -1,19 +1,17 @@
 import falcon
-import app_setup as setup
+import app_setup
 from wsgiref import simple_server
 
-# Some WSGI servers expect the WSGI application
-# to be named 'application' by default.
-
+# Some WSGI servers expect the WSGI application to be named 'application' by default.
+# Then we defined 'api' as a shorter option.
 api = application = falcon.API()
 
-setup.configure_media_handlers(api)
-setup.configure_routes(api)
+app_setup.configure_media_handlers(api)
+app_setup.configure_routes(api)
 
 if __name__ == '__main__':
 
-    # Use this server as the last resort, even for debug use because
-    # it's very (very) slow.
+    # Use this server as the last resort, even for debugging because it's very (very) slow.
     # As a Windows alternative, run in terminal:
     #   > waitress-serve --port=8000 app:api
     # As a Linux alternative, run in terminal:
