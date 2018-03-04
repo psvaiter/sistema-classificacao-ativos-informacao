@@ -1,8 +1,9 @@
 from controllers import extensions, department, macroprocess, process, \
-                        it_service, it_asset, it_asset_category, \
-                        organization, organization_department, organization_macroprocess, \
-                        organization_process, organization_it_service, organization_it_asset, \
-                        system_user, system_user_role
+    it_service, it_asset, it_asset_category, \
+    organization, organization_department, organization_macroprocess, \
+    organization_process, organization_it_service, organization_it_asset, \
+    system_user, system_user_role, security_threat, organization_security_threat, organization_vulnerability_control, \
+    organization_it_asset_vulnerability
 
 
 def configure_media_handlers(api):
@@ -28,6 +29,8 @@ def configure_routes(api):
     api.add_route('/itAssets/{it_asset_id}', it_asset.Item())
     api.add_route('/itAssetCategories', it_asset_category.Collection())
     api.add_route('/itAssetCategories/{it_asset_category_id}', it_asset_category.Item())
+    api.add_route('/securityThreats', security_threat.Collection())
+    api.add_route('/securityThreats/{security_threat_id}', security_threat.Item())
 
     # Add routes to handle organizations and their sub-resources
     api.add_route('/organizations', organization.Collection())
@@ -42,6 +45,12 @@ def configure_routes(api):
     api.add_route('/organizations/{organization_code}/itServices/{service_instance_id}', organization_it_service.Item())
     api.add_route('/organizations/{organization_code}/itAssets', organization_it_asset.Collection())
     api.add_route('/organizations/{organization_code}/itAssets/{asset_instance_id}', organization_it_asset.Item())
+    api.add_route('/organizations/{organization_code}/itAssets/{asset_instance_id}/vulnerabilities', organization_it_asset_vulnerability.Collection())
+    api.add_route('/organizations/{organization_code}/itAssets/{asset_instance_id}/vulnerabilities/{vulnerability_id}', organization_it_asset_vulnerability.Collection())
+    api.add_route('/organizations/{organization_code}/securityThreats', organization_security_threat.Collection())
+    api.add_route('/organizations/{organization_code}/securityThreats/{security_threat_id}', organization_security_threat.Item())
+    api.add_route('/organizations/{organization_code}/vulnerabilityControls', organization_vulnerability_control.Collection())
+    api.add_route('/organizations/{organization_code}/vulnerabilityControls/{control_id}', organization_vulnerability_control.Item())
 
     # Routes for system management and access control
     api.add_route('/management/users', system_user.Collection())
