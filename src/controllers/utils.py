@@ -4,9 +4,10 @@ Utility and helper methods to be used in controllers.
 import math
 import app_constants
 from errors import build_error, Message
+from dictalchemy import asdict
 
 
-def get_collection_page(req, query):
+def get_collection_page(req, query, asdict_func=None):
     """
     Common implementation used by controllers to fetch collection of an entity.
     The result is paged. Paging params can be informed in URL query string.
@@ -19,6 +20,8 @@ def get_collection_page(req, query):
     :param req: The request object. See Falcon Request documentation.
         Query string arguments are extracted from this object.
     :param query: Session query from SQL Alchemy to fetch records.
+    :param asdict_func: (Optional) Custom function to make a dict from a model.
+        When informed, overrides the default behavior.
     :return: A dict with 'data' and 'paging' keys.
     """
     # Get (or adjust) page
@@ -34,7 +37,10 @@ def get_collection_page(req, query):
 
     # Go fetch data
     records, page, total_records = query_page(query, page, records_per_page)
-    data = [record.asdict() for record in records]
+
+    # Setup asdict_proxy to get a dict from each result item and build response
+    asdict_proxy = asdict_func or asdict
+    data = [asdict_proxy(record) for record in records]
     paging = build_paging_info(page, records_per_page, total_records)
 
     return data, paging
