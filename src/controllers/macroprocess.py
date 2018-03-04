@@ -53,7 +53,7 @@ class Collection:
 
 
 class Item:
-    """GET and PATCH a microprocess in catalog."""
+    """GET and PATCH a macroprocess in catalog."""
 
     def on_get(self, req, resp, macroprocess_id):
         """GETs a single macroprocess by id.
