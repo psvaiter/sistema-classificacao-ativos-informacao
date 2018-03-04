@@ -65,11 +65,11 @@ class Item:
         """
         session = Session()
         try:
-            organization = session.query(Organization).get(organization_code)
-            if organization is None:
+            item = session.query(Organization).get(organization_code)
+            if item is None:
                 raise falcon.HTTPNotFound()
 
-            resp.media = {'data': organization.asdict()}
+            resp.media = {'data': item.asdict()}
         finally:
             session.close()
 
@@ -111,7 +111,7 @@ def validate_post(request_media, session):
     # Validate Tax ID
     # -----------------------------------------------------
     tax_id = request_media.get('tax_id')
-    error = validate_str('tax_id', tax_id,
+    error = validate_str('taxId', tax_id,
                          is_mandatory=True,
                          max_length=constants.TAX_ID_MAX_LENGTH,
                          exists_strategy=exists_tax_id(tax_id, session))
@@ -121,7 +121,7 @@ def validate_post(request_media, session):
     # Validate legal name
     # -----------------------------------------------------
     legal_name = request_media.get('legal_name')
-    error = validate_str('legal_name', legal_name,
+    error = validate_str('legalName', legal_name,
                          is_mandatory=True,
                          max_length=constants.GENERAL_NAME_MAX_LENGTH)
     if error:
@@ -130,7 +130,7 @@ def validate_post(request_media, session):
     # Validate trade name
     # -----------------------------------------------------
     trade_name = request_media.get('trade_name')
-    error = validate_str('trade_name', trade_name,
+    error = validate_str('tradeName', trade_name,
                          max_length=constants.GENERAL_NAME_MAX_LENGTH)
     if error:
         errors.append(error)
@@ -149,7 +149,7 @@ def validate_patch(request_media, session):
     # -----------------------------------------------------
     if 'tax_id' in request_media:
         tax_id = request_media.get('tax_id')
-        error = validate_str('tax_id', tax_id,
+        error = validate_str('taxId', tax_id,
                              is_mandatory=True,
                              max_length=constants.TAX_ID_MAX_LENGTH,
                              exists_strategy=exists_tax_id(tax_id, session))
@@ -160,7 +160,7 @@ def validate_patch(request_media, session):
     # -----------------------------------------------------
     if 'legal_name' in request_media:
         legal_name = request_media.get('legal_name')
-        error = validate_str('legal_name', legal_name,
+        error = validate_str('legalName', legal_name,
                              is_mandatory=True,
                              max_length=constants.GENERAL_NAME_MAX_LENGTH)
         if error:
@@ -170,7 +170,7 @@ def validate_patch(request_media, session):
     # -----------------------------------------------------
     if 'trade_name' in request_media:
         trade_name = request_media.get('trade_name')
-        error = validate_str('trade_name', trade_name,
+        error = validate_str('tradeName', trade_name,
                              max_length=constants.GENERAL_NAME_MAX_LENGTH)
         if error:
             errors.append(error)

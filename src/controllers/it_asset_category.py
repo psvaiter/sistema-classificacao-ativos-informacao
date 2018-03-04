@@ -120,16 +120,16 @@ def validate_post(request_media, session):
 
     # Category id is mandatory and must be valid and available
     # -----------------------------------------------------
-    category_id_field = 'id'
-    category_id = request_media.get(category_id_field)
+    out_field_name = 'id'
+    category_id = request_media.get('id')
     if category_id is None:
-        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL, field_name=category_id_field))
+        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL, field_name=out_field_name))
     elif not isinstance(category_id, int):
-        errors.append(build_error(Message.ERR_INVALID_VALUE_TYPE, field_name=category_id_field))
+        errors.append(build_error(Message.ERR_INVALID_VALUE_TYPE, field_name=out_field_name))
     elif category_id <= 0:
-        errors.append(build_error(Message.ERR_INVALID_IT_ASSET_CATEGORY_ID, field_name=category_id_field))
+        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_INVALID, field_name=out_field_name))
     elif session.query(ITAssetCategory).get(category_id) is not None:
-        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_ALREADY_EXISTS, field_name=category_id_field))
+        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_ALREADY_EXISTS, field_name=out_field_name))
 
     return errors
 
