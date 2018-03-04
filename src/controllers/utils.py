@@ -3,8 +3,9 @@ Utility and helper methods to be used in controllers.
 """
 import math
 import app_constants
-from errors import build_error, Message
+from datetime import datetime
 from dictalchemy import asdict
+from errors import build_error, Message
 
 
 def get_collection_page(req, query, asdict_func=None):
@@ -122,3 +123,24 @@ def validate_str(field_name, field_value, is_mandatory=False, max_length=None, e
     # Must be unique
     if exists_strategy and exists_strategy():
         return build_error(Message.ERR_FIELD_VALUE_ALREADY_EXISTS, field_name=field_name)
+
+
+def patch_item(original_item, new_item, only=None):
+    """Patches a dict object with another dict with matching fields.
+    Original item will be updated in place.
+
+    :param original_item: The item that should be patched.
+    :param new_item: The item with patching data.
+    :param only: A list of strings containing the name of specific fields to patch.
+        Other fields will be ignored.
+        Default: None
+    :return: The patched item or None if the result of patch operation is equal
+        to the ``original_item``.
+    """
+    old_item = original_item.asdict()
+    original_item.fromdict(new_item, only=only)
+    new_item = original_item.asdict()
+    if new_item != old_item:
+        original_item.last_modified_on = datetime.utcnow()
+        return original_item
+    return None
