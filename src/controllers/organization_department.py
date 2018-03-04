@@ -1,6 +1,8 @@
 import falcon
 from datetime import datetime
 
+from sqlalchemy.orm import joinedload
+
 import app_constants as constants
 from .extensions import HTTPUnprocessableEntity
 from .utils import get_collection_page
@@ -9,7 +11,7 @@ from models import Session, OrganizationDepartment, Organization, BusinessDepart
 
 
 class Collection:
-    """GET departments of an organization."""
+    """GET and POST departments of an organization."""
 
     def on_get(self, req, resp, organization_code):
         """GETs a paged collection of departments of an organization.
@@ -29,9 +31,10 @@ class Collection:
             query = session\
                 .query(OrganizationDepartment)\
                 .filter(Organization.id == organization_code)\
-                .order_by(OrganizationDepartment.created_on)
+                .order_by(OrganizationDepartment.created_on)\
+                .options(joinedload(OrganizationDepartment.department, innerjoin=True))
 
-            data, paging = get_collection_page(req, query)
+            data, paging = get_collection_page(req, query, custom_asdict)
             resp.media = {
                 'data': data,
                 'paging': paging
@@ -64,7 +67,7 @@ class Collection:
             session.commit()
 
             resp.status = falcon.HTTP_CREATED
-            resp.media = {'data': item.asdict()}
+            resp.media = {'data': custom_asdict(item)}
         finally:
             session.close()
 
@@ -85,7 +88,7 @@ class Item:
             if item is None:
                 raise falcon.HTTPNotFound()
 
-            resp.media = {'data': item.asdict()}
+            resp.media = {'data': custom_asdict(item)}
         finally:
             session.close()
 
@@ -130,8 +133,13 @@ def validate_post(request_media, organization_code, session):
 
 def find_organization_department(department_id, organization_code, session):
     query = session \
-        .query(OrganizationDepartment) \
+        .query(OrganizationDepartment)\
         .filter(OrganizationDepartment.organization_id == organization_code,
-                OrganizationDepartment.department_id == department_id) \
+                OrganizationDepartment.department_id == department_id)
 
     return query.first()
+
+
+def custom_asdict(dictable_model):
+    include = {'department': {'only': ['id', 'name']}}
+    return dictable_model.asdict(follow=include, exclude=['department_id'])

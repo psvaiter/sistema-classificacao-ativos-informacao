@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Float
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 from dictalchemy import make_class_dictable
 from datetime import datetime
 from settings import conn_string
@@ -154,9 +154,11 @@ class OrganizationDepartment(DbModel):
 
     id = Column("organization_department_id", Integer, primary_key=True)
     organization_id = Column(Integer, nullable=False)
-    department_id = Column("business_department_id", Integer, nullable=False)
+    department_id = Column("business_department_id", Integer, ForeignKey("business_department.business_department_id"), nullable=False)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    department = relationship("BusinessDepartment")
 
 
 class OrganizationMacroprocess(DbModel):
