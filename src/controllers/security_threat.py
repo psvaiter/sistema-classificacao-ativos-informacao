@@ -1,6 +1,4 @@
 import falcon
-from datetime import datetime
-
 import app_constants as constants
 from .extensions import HTTPUnprocessableEntity
 from .utils import get_collection_page, validate_str, patch_item

@@ -3,7 +3,7 @@ from datetime import datetime
 
 import app_constants as constants
 from .extensions import HTTPUnprocessableEntity
-from .utils import get_collection_page, validate_str
+from .utils import get_collection_page, validate_str, patch_item
 from errors import Message, build_error
 from models import Session, Organization
 
@@ -90,14 +90,8 @@ class Item:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
-            # Apply fields informed in request, compare before and after
-            # and save patch only if record has changed.
-            old_organization = organization.asdict()
-            organization.fromdict(req.media, only=['tax_id', 'legal_name', 'trade_name'])
-            new_organization = organization.asdict()
-            if new_organization != old_organization:
-                organization.last_modified_on = datetime.utcnow()
-                session.commit()
+            patch_item(organization, req.media, only=['tax_id', 'legal_name', 'trade_name'])
+            session.commit()
 
             resp.status = falcon.HTTP_OK
             resp.media = {'data': organization.asdict()}

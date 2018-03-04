@@ -1,9 +1,5 @@
 import falcon
-from datetime import datetime
-
 from sqlalchemy.orm import joinedload
-
-import app_constants as constants
 from .extensions import HTTPUnprocessableEntity
 from .utils import get_collection_page
 from errors import Message, build_error

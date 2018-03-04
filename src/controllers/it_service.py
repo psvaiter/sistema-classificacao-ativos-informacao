@@ -3,7 +3,7 @@ from datetime import datetime
 
 import app_constants as constants
 from .extensions import HTTPUnprocessableEntity
-from .utils import get_collection_page, validate_str
+from .utils import get_collection_page, validate_str, patch_item
 from errors import Message, build_error
 from models import Session, ITService
 
@@ -90,14 +90,8 @@ class Item:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
-            # Apply fields informed in request, compare before and after
-            # and save patch only if record has changed.
-            old_it_service = it_service.asdict()
-            it_service.fromdict(req.media, only=['name'])
-            new_it_service = it_service.asdict()
-            if new_it_service != old_it_service:
-                it_service.last_modified_on = datetime.utcnow()
-                session.commit()
+            patch_item(it_service, req.media, only=['name'])
+            session.commit()
 
             resp.status = falcon.HTTP_OK
             resp.media = {'data': it_service.asdict()}

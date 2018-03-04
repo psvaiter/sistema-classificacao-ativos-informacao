@@ -3,7 +3,7 @@ from datetime import datetime
 
 import app_constants as constants
 from .extensions import HTTPUnprocessableEntity
-from .utils import get_collection_page, validate_str
+from .utils import get_collection_page, validate_str, patch_item
 from errors import Message, build_error
 from models import Session, BusinessMacroprocess
 
@@ -90,14 +90,8 @@ class Item:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
-            # Apply fields informed in request, compare before and after
-            # and save patch only if record has changed.
-            old_macroprocess = macroprocess.asdict()
-            macroprocess.fromdict(req.media, only=['name'])
-            new_macroprocess = macroprocess.asdict()
-            if new_macroprocess != old_macroprocess:
-                macroprocess.last_modified_on = datetime.utcnow()
-                session.commit()
+            patch_item(macroprocess, req.media, only=['name'])
+            session.commit()
 
             resp.status = falcon.HTTP_OK
             resp.media = {'data': macroprocess.asdict()}
