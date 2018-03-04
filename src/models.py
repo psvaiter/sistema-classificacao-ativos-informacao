@@ -153,8 +153,8 @@ class OrganizationDepartment(DbModel):
     __tablename__ = "organization_department"
 
     id = Column("organization_department_id", Integer, primary_key=True)
-    organization_id = Column(Integer, ForeignKey("organization.organization_id"), nullable=False)
-    business_department_id = Column(Integer, ForeignKey("business_department.business_department_id"), nullable=False)
+    organization_id = Column(Integer, nullable=False)
+    department_id = Column("business_department_id", Integer, nullable=False)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 

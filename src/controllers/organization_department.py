@@ -19,25 +19,57 @@ class Collection:
         :param organization_code: The code of the organization to get the departments.
         """
         session = Session()
+        try:
+            # Test organization code
+            organization = session.query(Organization).get(organization_code)
+            if organization is None:
+                raise falcon.HTTPNotFound()
 
-        organization = session.query(Organization).get(organization_code)
-        if organization is None:
-            raise falcon.HTTPNotFound()
+            # Fetch items
+            query = session\
+                .query(OrganizationDepartment)\
+                .filter(Organization.id == organization_code)\
+                .order_by(OrganizationDepartment.created_on)
 
-        query = session\
-            .query(OrganizationDepartment)\
-            .filter(Organization.id == organization_code)\
-            .order_by(OrganizationDepartment.created_on)
+            data, paging = get_collection_page(req, query)
+            resp.media = {
+                'data': data,
+                'paging': paging
+            }
+        finally:
+            session.close()
 
-        data, paging = get_collection_page(req, query)
-        resp.media = {
-            'data': data,
-            'paging': paging
-        }
 
+    def on_post(self, req, resp, organization_code):
+        """Adds a department to an organization.
+
+        :param req: See Falcon Request documentation.
+        :param resp: See Falcon Response documentation.
+        :param organization_code: The code of the organization.
+        """
+        session = Session()
+        try:
+            organization = session.query(Organization).get(organization_code)
+            if organization is None:
+                raise falcon.HTTPNotFound()
+
+            errors = validate_post(req.media, organization_code, session)
+            if errors:
+                raise HTTPUnprocessableEntity(errors)
+
+            item = OrganizationDepartment()
+            item.organization_id = organization_code
+            item.department_id = req.media['id']
+            session.add(item)
+            session.commit()
+
+            resp.status = falcon.HTTP_CREATED
+            resp.media = {'data': item.asdict()}
+        finally:
+            session.close()
 
 class Item:
-    """GET, PUT and DELETE an organization department."""
+    """GET and DELETE an organization department."""
 
     def on_get(self, req, resp, organization_code, department_id):
         """GETs a single department of an organization.
@@ -48,28 +80,11 @@ class Item:
         :param department_id: The id of department to retrieve.
         """
         session = Session()
-        item = find_organization_department(department_id, organization_code, session)
-        if item is None:
-            raise falcon.HTTPNotFound()
-
-        resp.media = {'data': item.asdict()}
-
-    def on_put(self, req, resp, organization_code, department_id):
-        """Adds a department to an organization. Replaces the existing one
-        if already exists.
-
-        :param req: See Falcon Request documentation.
-        :param resp: See Falcon Response documentation.
-        :param organization_code: The code of organization.
-        :param department_id: The id of department being added.
-        """
-        session = Session()
         try:
-            validate_put_item(organization_code, department_id, req.media, session)
-            item = add_or_update(department_id, organization_code, session)
-            session.commit()
+            item = find_organization_department(department_id, organization_code, session)
+            if item is None:
+                raise falcon.HTTPNotFound()
 
-            resp.status = falcon.HTTP_OK
             resp.media = {'data': item.asdict()}
         finally:
             session.close()
@@ -94,45 +109,29 @@ class Item:
             session.close()
 
 
-def validate_put_item(organization_code, department_id, request_media, session):
+def validate_post(request_media, organization_code, session):
     errors = []
 
-    # Check if organization exists (404)
-    organization = session.query(Organization).get(organization_code)
-    if organization is None:
-        raise falcon.HTTPNotFound()
+    # Validate department id
+    # -----------------------------------------------------
+    department_id = request_media.get('id')
+    if department_id is None:
+        errors.append(build_error(Message.ERR_DEPARTMENT_ID_CANNOT_BE_NULL, field_name='id'))
+    elif not session.query(BusinessDepartment).get(department_id):
+        errors.append(build_error(Message.ERR_DEPARTMENT_ID_INVALID, field_name='id'))
 
-    # Check if department exists
-    department = session.query(BusinessDepartment).get(department_id)
-    if department is None:
-        errors.append(build_error(Message.ERR_DEPARTMENT_ID_NOT_FOUND))
+    # Validate department in organization
+    # -----------------------------------------------------
+    elif find_organization_department(department_id, organization_code, session):
+        errors.append(build_error(Message.ERR_DEPARTMENT_ID_ALREADY_IN_ORGANIZATION, field_name='id'))
 
-    # if not request_media:
-    #     errors.append(build_error(Message.ERR_NO_CONTENT))
-    #     return errors
-
-    if errors:
-        raise HTTPUnprocessableEntity(errors)
-
-
-def add_or_update(organization_code, department_id, session):
-    organization_department = find_organization_department(department_id, organization_code, session)
-
-    # Add if doesn't exist
-    if organization_department is None:
-        organization_department = OrganizationDepartment(
-            organization_id=organization_code,
-            business_department_id=department_id
-        )
-        session.add(organization_department)
-
-    return organization_department
+    return errors
 
 
 def find_organization_department(department_id, organization_code, session):
     query = session \
         .query(OrganizationDepartment) \
         .filter(OrganizationDepartment.organization_id == organization_code,
-                OrganizationDepartment.business_department_id == department_id) \
+                OrganizationDepartment.department_id == department_id) \
 
     return query.first()
