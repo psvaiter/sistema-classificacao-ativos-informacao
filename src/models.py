@@ -143,8 +143,6 @@ class RatingLevel(DbModel):
 
     id = Column("rating_level_id", Integer, primary_key=True)
     name = Column(String, nullable=False)
-    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
-    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class OrganizationDepartment(DbModel):
@@ -214,6 +212,8 @@ class OrganizationSecurityThreat(DbModel):
     exposure_level_id = Column(Integer, ForeignKey(RatingLevel.id), nullable=False)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    security_threat = relationship(SecurityThreat, lazy='joined')
 
 
 class OrganizationITAssetVulnerability(DbModel):

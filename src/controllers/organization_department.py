@@ -14,7 +14,7 @@ class Collection:
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
-        :param organization_code: The code of the organization to get the departments.
+        :param organization_code: The code of the organization.
         """
         session = Session()
         try:
@@ -36,7 +36,6 @@ class Collection:
             }
         finally:
             session.close()
-
 
     def on_post(self, req, resp, organization_code):
         """Adds a department to an organization.
