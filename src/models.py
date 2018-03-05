@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Float
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from dictalchemy import make_class_dictable
@@ -161,18 +162,21 @@ class OrganizationDepartment(DbModel):
 class OrganizationMacroprocess(DbModel):
     __tablename__ = "organization_macroprocess"
 
-    id = Column("organization_macroprocess_id", Integer, primary_key=True)
-    organization_department_id = Column(Integer, ForeignKey(OrganizationDepartment.id), nullable=False)
-    business_macroprocess_id = Column(Integer, ForeignKey(BusinessMacroprocess.id), nullable=False)
+    instance_id = Column("organization_macroprocess_id", Integer, primary_key=True)
+    organization_id = Column(Integer, ForeignKey(Organization.id), nullable=False)
+    department_id = Column("business_department_id", Integer, ForeignKey(BusinessDepartment.id), nullable=False)
+    macroprocess_id = Column("business_macroprocess_id", Integer, ForeignKey(BusinessMacroprocess.id), nullable=False)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
+    department = relationship(BusinessDepartment, lazy='joined')
+    macroprocess = relationship(BusinessMacroprocess, lazy='joined')
 
 class OrganizationProcess(DbModel):
     __tablename__ = "organization_process"
 
     id = Column("organization_process_id", Integer, primary_key=True)
-    organization_macroprocess_id = Column(Integer, ForeignKey(OrganizationMacroprocess.id), nullable=False)
+    organization_macroprocess_id = Column(Integer, ForeignKey(OrganizationMacroprocess.instance_id), nullable=False)
     business_process_id = Column(Integer, ForeignKey(BusinessProcess.id), nullable=False)
     relevance_level_id = Column(Integer, ForeignKey(RatingLevel.id))
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)

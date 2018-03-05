@@ -18,12 +18,11 @@ class Collection:
         """
         session = Session()
         try:
-            # Test organization code
             organization = session.query(Organization).get(organization_code)
             if organization is None:
                 raise falcon.HTTPNotFound()
 
-            # Fetch items
+            # Build query to fetch items
             query = session\
                 .query(OrganizationDepartment)\
                 .filter(Organization.id == organization_code)\
