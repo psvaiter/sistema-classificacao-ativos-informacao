@@ -110,6 +110,13 @@ def validate_post(request_media, session):
     if error:
         errors.append(error)
 
+    # Validate description
+    # -----------------------------------------------------
+    description = request_media.get('description')
+    error = validate_str('description', description, max_length=constants.GENERAL_DESCRIPTION_MAX_LENGTH)
+    if error:
+        errors.append(error)
+
     return errors
 
 
@@ -128,6 +135,14 @@ def validate_patch(request_media, session):
                              is_mandatory=True,
                              max_length=constants.GENERAL_NAME_MAX_LENGTH,
                              exists_strategy=exists_name(name, session))
+        if error:
+            errors.append(error)
+
+    # Validate name if informed
+    # -----------------------------------------------------
+    if 'description' in request_media:
+        description = request_media.get('description')
+        error = validate_str('description', description, max_length=constants.GENERAL_DESCRIPTION_MAX_LENGTH)
         if error:
             errors.append(error)
 
