@@ -1,6 +1,6 @@
 import falcon
 from .extensions import HTTPUnprocessableEntity
-from .utils import get_collection_page
+from .utils import get_collection_page, patch_item
 from errors import Message, build_error
 from models import Session, Organization, OrganizationSecurityThreat, SecurityThreat, RatingLevel
 
@@ -65,7 +65,7 @@ class Collection:
             session.close()
 
 class Item:
-    """GET and DELETE an organization security threat."""
+    """GET, PATCH and DELETE an organization security threat."""
 
     def on_get(self, req, resp, organization_code, security_threat_id):
         """GETs a single security threat of an organization.
@@ -82,6 +82,32 @@ class Item:
                 raise falcon.HTTPNotFound()
 
             resp.media = {'data': custom_asdict(item)}
+        finally:
+            session.close()
+
+    def on_patch(self, req, resp, organization_code, security_threat_id):
+        """Updates (partially) the security threat requested.
+        All entities that reference the security threat will be affected by the update.
+
+        :param req: See Falcon Request documentation.
+        :param resp: See Falcon Response documentation.
+        :param security_threat_id: The id of security threat to be patched.
+        """
+        session = Session()
+        try:
+            security_threat = find_organization_security_threat(security_threat_id, organization_code, session)
+            if security_threat is None:
+                raise falcon.HTTPNotFound()
+
+            errors = validate_patch(req.media, organization_code, session)
+            if errors:
+                raise HTTPUnprocessableEntity(errors)
+
+            patch_item(security_threat, req.media, only=['exposure_level_id'])
+            session.commit()
+
+            resp.status = falcon.HTTP_OK
+            resp.media = {'data': custom_asdict(security_threat)}
         finally:
             session.close()
 
@@ -123,6 +149,25 @@ def validate_post(request_media, organization_code, session):
     exposure_level_id = request_media.get('exposure_level_id')
     if exposure_level_id and not session.query(RatingLevel).get(exposure_level_id):
         errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='exposureLevelId'))
+
+    return errors
+
+
+def validate_patch(request_media, organization_code, session):
+    errors = []
+
+    if not request_media:
+        errors.append(build_error(Message.ERR_NO_CONTENT))
+        return errors
+
+    # Validate exposure level id if informed
+    # -----------------------------------------------------
+    if 'exposure_level_id' in request_media:
+        exposure_level_id = request_media.get('exposure_level_id')
+
+        # This value CAN be null if informed...
+        if exposure_level_id and not session.query(RatingLevel).get(exposure_level_id):
+            errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='exposureLevelId'))
 
     return errors
 
