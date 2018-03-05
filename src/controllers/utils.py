@@ -2,6 +2,7 @@
 Utility and helper methods to be used in controllers.
 """
 import math
+import numbers
 import app_constants
 from datetime import datetime
 from dictalchemy import asdict
@@ -72,6 +73,49 @@ def build_paging_info(page, records_per_page, total_records):
         'total_pages': math.ceil(total_records / records_per_page) or 1,
         'total_records': total_records
     }
+
+
+def validate_number(field_name, field_value, is_mandatory=False,
+                    min_value=None, max_value=None, exists_strategy=None):
+    """Validates a number with general predefined rules.
+
+    :param field_name: The field name to put in error object.
+    :param field_value: The field value to be validated.
+    :param is_mandatory: Indicates that the field is mandatory. That means that
+        an error is returned if value is None.
+        Default is false.
+    :param min_value: Minimum value considered valid (inclusive).
+        Default is None.
+    :param max_value: Maximum value considered valid (inclusive).
+        Default is None.
+    :param exists_strategy: A function that returns something or True when value
+        already exists. If the function returns None or False, the value is
+        considered new and validation will pass. If function is None, this
+        validation will be skipped.
+        Default is None.
+    :return: A dict containing an error code, a message and the field name.
+    """
+    # Field was not informed...
+    if field_value is None:
+        if is_mandatory:
+            return build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name=field_name)
+
+        # OK, it's not mandatory.
+        return None
+
+    # Must be of one of numeric types
+    if not isinstance(field_value, numbers.Number):
+        return build_error(Message.ERR_FIELD_VALUE_MUST_BE_NUMBER, field_name=field_name)
+
+    # Check min and/or max when requested
+    if min_value and field_value < min_value:
+        return build_error(Message.ERR_FIELD_VALUE_BELOW_MIN, field_name=field_name)
+    if max_value and field_value > max_value:
+        return build_error(Message.ERR_FIELD_VALUE_ABOVE_MAX, field_name=field_name)
+
+    # Must be unique
+    if exists_strategy and exists_strategy():
+        return build_error(Message.ERR_FIELD_VALUE_ALREADY_EXISTS, field_name=field_name)
 
 
 def validate_str(field_name, field_value, is_mandatory=False, max_length=None, exists_strategy=None):
