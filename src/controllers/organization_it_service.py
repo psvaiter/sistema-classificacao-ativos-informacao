@@ -64,8 +64,9 @@ class Collection:
         finally:
             session.close()
 
+
 class Item:
-    """GET and DELETE an organization's IT service instance."""
+    """GET, PATCH and DELETE an organization's IT service instance."""
 
     def on_get(self, req, resp, organization_code, it_service_instance_id):
         """GETs a single instance of IT service of an organization.
@@ -113,7 +114,7 @@ class Item:
             session.close()
 
     def on_delete(self, req, resp, organization_code, it_service_instance_id):
-        """Removes an IT service from an organization's process.
+        """Removes an IT service from an organization's process instance.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.

@@ -65,6 +65,7 @@ class Collection:
         finally:
             session.close()
 
+
 class Item:
     """GET and DELETE an organization department."""
 
