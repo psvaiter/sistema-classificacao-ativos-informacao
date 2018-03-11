@@ -91,6 +91,7 @@ class Item:
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
+        :param organization_code: The code of organization containing the security threat.
         :param security_threat_id: The id of security threat to be patched.
         """
         session = Session()

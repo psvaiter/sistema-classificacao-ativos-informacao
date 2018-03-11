@@ -170,22 +170,27 @@ class OrganizationMacroprocess(DbModel):
     department = relationship(BusinessDepartment, lazy='joined')
     macroprocess = relationship(BusinessMacroprocess, lazy='joined')
 
+
 class OrganizationProcess(DbModel):
     __tablename__ = "organization_process"
 
-    id = Column("organization_process_id", Integer, primary_key=True)
-    organization_macroprocess_id = Column(Integer, ForeignKey(OrganizationMacroprocess.instance_id), nullable=False)
-    business_process_id = Column(Integer, ForeignKey(BusinessProcess.id), nullable=False)
+    instance_id = Column("organization_process_id", Integer, primary_key=True)
+    organization_id = Column(Integer, ForeignKey(Organization.id), nullable=False)
+    macroprocess_instance_id = Column("organization_macroprocess_id", Integer, ForeignKey(OrganizationMacroprocess.instance_id), nullable=False)
+    process_id = Column("business_process_id", Integer, ForeignKey(BusinessProcess.id), nullable=False)
     relevance_level_id = Column(Integer, ForeignKey(RatingLevel.id))
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    # macroprocess_instance = relationship(OrganizationMacroprocess, lazy='joined')
+    process = relationship(BusinessProcess, lazy='joined')
 
 
 class OrganizationITService(DbModel):
     __tablename__ = "organization_it_service"
 
     id = Column("organization_it_service_id", Integer, primary_key=True)
-    organization_process_id = Column(Integer, ForeignKey(OrganizationProcess.id), nullable=False)
+    organization_process_id = Column(Integer, ForeignKey(OrganizationProcess.instance_id), nullable=False)
     it_service_id = Column(Integer, ForeignKey(ITService.id), nullable=False)
     relevance_level_id = Column(Integer, ForeignKey(RatingLevel.id))
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
