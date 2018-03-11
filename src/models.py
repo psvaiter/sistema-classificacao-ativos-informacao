@@ -154,7 +154,7 @@ class OrganizationDepartment(DbModel):
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    department = relationship("BusinessDepartment")
+    department = relationship(BusinessDepartment)
 
 
 class OrganizationMacroprocess(DbModel):
@@ -182,26 +182,28 @@ class OrganizationProcess(DbModel):
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    # macroprocess_instance = relationship(OrganizationMacroprocess, lazy='joined')
     process = relationship(BusinessProcess, lazy='joined')
 
 
 class OrganizationITService(DbModel):
     __tablename__ = "organization_it_service"
 
-    id = Column("organization_it_service_id", Integer, primary_key=True)
-    organization_process_id = Column(Integer, ForeignKey(OrganizationProcess.instance_id), nullable=False)
+    instance_id = Column("organization_it_service_id", Integer, primary_key=True)
+    organization_id = Column(Integer, ForeignKey(Organization.id), nullable=False)
+    process_instance_id = Column("organization_process_id", Integer, ForeignKey(OrganizationProcess.instance_id), nullable=False)
     it_service_id = Column(Integer, ForeignKey(ITService.id), nullable=False)
     relevance_level_id = Column(Integer, ForeignKey(RatingLevel.id))
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    it_service = relationship(ITService, lazy='joined')
 
 
 class OrganizationITAsset(DbModel):
     __tablename__ = "organization_it_asset"
 
     id = Column("organization_it_asset_id", Integer, primary_key=True)
-    organization_it_service_id = Column(Integer, ForeignKey(OrganizationITService.id), nullable=False)
+    organization_it_service_id = Column(Integer, ForeignKey(OrganizationITService.instance_id), nullable=False)
     it_asset_id = Column(Integer, ForeignKey(ITAsset.id), nullable=False)
     relevance_level_id = Column(Integer, ForeignKey(RatingLevel.id))
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
