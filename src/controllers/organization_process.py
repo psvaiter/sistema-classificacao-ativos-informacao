@@ -36,7 +36,7 @@ class Collection:
             session.close()
 
     def on_post(self, req, resp, organization_code):
-        """Adds a process to an organization.
+        """Adds a process to an organization's macroprocess.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
@@ -65,10 +65,10 @@ class Collection:
             session.close()
 
 class Item:
-    """GET and DELETE an organization process instance."""
+    """GET and DELETE an organization's process instance."""
 
     def on_get(self, req, resp, organization_code, process_instance_id):
-        """GETs a single process of an organization macroprocess.
+        """GETs a single instance of process of an organization.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
@@ -113,7 +113,7 @@ class Item:
             session.close()
 
     def on_delete(self, req, resp, organization_code, process_instance_id):
-        """Removes a process from an organization macroprocess.
+        """Removes a process from an organization's macroprocess.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
@@ -122,11 +122,7 @@ class Item:
         """
         session = Session()
         try:
-            item = session \
-                .query(OrganizationProcess) \
-                .filter(OrganizationProcess.instance_id == process_instance_id) \
-                .filter(Organization.id == organization_code) \
-                .first()
+            item = find_process_instance(process_instance_id, organization_code, session)
             if item is None:
                 raise falcon.HTTPNotFound()
 
@@ -204,6 +200,7 @@ def find_process_instance(process_instance_id, organization_id, session):
         .filter(Organization.id == organization_id)
 
     return query.first()
+
 
 def custom_asdict(dictable_model):
     exclude = ['organization_id', 'process_id']
