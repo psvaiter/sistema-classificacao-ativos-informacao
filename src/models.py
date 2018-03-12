@@ -231,10 +231,12 @@ class OrganizationITAssetVulnerability(DbModel):
 
     id = Column("organization_it_asset_vulnerability_id", Integer, primary_key=True)
     organization_security_threat_id = Column(Integer, ForeignKey(OrganizationSecurityThreat.id), nullable=False)
-    organization_it_asset_id = Column(Integer, ForeignKey(OrganizationITAsset.instance_id), nullable=False)
+    it_asset_instance_id = Column("organization_it_asset_id", Integer, ForeignKey(OrganizationITAsset.instance_id), nullable=False)
     vulnerability_level_id = Column(Integer, ForeignKey(RatingLevel.id), nullable=False)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    organization_security_threat = relationship(OrganizationSecurityThreat, lazy='joined')
 
 
 class OrganizationVulnerabilityControl(DbModel):

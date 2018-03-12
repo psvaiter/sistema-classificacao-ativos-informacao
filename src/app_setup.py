@@ -46,7 +46,7 @@ def configure_routes(api):
     api.add_route('/organizations/{organization_code}/itAssets', organization_it_asset.Collection())
     api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}', organization_it_asset.Item())
     api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/vulnerabilities', organization_it_asset_vulnerability.Collection())
-    api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/vulnerabilities/{vulnerability_id}', organization_it_asset_vulnerability.Collection())
+    api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/vulnerabilities/{vulnerability_id}', organization_it_asset_vulnerability.Item())
     api.add_route('/organizations/{organization_code}/securityThreats', organization_security_threat.Collection())
     api.add_route('/organizations/{organization_code}/securityThreats/{security_threat_id}', organization_security_threat.Item())
     api.add_route('/organizations/{organization_code}/vulnerabilityControls', organization_vulnerability_control.Collection())
