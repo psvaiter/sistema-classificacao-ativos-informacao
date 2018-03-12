@@ -237,6 +237,10 @@ class OrganizationITAssetVulnerability(DbModel):
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     organization_security_threat = relationship(OrganizationSecurityThreat, lazy='joined')
+    security_threat = association_proxy('organization_security_threat', 'security_threat')
+
+    it_asset_instance = relationship(OrganizationITAsset, lazy='joined')
+    it_asset = association_proxy('it_asset_instance', 'it_asset')
 
 
 class OrganizationVulnerabilityControl(DbModel):
