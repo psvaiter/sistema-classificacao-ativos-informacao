@@ -45,7 +45,7 @@ class Collection:
 
             # Get password and hash it
             password = req.media.get('password')
-            item.hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
+            item.hashed_password = bcrypt.hashpw(password.encode('UTF-8'), bcrypt.gensalt())
 
             session.add(item)
             session.commit()
@@ -93,7 +93,7 @@ class Item:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
-            patch_item(user, req.media, only=['email', 'name'])
+            patch_item(user, req.media, only=['email', 'full_name'])
             session.commit()
 
             resp.status = falcon.HTTP_OK

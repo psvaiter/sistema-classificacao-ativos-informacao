@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Float
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Float, Boolean
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
@@ -113,9 +113,15 @@ class SystemUser(DbModel):
     full_name = Column(String, nullable=False)
     email = Column(String, nullable=False)
     hashed_password = Column(String)
-    last_logged_in_on = Column(DateTime)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    last_logged_in_on = Column(DateTime)
+    last_login_attempted_on = Column(DateTime)
+    failed_login_attempt_count = Column(Integer, nullable=False, default=0)
+    is_locked_out = Column(Boolean, nullable=False, default=False)
+    locked_out_on = Column(DateTime)
+    blocked_on = Column(DateTime)
 
 
 class SystemAdministrativeRole(DbModel):
