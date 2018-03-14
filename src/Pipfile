@@ -12,6 +12,7 @@ pymysql = "*"
 falcon = "*"
 dictalchemy = "*"
 inflection = "*"
+bcrypt = "*"
 
 
 [dev-packages]

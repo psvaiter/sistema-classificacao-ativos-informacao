@@ -112,7 +112,7 @@ class SystemUser(DbModel):
     id = Column("system_user_id", Integer, primary_key=True)
     full_name = Column(String, nullable=False)
     email = Column(String, nullable=False)
-    password = Column(String)
+    hashed_password = Column(String)
     last_logged_in_on = Column(DateTime)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
