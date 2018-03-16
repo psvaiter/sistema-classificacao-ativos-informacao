@@ -190,6 +190,7 @@ def patch_item(original_item, new_item, only=None):
     original_item.fromdict(new_item, only=only)
     new_item = original_item.asdict()
     if new_item != old_item:
-        original_item.last_modified_on = datetime.utcnow()
+        if hasattr(original_item, 'last_modified_on'):
+            original_item.last_modified_on = datetime.utcnow()
         return original_item
     return None
