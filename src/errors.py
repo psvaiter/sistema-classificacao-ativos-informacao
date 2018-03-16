@@ -24,6 +24,7 @@ class Message(Enum):
     ERR_FIELD_VALUE_INVALID = "Field value is invalid."
     ERR_FIELD_VALUE_ALREADY_EXISTS = "Field value already exists."
     ERR_FIELD_VALUE_MUST_BE_STRING = "Field value must be a string."
+    ERR_FIELD_MIN_LENGTH = "Field value length is below allowed limit."
     ERR_FIELD_MAX_LENGTH = "Field value length is above allowed limit."
     ERR_FIELD_WITH_LEADING_OR_TRAILING_SPACES = "Field value cannot contain leading and/or trailing spaces."
     ERR_FIELD_VALUE_MUST_BE_NUMBER = "Field value must be a number."

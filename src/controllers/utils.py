@@ -118,7 +118,7 @@ def validate_number(field_name, field_value, is_mandatory=False,
         return build_error(Message.ERR_FIELD_VALUE_ALREADY_EXISTS, field_name=field_name)
 
 
-def validate_str(field_name, field_value, is_mandatory=False, max_length=None, exists_strategy=None):
+def validate_str(field_name, field_value, is_mandatory=False, min_length=None, max_length=None, exists_strategy=None):
     """Validates a string with general predefined rules.
 
     The string cannot be empty or contain any leading or trailing whitespace.
@@ -130,6 +130,9 @@ def validate_str(field_name, field_value, is_mandatory=False, max_length=None, e
     :param is_mandatory: Indicates that the field is mandatory. That means that
         an error is returned if value is None.
         Default is false.
+    :param min_length: Minimum length allowed. An error is returned if len(field_value)
+        is below this value. When None, this validation will be skipped.
+        Default is None.
     :param max_length: Maximum length allowed. An error is returned if len(field_value)
         is above this value. When None, this validation will be skipped.
         Default is None.
@@ -161,7 +164,9 @@ def validate_str(field_name, field_value, is_mandatory=False, max_length=None, e
         return build_error(Message.ERR_FIELD_WITH_LEADING_OR_TRAILING_SPACES, field_name=field_name)
 
     # Length must be valid
-    if len(field_value) > max_length:
+    if min_length and len(field_value) < min_length:
+        return build_error(Message.ERR_FIELD_MIN_LENGTH, field_name=field_name)
+    if max_length and len(field_value) > max_length:
         return build_error(Message.ERR_FIELD_MAX_LENGTH, field_name=field_name)
 
     # Must be unique
