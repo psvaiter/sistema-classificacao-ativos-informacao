@@ -119,7 +119,6 @@ class SystemUser(DbModel):
     last_logged_in_on = Column(DateTime)
     last_login_attempted_on = Column(DateTime)
     failed_login_attempt_count = Column(Integer, nullable=False, default=0)
-    is_locked_out = Column(Boolean, nullable=False, default=False)
     locked_out_on = Column(DateTime)
     blocked_on = Column(DateTime)
 

@@ -5,6 +5,7 @@ from .extensions import HTTPUnprocessableEntity
 from .utils import get_collection_page, validate_str, patch_item
 from errors import Message, build_error
 from models import Session, SystemUser
+from datetime import datetime
 
 
 class Collection:
@@ -20,7 +21,7 @@ class Collection:
         try:
             query = session.query(SystemUser).order_by(SystemUser.created_on)
 
-            data, paging = get_collection_page(req, query)
+            data, paging = get_collection_page(req, query, custom_asdict)
             resp.media = {
                 'data': data,
                 'paging': paging
@@ -50,7 +51,7 @@ class Collection:
             session.add(item)
             session.commit()
             resp.status = falcon.HTTP_CREATED
-            resp.media = {'data': item.asdict(exclude=['hashed_password'])}
+            resp.media = {'data': custom_asdict(item)}
         finally:
             session.close()
 
@@ -71,7 +72,7 @@ class Item:
             if item is None:
                 raise falcon.HTTPNotFound()
 
-            resp.media = {'data': item.asdict(exclude=['hashed_password'])}
+            resp.media = {'data': custom_asdict(item)}
         finally:
             session.close()
 
@@ -94,10 +95,26 @@ class Item:
                 raise HTTPUnprocessableEntity(errors)
 
             patch_item(user, req.media, only=['email', 'full_name'])
-            session.commit()
 
+            # Update password if informed
+            if 'password' in req.media:
+                password = req.media.get('password')
+                user.hashed_password = bcrypt.hashpw(password.encode('UTF-8'), bcrypt.gensalt())
+                user.last_modified_on = datetime.utcnow()
+
+            # Block / Unblock user if requested
+            if 'is_blocked' in req.media:
+                is_blocked = req.media.get('is_blocked')
+                change_block_state(is_blocked, user)
+
+            # Unlock if requested
+            if req.media.get('unlock') is True:
+                user.locked_out_on = None
+                user.last_modified_on = datetime.utcnow()
+
+            session.commit()
             resp.status = falcon.HTTP_OK
-            resp.media = {'data': user.asdict(exclude=['hashed_password'])}
+            resp.media = {'data': custom_asdict(user)}
         finally:
             session.close()
 
@@ -122,6 +139,15 @@ def validate_post(request_media, session):
                          is_mandatory=True,
                          max_length=constants.EMAIL_MAX_LENGTH,
                          exists_strategy=exists_email(email, session))
+    if error:
+        errors.append(error)
+
+    # Validate password
+    # -----------------------------------------------------
+    password = request_media.get('password')
+    error = validate_str('password', password,
+                         is_mandatory=True,
+                         min_length=constants.PASSWORD_MIN_LENGTH)
     if error:
         errors.append(error)
 
@@ -156,6 +182,16 @@ def validate_patch(request_media, session):
         if error:
             errors.append(error)
 
+    # Validate password if informed
+    # -----------------------------------------------------
+    if 'password' in request_media:
+        password = request_media.get('password')
+        error = validate_str('password', password,
+                             is_mandatory=True,
+                             min_length=constants.PASSWORD_MIN_LENGTH)
+        if error:
+            errors.append(error)
+
     return errors
 
 
@@ -165,3 +201,23 @@ def exists_email(email, session):
             .filter(SystemUser.email == email) \
             .first()
     return exists
+
+
+def change_block_state(is_blocked, user):
+    if is_blocked is True:
+        # Block if requested
+        # Date will only be changed if not already blocked
+        if not user.blocked_on:
+            user.blocked_on = datetime.utcnow()
+            user.last_modified_on = datetime.utcnow()
+
+    elif is_blocked is False:
+        # Unblock if requested
+        # Date will only be changed if not already unblocked
+        if user.blocked_on:
+            user.blocked_on = None
+            user.last_modified_on = datetime.utcnow()
+
+
+def custom_asdict(dictable_model):
+    return dictable_model.asdict(exclude=['hashed_password'])
