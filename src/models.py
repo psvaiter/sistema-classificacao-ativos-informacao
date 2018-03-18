@@ -106,10 +106,10 @@ class SecurityThreat(DbModel):
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
-class VulnerabilityControl(DbModel):
-    __tablename__ = "vulnerability_control"
+class MitigationControl(DbModel):
+    __tablename__ = "mitigation_control"
 
-    id = Column("vulnerability_control_id", Integer, primary_key=True)
+    id = Column("mitigation_control_id", Integer, primary_key=True)
     name = Column(String, nullable=False)
     description = Column(String)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)

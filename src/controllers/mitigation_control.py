@@ -3,21 +3,21 @@ import app_constants as constants
 from .extensions import HTTPUnprocessableEntity
 from .utils import get_collection_page, validate_str, patch_item
 from errors import Message, build_error
-from models import Session, VulnerabilityControl
+from models import Session, MitigationControl
 
 
 class Collection:
-    """GET and POST vulnerability controls in catalog."""
+    """GET and POST mitigation controls in catalog."""
 
     def on_get(self, req, resp):
-        """GETs a paged collection of vulnerability controls available.
+        """GETs a paged collection of mitigation controls available.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
         """
         session = Session()
         try:
-            query = session.query(VulnerabilityControl).order_by(VulnerabilityControl.created_on)
+            query = session.query(MitigationControl).order_by(MitigationControl.created_on)
 
             data, paging = get_collection_page(req, query)
             resp.media = {
@@ -28,7 +28,7 @@ class Collection:
             session.close()
 
     def on_post(self, req, resp):
-        """Creates a new vulnerability control in catalog.
+        """Creates a new mitigation control in catalog.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
@@ -39,8 +39,8 @@ class Collection:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
-            # Copy fields from request to a VulnerabilityControl object
-            item = VulnerabilityControl().fromdict(req.media, only=['name', 'description'])
+            # Copy fields from request to a MitigationControl object
+            item = MitigationControl().fromdict(req.media, only=['name', 'description'])
 
             session.add(item)
             session.commit()
@@ -51,18 +51,18 @@ class Collection:
 
 
 class Item:
-    """GET and PATCH a vulnerability control in catalog."""
+    """GET and PATCH a mitigation control in catalog."""
 
-    def on_get(self, req, resp, vulnerability_control_id):
-        """GETs a single vulnerability control by id.
+    def on_get(self, req, resp, mitigation_control_id):
+        """GETs a single mitigation control by id.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
-        :param vulnerability_control_id: The id of vulnerability control to retrieve.
+        :param mitigation_control_id: The id of mitigation control to retrieve.
         """
         session = Session()
         try:
-            item = session.query(VulnerabilityControl).get(vulnerability_control_id)
+            item = session.query(MitigationControl).get(mitigation_control_id)
             if item is None:
                 raise falcon.HTTPNotFound()
 
@@ -70,17 +70,17 @@ class Item:
         finally:
             session.close()
 
-    def on_patch(self, req, resp, vulnerability_control_id):
-        """Updates (partially) the vulnerability control requested.
-        All entities that reference the vulnerability control will be affected by the update.
+    def on_patch(self, req, resp, mitigation_control_id):
+        """Updates (partially) the mitigation control requested.
+        All entities that reference the mitigation control will be affected by the update.
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
-        :param vulnerability_control_id: The id of vulnerability control to be patched.
+        :param mitigation_control_id: The id of mitigation control to be patched.
         """
         session = Session()
         try:
-            item = session.query(VulnerabilityControl).get(vulnerability_control_id)
+            item = session.query(MitigationControl).get(mitigation_control_id)
             if item is None:
                 raise falcon.HTTPNotFound()
 
@@ -151,7 +151,7 @@ def validate_patch(request_media, session):
 
 def exists_name(name, session):
     def exists():
-        return session.query(VulnerabilityControl.name) \
-            .filter(VulnerabilityControl.name == name) \
+        return session.query(MitigationControl.name) \
+            .filter(MitigationControl.name == name) \
             .first()
     return exists
