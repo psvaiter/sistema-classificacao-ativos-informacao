@@ -3,7 +3,7 @@ from controllers import extensions, department, macroprocess, process, \
     organization, organization_department, organization_macroprocess, \
     organization_process, organization_it_service, organization_it_asset, \
     system_user, system_user_role, security_threat, organization_security_threat, organization_vulnerability_control, \
-    organization_it_asset_vulnerability
+    organization_it_asset_vulnerability, vulnerability_control
 
 
 def configure_media_handlers(api):
@@ -16,7 +16,7 @@ def configure_media_handlers(api):
 
 
 def configure_routes(api):
-    # Add routes for domain data
+    # Add routes for data in catalog
     api.add_route('/departments', department.Collection())
     api.add_route('/departments/{department_id}', department.Item())
     api.add_route('/macroprocesses', macroprocess.Collection())
@@ -31,6 +31,8 @@ def configure_routes(api):
     api.add_route('/itAssetCategories/{it_asset_category_id}', it_asset_category.Item())
     api.add_route('/securityThreats', security_threat.Collection())
     api.add_route('/securityThreats/{security_threat_id}', security_threat.Item())
+    api.add_route('/vulnerabilityControls', vulnerability_control.Collection())
+    api.add_route('/vulnerabilityControls/{vulnerability_control_id}', vulnerability_control.Item())
 
     # Add routes to handle organizations and their sub-resources
     api.add_route('/organizations', organization.Collection())
@@ -58,3 +60,4 @@ def configure_routes(api):
     api.add_route('/management/users/{user_id}', system_user.Item())
     api.add_route('/management/userRoles', system_user_role.Collection())
     api.add_route('/management/userRoles/{user_role_id}', system_user_role.Item())
+    # api.add_route('/users/{user_id}/authenticate', system_user.Item())
