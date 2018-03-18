@@ -52,10 +52,9 @@ class Collection:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
-            item = OrganizationProcess()
+            accepted_fields = ['macroprocess_instance_id', 'process_id', 'relevance_level_id']
+            item = OrganizationProcess().fromdict(req.media, only=accepted_fields)
             item.organization_id = organization_code
-            item.macroprocess_instance_id = req.media['macroprocess_instance_id']
-            item.process_id = req.media['process_id']
             session.add(item)
             session.commit()
 
@@ -153,6 +152,12 @@ def validate_post(request_media, organization_code, session):
         errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='processId'))
     elif find_organization_process(process_id, macroprocess_instance_id, organization_code, session):
         errors.append(build_error(Message.ERR_FIELD_VALUE_ALREADY_EXISTS, field_name='macroprocessInstanceId/processId'))
+
+    # Validate relevance level if informed
+    # -----------------------------------------------------
+    relevance_level_id = request_media.get('relevance_level_id')
+    if relevance_level_id and not session.query(RatingLevel).get(relevance_level_id):
+        errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='relevanceLevelId'))
 
     return errors
 

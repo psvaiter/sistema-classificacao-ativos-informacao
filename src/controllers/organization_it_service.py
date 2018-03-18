@@ -52,10 +52,9 @@ class Collection:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
-            item = OrganizationITService()
+            accepted_fields = ['process_instance_id', 'it_service_id', 'relevance_level_id']
+            item = OrganizationITService().fromdict(req.media, only=accepted_fields)
             item.organization_id = organization_code
-            item.process_instance_id = req.media['process_instance_id']
-            item.it_service_id = req.media['it_service_id']
             session.add(item)
             session.commit()
 
@@ -153,6 +152,12 @@ def validate_post(request_media, organization_code, session):
         errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='itServiceId'))
     elif find_organization_it_service(it_service_id, process_instance_id, organization_code, session):
         errors.append(build_error(Message.ERR_FIELD_VALUE_ALREADY_EXISTS, field_name='processInstanceId/itServiceId'))
+
+    # Validate relevance level if informed
+    # -----------------------------------------------------
+    relevance_level_id = request_media.get('relevance_level_id')
+    if relevance_level_id and not session.query(RatingLevel).get(relevance_level_id):
+        errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='relevanceLevelId'))
 
     return errors
 
