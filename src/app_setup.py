@@ -3,7 +3,7 @@ from controllers import extensions, department, macroprocess, process, \
     organization, organization_department, organization_macroprocess, \
     organization_process, organization_it_service, organization_it_asset, \
     system_user, system_user_role, security_threat, organization_security_threat, organization_vulnerability_control, \
-    organization_it_asset_vulnerability, mitigation_control
+    organization_it_asset_vulnerability, mitigation_control, system_role
 
 
 def configure_media_handlers(api):
@@ -56,6 +56,8 @@ def configure_routes(api):
 
     # Routes for system management and access control
     # api.add_route('/management/healthcheck', system_healthcheck.Item())
+    api.add_route('/management/roles', system_role.Collection())
+    api.add_route('/management/roles/{role_id}', system_role.Item())
     api.add_route('/management/users', system_user.Collection())
     api.add_route('/management/users/{user_id}', system_user.Item())
     api.add_route('/management/userRoles', system_user_role.Collection())
