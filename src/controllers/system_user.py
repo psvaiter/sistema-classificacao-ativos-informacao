@@ -127,8 +127,7 @@ def validate_post(request_media, session):
     full_name = request_media.get('full_name')
     error = validate_str('fullName', full_name,
                          is_mandatory=True,
-                         max_length=constants.GENERAL_NAME_MAX_LENGTH,
-                         exists_strategy=exists_email(full_name, session))
+                         max_length=constants.GENERAL_NAME_MAX_LENGTH)
     if error:
         errors.append(error)
 
