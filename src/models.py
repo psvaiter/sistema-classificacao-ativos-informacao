@@ -147,10 +147,12 @@ class SystemUserAdministrativeRole(DbModel):
     __tablename__ = "system_user_administrative_role"
 
     id = Column("system_user_administrative_role_id", Integer, primary_key=True)
-    system_user_id = Column(Integer, ForeignKey(SystemUser.id), nullable=False)
-    system_administrative_role_id = Column(Integer, ForeignKey(SystemAdministrativeRole.id), nullable=False)
+    user_id = Column("system_user_id", Integer, ForeignKey(SystemUser.id), nullable=False)
+    role_id = Column("system_administrative_role_id", Integer, ForeignKey(SystemAdministrativeRole.id), nullable=False)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    role = relationship(SystemAdministrativeRole, lazy='joined')
 
 
 class RatingLevel(DbModel):

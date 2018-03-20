@@ -60,6 +60,5 @@ def configure_routes(api):
     api.add_route('/management/roles/{role_id}', system_role.Item())
     api.add_route('/management/users', system_user.Collection())
     api.add_route('/management/users/{user_id}', system_user.Item())
-    api.add_route('/management/userRoles', system_user_role.Collection())
-    api.add_route('/management/userRoles/{user_role_id}', system_user_role.Item())
+    api.add_route('/management/users/{user_id}/roles/{role_id}', system_user_role.Item())
     # api.add_route('/users/{user_id}/authenticate', system_user.Item())
