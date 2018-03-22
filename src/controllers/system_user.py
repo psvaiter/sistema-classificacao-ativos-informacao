@@ -219,4 +219,7 @@ def change_block_state(is_blocked, user):
 
 
 def custom_asdict(dictable_model):
-    return dictable_model.asdict(exclude=['hashed_password'])
+    include = {
+        'roles': {'only': ['id', 'name']}
+    }
+    return dictable_model.asdict(follow=include, exclude=['hashed_password'])
