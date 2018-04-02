@@ -13,6 +13,7 @@ falcon = "*"
 dictalchemy = "*"
 inflection = "*"
 bcrypt = "*"
+falcon-cors = "*"
 
 
 [dev-packages]
