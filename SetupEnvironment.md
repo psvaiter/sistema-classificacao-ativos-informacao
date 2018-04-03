@@ -1,4 +1,4 @@
-## Setup development environment
+# Setup development environment
 
 #### Recommended IDEs and tools
 
@@ -14,7 +14,7 @@
 - [Docker CE (Community Edition)](https://www.docker.com/community-edition)
 - [Node.js](https://nodejs.org/en/download/) (choose the LTS version)
 
-### Install the project
+## Install the project
 
 #### Check requirements
 
@@ -60,12 +60,12 @@ mysql> GRANT SELECT, INSERT, UPDATE, DELETE ON *.* TO 'KnoweakAppUser'@'%';
 mysql> exit
 ```
 
-#### Deploy database
+#### Deploy the database
 
 Open MySQL Workbench and connect to the database with your personal user (created in 
 previous step).
 
-Run the latest baseline script present in folder `db` of the repository.
+Then run the latest baseline script present in folder `db` of the repository to create the database.
 
 #### Install the API
 
