@@ -4,7 +4,7 @@ import app_constants as constants
 from .extensions import HTTPUnprocessableEntity
 from .utils import get_collection_page, validate_str, patch_item
 from errors import Message, build_error
-from models import Session, SystemUser
+from models import Session, SystemUser, SystemAdministrativeRole, SystemUserAdministrativeRole
 from datetime import datetime
 
 
@@ -47,6 +47,9 @@ class Collection:
             # Get password and hash it
             password = req.media.get('password')
             item.hashed_password = bcrypt.hashpw(password.encode('UTF-8'), bcrypt.gensalt())
+
+            # Add roles to user being created when informed
+            add_roles(item, req.media.get('roles'))
 
             session.add(item)
             session.commit()
@@ -150,6 +153,20 @@ def validate_post(request_media, session):
     if error:
         errors.append(error)
 
+    # Validate roles
+    # -----------------------------------------------------
+    roles = request_media.get('roles')
+    if roles:
+        # Get the system roles (get scalars from tuples returned)
+        existing_roles = session.query(SystemAdministrativeRole.id).all()
+        existing_roles_ids = [role_id for (role_id,) in existing_roles]
+
+        # Check if id informed exists
+        for idx, role in enumerate(roles):
+            if role.get('id') not in existing_roles_ids:
+                field_name = 'role[{}].id'.format(idx)
+                errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name=field_name))
+
     return errors
 
 
@@ -216,6 +233,17 @@ def change_block_state(is_blocked, user):
         if user.blocked_on:
             user.blocked_on = None
             user.last_modified_on = datetime.utcnow()
+
+
+def add_roles(user, roles):
+    if not roles:
+        return
+
+    user_roles = []
+    for role in roles:
+        user_role = SystemUserAdministrativeRole(role_id=role['id'])
+        user_roles.append(user_role)
+    user.user_roles = user_roles
 
 
 def custom_asdict(dictable_model):
