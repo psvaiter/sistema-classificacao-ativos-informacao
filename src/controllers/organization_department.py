@@ -25,7 +25,7 @@ class Collection:
             # Build query to fetch items
             query = session\
                 .query(OrganizationDepartment)\
-                .filter(Organization.id == organization_code)\
+                .filter(OrganizationDepartment.organization_id == organization_code)\
                 .order_by(OrganizationDepartment.created_on)\
                 .options(joinedload(OrganizationDepartment.department, innerjoin=True))
 
