@@ -384,6 +384,7 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_securit
   `organization_id` INT(11) NOT NULL,
   `security_threat_id` INT(11) NOT NULL,
   `exposure_level_id` INT(11) NULL DEFAULT NULL,
+  `threatening_organization_it_asset_id` INT(11) NULL DEFAULT NULL,
   `created_on` DATETIME(3) NOT NULL,
   `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_security_threat_id`),
@@ -391,10 +392,16 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_securit
   INDEX `IX_organization_id` (`organization_id` ASC),
   INDEX `IX_security_threat_id` (`security_threat_id` ASC),
   INDEX `IX_exposure_level_id` (`exposure_level_id` ASC),
+  INDEX `IX_threatening_organization_it_asset_id` (`threatening_organization_it_asset_id` ASC),
   CONSTRAINT `FK_organization_security_threat__organization`
     FOREIGN KEY (`organization_id`)
     REFERENCES `db_information_asset_security`.`organization` (`organization_id`)
     ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_organization_security_threat__organization_it_asset`
+    FOREIGN KEY (`threatening_organization_it_asset_id`)
+    REFERENCES `db_information_asset_security`.`organization_it_asset` (`organization_it_asset_id`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_organization_security_threat__rating_level`
     FOREIGN KEY (`exposure_level_id`)
