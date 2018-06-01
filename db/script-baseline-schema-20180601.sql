@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`analysis` (
   `analysis_id` INT(11) NOT NULL AUTO_INCREMENT,
   `organization_id` INT(11) NOT NULL,
   `description` VARCHAR(1024) NULL DEFAULT NULL,
+  `analysis_performed_on` DATETIME(3) NOT NULL,
   `created_on` DATETIME(3) NOT NULL,
   `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`analysis_id`),
@@ -55,6 +56,7 @@ DEFAULT CHARACTER SET = utf8;
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`analysis_detail` (
   `analysis_detail_id` INT(11) NOT NULL AUTO_INCREMENT,
   `analysis_id` INT(11) NOT NULL,
+  `department_name` VARCHAR(128) NOT NULL,
   `macroprocess_name` VARCHAR(128) NOT NULL,
   `process_name` VARCHAR(128) NOT NULL,
   `process_relevance` INT(11) NOT NULL,
