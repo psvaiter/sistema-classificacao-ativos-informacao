@@ -488,19 +488,28 @@ DEFAULT CHARACTER SET = utf8;
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_vulnerability_control` (
   `organization_vulnerability_control_id` INT(11) NOT NULL AUTO_INCREMENT,
   `controlled_it_asset_id` INT(11) NOT NULL,
+  `mitigation_control_id` INT(11) NOT NULL,
   `mitigating_it_asset_id` INT(11) NULL DEFAULT NULL,
   `description` VARCHAR(255) NULL DEFAULT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_vulnerability_control_id`),
   INDEX `IX_mitigating_it_asset_id` (`mitigating_it_asset_id` ASC),
   INDEX `IX_controlled_it_asset_id` (`controlled_it_asset_id` ASC),
+  INDEX `IX_mitigation_control_id` (`mitigation_control_id` ASC),
   CONSTRAINT `FK_organization_vulnerability_control__controlled_it_asset`
     FOREIGN KEY (`controlled_it_asset_id`)
     REFERENCES `db_information_asset_security`.`organization_it_asset` (`organization_it_asset_id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_organization_vulnerability_control__mitigating_it_asset`
     FOREIGN KEY (`mitigating_it_asset_id`)
     REFERENCES `db_information_asset_security`.`organization_it_asset` (`organization_it_asset_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_organization_vulnerability_control__mitigation_control`
+    FOREIGN KEY (`mitigation_control_id`)
+    REFERENCES `db_information_asset_security`.`mitigation_control` (`mitigation_control_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
