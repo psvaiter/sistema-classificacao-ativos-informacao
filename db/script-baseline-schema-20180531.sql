@@ -327,16 +327,13 @@ DEFAULT CHARACTER SET = utf8;
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_it_asset` (
   `organization_it_asset_id` INT(11) NOT NULL AUTO_INCREMENT,
   `organization_id` INT(11) NOT NULL,
-  `organization_it_service_id` INT(11) NOT NULL,
   `it_asset_id` INT(11) NOT NULL,
-  `relevance_level_id` INT(11) NULL DEFAULT NULL,
+  `external_identifier` VARCHAR(128) NULL DEFAULT NULL,
   `created_on` DATETIME(3) NOT NULL,
   `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_it_asset_id`),
   INDEX `IX_it_asset_id` (`it_asset_id` ASC),
-  INDEX `IX_rating_level_id` (`relevance_level_id` ASC),
   INDEX `IX_organization_id` (`organization_id` ASC),
-  INDEX `IX_organization_it_service_id` (`organization_it_service_id` ASC),
   CONSTRAINT `FK_organization_it_asset__it_asset`
     FOREIGN KEY (`it_asset_id`)
     REFERENCES `db_information_asset_security`.`it_asset` (`it_asset_id`)
@@ -345,14 +342,44 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_it_asse
   CONSTRAINT `FK_organization_it_asset__organization`
     FOREIGN KEY (`organization_id`)
     REFERENCES `db_information_asset_security`.`organization` (`organization_id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `db_information_asset_security`.`organization_it_service_it_asset`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_it_service_it_asset` (
+  `organization_it_service_it_asset_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `organization_id` INT(11) NOT NULL,
+  `organization_it_service_id` INT(11) NOT NULL,
+  `organization_it_asset_id` INT(11) NOT NULL,
+  `relevance_level_id` INT(11) NULL DEFAULT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
+  PRIMARY KEY (`organization_it_service_it_asset_id`),
+  INDEX `IX_organization_id` (`organization_id` ASC),
+  INDEX `IX_organization_it_service_id` (`organization_it_service_id` ASC),
+  INDEX `IX_organization_it_asset_id` (`organization_it_asset_id` ASC),
+  INDEX `IX_rating_level_id` (`relevance_level_id` ASC),
+  CONSTRAINT `FK_organization_it_service_it_asset__organization`
+    FOREIGN KEY (`organization_id`)
+    REFERENCES `db_information_asset_security`.`organization` (`organization_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_organization_it_asset__organization_it_service`
+  CONSTRAINT `FK_organization_it_service_it_asset__organization_it_asset`
+    FOREIGN KEY (`organization_it_asset_id`)
+    REFERENCES `db_information_asset_security`.`organization_it_asset` (`organization_it_asset_id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_organization_it_service_it_asset__organization_it_service`
     FOREIGN KEY (`organization_it_service_id`)
     REFERENCES `db_information_asset_security`.`organization_it_service` (`organization_it_service_id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_organization_it_asset__rating_level`
+  CONSTRAINT `FK_organization_it_service_it_asset__rating_level`
     FOREIGN KEY (`relevance_level_id`)
     REFERENCES `db_information_asset_security`.`rating_level` (`rating_level_id`)
     ON DELETE NO ACTION
@@ -424,7 +451,7 @@ CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_it_asse
   `organization_it_asset_vulnerability_id` INT(11) NOT NULL AUTO_INCREMENT,
   `organization_security_threat_id` INT(11) NOT NULL,
   `organization_it_asset_id` INT(11) NOT NULL,
-  `vulnerability_level_id` INT(11) NOT NULL,
+  `vulnerability_level_id` INT(11) NULL DEFAULT NULL,
   `created_on` DATETIME(3) NOT NULL,
   `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_it_asset_vulnerability_id`),
