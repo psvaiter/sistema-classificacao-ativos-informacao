@@ -55,7 +55,7 @@ class Collection:
             item = OrganizationSecurityThreat()
             item.organization_id = organization_code
             item.security_threat_id = req.media.get('security_threat_id')
-            item.exposure_level_id = req.media.get('exposure_level_id')
+            item.threat_level_id = req.media.get('threat_level_id')
             session.add(item)
             session.commit()
 
@@ -104,7 +104,7 @@ class Item:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
-            patch_item(security_threat, req.media, only=['exposure_level_id'])
+            patch_item(security_threat, req.media, only=['threat_level_id'])
             session.commit()
 
             resp.status = falcon.HTTP_OK
@@ -147,9 +147,9 @@ def validate_post(request_media, organization_code, session):
 
     # Validate exposure level id
     # -----------------------------------------------------
-    exposure_level_id = request_media.get('exposure_level_id')
-    if exposure_level_id and not session.query(RatingLevel).get(exposure_level_id):
-        errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='exposureLevelId'))
+    threat_level_id = request_media.get('threat_level_id')
+    if threat_level_id and not session.query(RatingLevel).get(threat_level_id):
+        errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='threatLevelId'))
 
     return errors
 
@@ -163,12 +163,12 @@ def validate_patch(request_media, organization_code, session):
 
     # Validate exposure level id if informed
     # -----------------------------------------------------
-    if 'exposure_level_id' in request_media:
-        exposure_level_id = request_media.get('exposure_level_id')
+    if 'threat_level_id' in request_media:
+        threat_level_id = request_media.get('threat_level_id')
 
         # This value CAN be null if informed...
-        if exposure_level_id and not session.query(RatingLevel).get(exposure_level_id):
-            errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='exposureLevelId'))
+        if threat_level_id and not session.query(RatingLevel).get(threat_level_id):
+            errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='threatLevelId'))
 
     return errors
 

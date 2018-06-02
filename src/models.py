@@ -238,7 +238,8 @@ class OrganizationSecurityThreat(DbModel):
     id = Column("organization_security_threat_id", Integer, primary_key=True)
     organization_id = Column(Integer, ForeignKey(Organization.id), nullable=False)
     security_threat_id = Column(Integer, ForeignKey(SecurityThreat.id), nullable=False)
-    exposure_level_id = Column(Integer, ForeignKey(RatingLevel.id), nullable=False)
+    threat_level_id = Column(Integer, ForeignKey(RatingLevel.id), nullable=False)
+    # threatening_organization_it_asset_id = Column(Integer, ForeignKey(), nullable=False)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
