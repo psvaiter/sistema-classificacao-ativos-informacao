@@ -224,13 +224,11 @@ DEFAULT CHARACTER SET = utf8;
 -- Table `db_information_asset_security`.`organization_department`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_department` (
-  `organization_department_id` INT(11) NOT NULL AUTO_INCREMENT,
   `organization_id` INT(11) NOT NULL,
   `business_department_id` INT(11) NOT NULL,
   `created_on` DATETIME(3) NOT NULL,
   `last_modified_on` DATETIME(3) NOT NULL,
-  PRIMARY KEY (`organization_department_id`),
-  UNIQUE INDEX `UQ_organization_id_department_id` (`organization_id` ASC, `business_department_id` ASC),
+  PRIMARY KEY (`organization_id`, `business_department_id`),
   INDEX `IX_organization_id` (`organization_id` ASC),
   INDEX `IX_business_department_id` (`business_department_id` ASC),
   CONSTRAINT `FK_organization_department__business_department`
@@ -381,29 +379,22 @@ DEFAULT CHARACTER SET = utf8;
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_macroprocess` (
   `organization_macroprocess_id` INT(11) NOT NULL AUTO_INCREMENT,
   `organization_id` INT(11) NOT NULL,
-  `organization_department_id` INT(11) NOT NULL,
+  `business_department_id` INT(11) NOT NULL,
   `business_macroprocess_id` INT(11) NOT NULL,
   `created_on` DATETIME(3) NOT NULL,
   `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_macroprocess_id`),
-  UNIQUE INDEX `UQ_organization_department__macroprocess` (`organization_department_id` ASC, `business_macroprocess_id` ASC),
   INDEX `IX_business_macroprocess_id` (`business_macroprocess_id` ASC),
-  INDEX `IX_organization_id` (`organization_id` ASC),
-  INDEX `IX_organization_department_id` (`organization_department_id` ASC),
+  INDEX `IX_organization_department_id` (`organization_id` ASC, `business_department_id` ASC),
   CONSTRAINT `FK_organization_macroprocess__business_macroprocess`
     FOREIGN KEY (`business_macroprocess_id`)
     REFERENCES `db_information_asset_security`.`business_macroprocess` (`business_macroprocess_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_organization_macroprocess__organization`
-    FOREIGN KEY (`organization_id`)
-    REFERENCES `db_information_asset_security`.`organization` (`organization_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `FK_organization_macroprocess__organization_department`
-    FOREIGN KEY (`organization_department_id`)
-    REFERENCES `db_information_asset_security`.`organization_department` (`organization_department_id`)
-    ON DELETE CASCADE
+    FOREIGN KEY (`organization_id` , `business_department_id`)
+    REFERENCES `db_information_asset_security`.`organization_department` (`organization_id` , `business_department_id`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;

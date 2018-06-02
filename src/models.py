@@ -168,9 +168,8 @@ class RatingLevel(DbModel):
 class OrganizationDepartment(DbModel):
     __tablename__ = "organization_department"
 
-    id = Column("organization_department_id", Integer, primary_key=True)
-    organization_id = Column(Integer, ForeignKey(Organization.id), nullable=False)
-    department_id = Column("business_department_id", Integer, ForeignKey(BusinessDepartment.id), nullable=False)
+    organization_id = Column(Integer, ForeignKey(Organization.id), primary_key=True, nullable=False)
+    department_id = Column("business_department_id", Integer, ForeignKey(BusinessDepartment.id), primary_key=True, nullable=False)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
