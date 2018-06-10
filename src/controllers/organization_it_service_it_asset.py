@@ -1,5 +1,8 @@
 import falcon
 
+from .utils import get_collection_page
+from models import Session, OrganizationITServiceITAsset, OrganizationITService
+
 
 class Collection:
     """GET and POST instances of IT assets from/into an organization's IT service."""
@@ -12,7 +15,27 @@ class Collection:
         :param organization_code: The code of the organization.
         :param it_service_instance_id: The id of the IT service instance.
         """
-        pass
+        session = Session()
+        try:
+            it_service_instance = find_it_service_instance(it_service_instance_id, organization_code, session)
+            if it_service_instance is None:
+                raise falcon.HTTPNotFound()
+
+            # Build query to fetch items
+            query = session \
+                .query(OrganizationITServiceITAsset) \
+                .join(OrganizationITService) \
+                .filter(OrganizationITService.organization_id == organization_code) \
+                .filter(OrganizationITService.instance_id == it_service_instance_id) \
+                .order_by(OrganizationITServiceITAsset.created_on)
+
+            data, paging = get_collection_page(req, query, custom_asdict)
+            resp.media = {
+                'data': data,
+                'paging': paging
+            }
+        finally:
+            session.close()
 
     def on_post(self, req, resp, organization_code, it_service_instance_id):
         """Adds an instance of IT asset to an organization IT service.
@@ -51,3 +74,20 @@ class Item:
         :param it_asset_instance_id: The id of the IT asset instance to be removed.
         """
         pass
+
+
+def find_it_service_instance(it_service_instance_id, organization_code, session):
+    query = session \
+        .query(OrganizationITService) \
+        .filter(OrganizationITService.organization_id == organization_code) \
+        .filter(OrganizationITService.instance_id == it_service_instance_id)
+
+    return query.first()
+
+
+def custom_asdict(dictable_model):
+    exclude = None
+    include = {
+        'it_asset': {'only': ['id', 'name']}
+    }
+    return dictable_model.asdict(follow=include, exclude=exclude)
