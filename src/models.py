@@ -168,8 +168,8 @@ class RatingLevel(DbModel):
 class OrganizationDepartment(DbModel):
     __tablename__ = "organization_department"
 
-    organization_id = Column(Integer, ForeignKey(Organization.id), primary_key=True, nullable=False)
-    department_id = Column("business_department_id", Integer, ForeignKey(BusinessDepartment.id), primary_key=True, nullable=False)
+    organization_id = Column(Integer, ForeignKey(Organization.id), primary_key=True)
+    department_id = Column("business_department_id", Integer, ForeignKey(BusinessDepartment.id), primary_key=True)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
@@ -216,6 +216,8 @@ class OrganizationITService(DbModel):
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     it_service = relationship(ITService, lazy='joined')
+    # organization_it_assets = relationship("OrganizationITAsset", secondary="OrganizationITServiceITAsset")
+    # it_assets = association_proxy("organization_it_assets", "it_asset")
 
 
 class OrganizationITAsset(DbModel):
@@ -223,13 +225,27 @@ class OrganizationITAsset(DbModel):
 
     instance_id = Column("organization_it_asset_id", Integer, primary_key=True)
     organization_id = Column(Integer, ForeignKey(Organization.id), nullable=False)
-    it_service_instance_id = Column("organization_it_service_id", Integer, ForeignKey(OrganizationITService.instance_id), nullable=False)
     it_asset_id = Column(Integer, ForeignKey(ITAsset.id), nullable=False)
-    relevance_level_id = Column(Integer, ForeignKey(RatingLevel.id))
+    external_identifier = Column(String)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     it_asset = relationship(ITAsset, lazy='joined')
+
+
+class OrganizationITServiceITAsset(DbModel):
+    __tablename__ = "organization_it_service_it_asset"
+
+    it_service_instance_id = Column("organization_it_service_id", Integer, ForeignKey(OrganizationITService.instance_id), primary_key=True)
+    it_asset_instance_id = Column("organization_it_asset_id", Integer, ForeignKey(OrganizationITAsset.instance_id), primary_key=True)
+    relevance_level_id = Column(Integer, ForeignKey(RatingLevel.id))
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    # it_service_instance = relationship(OrganizationITService, lazy='joined')
+    # it_service = association_proxy("it_service_instance", "it_service")
+    # it_asset_instance = relationship(OrganizationITAsset, lazy='joined')
+    # it_asset = association_proxy("it_asset_instance", "it_asset")
 
 
 class OrganizationSecurityThreat(DbModel):

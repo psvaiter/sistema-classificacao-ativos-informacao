@@ -1,8 +1,9 @@
 import falcon
 from .extensions import HTTPUnprocessableEntity
-from .utils import get_collection_page, patch_item
+from .utils import get_collection_page, patch_item, validate_str
 from errors import Message, build_error
-from models import Session, OrganizationITAsset, Organization, ITAsset, OrganizationITService, RatingLevel
+from models import Session, OrganizationITAsset, Organization, ITAsset
+import app_constants as constants
 
 
 class Collection:
@@ -52,7 +53,7 @@ class Collection:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
-            accepted_fields = ['it_service_instance_id', 'is_asset_id', 'relevance_level_id']
+            accepted_fields = ['it_asset_id', 'external_identifier']
             item = OrganizationITAsset().fromdict(req.media, only=accepted_fields)
             item.organization_id = organization_code
             session.add(item)
@@ -104,7 +105,7 @@ class Item:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
-            patch_item(it_asset_instance, req.media, only=['relevance_level_id'])
+            patch_item(it_asset_instance, req.media, only=['external_identifier'])
             session.commit()
 
             resp.status = falcon.HTTP_OK
@@ -135,29 +136,22 @@ class Item:
 def validate_post(request_media, organization_code, session):
     errors = []
 
-    # Validate IT service instance id
-    # -----------------------------------------------------
-    it_service_instance_id = request_media.get('it_service_instance_id')
-    if it_service_instance_id is None:
-        errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name='itServiceInstanceId'))
-    elif not find_organization_it_service(it_service_instance_id, session):
-        errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='itServiceInstanceId'))
-
-    # Validate IT asset id and if it's already in organization's IT service instance
+    # Validate IT asset id
     # -----------------------------------------------------
     it_asset_id = request_media.get('it_asset_id')
     if it_asset_id is None:
         errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name='itAssetId'))
     elif not session.query(ITAsset).get(it_asset_id):
         errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='itAssetId'))
-    elif find_organization_it_asset(it_asset_id, it_service_instance_id, organization_code, session):
-        errors.append(build_error(Message.ERR_FIELD_VALUE_ALREADY_EXISTS, field_name='itServiceInstanceId/itAssetId'))
 
-    # Validate relevance level if informed
+    # Validate external identifier if informed
     # -----------------------------------------------------
-    relevance_level_id = request_media.get('relevance_level_id')
-    if relevance_level_id and not session.query(RatingLevel).get(relevance_level_id):
-        errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='relevanceLevelId'))
+    external_identifier = request_media.get('external_identifier')
+    error = validate_str('externalIdentifier', external_identifier, max_length=constants.GENERAL_NAME_MAX_LENGTH)
+    if error:
+        errors.append(error)
+
+    # TODO: validate if an IT asset with the same external identifier already exists in organization
 
     return errors
 
@@ -169,34 +163,17 @@ def validate_patch(request_media, organization_code, session):
         errors.append(build_error(Message.ERR_NO_CONTENT))
         return errors
 
-    # Validate relevance level id if informed
+    # Validate external identifier if informed
     # -----------------------------------------------------
-    if 'relevance_level_id' in request_media:
-        relevance_level_id = request_media.get('relevance_level_id')
+    if 'external_identifier' in request_media:
+        external_identifier = request_media.get('external_identifier')
+        error = validate_str('externalIdentifier', external_identifier, max_length=constants.GENERAL_NAME_MAX_LENGTH)
+        if error:
+            errors.append(error)
 
-        # This value CAN be null if informed...
-        if relevance_level_id and not session.query(RatingLevel).get(relevance_level_id):
-            errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='relevanceLevelId'))
+    # TODO: validate if an IT asset with the same external identifier already exists in organization
 
     return errors
-
-
-def find_organization_it_service(it_service_instance_id, session):
-    query = session \
-        .query(OrganizationITService) \
-        .filter(OrganizationITService.instance_id == it_service_instance_id)
-
-    return query.first()
-
-
-def find_organization_it_asset(it_asset_id, it_service_instance_id, organization_id, session):
-    query = session \
-        .query(OrganizationITAsset) \
-        .filter(OrganizationITAsset.organization_id == organization_id,
-                OrganizationITAsset.it_service_instance_id == it_service_instance_id,
-                OrganizationITAsset.it_asset_id == it_asset_id)
-
-    return query.first()
 
 
 def find_it_asset_instance(it_asset_instance_id, organization_id, session):
