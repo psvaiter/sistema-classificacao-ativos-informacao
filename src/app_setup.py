@@ -1,9 +1,9 @@
 from controllers import extensions, department, macroprocess, process, \
-    it_service, it_asset, it_asset_category, \
-    organization, organization_department, organization_macroprocess, \
-    organization_process, organization_it_service, organization_it_asset, \
-    system_user, system_user_role, security_threat, organization_security_threat, organization_vulnerability_control, \
-    organization_it_asset_vulnerability, mitigation_control, system_role
+    it_service, it_asset, it_asset_category, security_threat, mitigation_control, \
+    organization, organization_department, organization_macroprocess, organization_process, \
+    organization_it_service, organization_it_asset, organization_it_service_it_asset, \
+    organization_security_threat, organization_vulnerability_control, organization_it_asset_vulnerability, \
+    system_user, system_user_role, system_role
 
 
 def configure_media_handlers(api):
@@ -45,6 +45,8 @@ def configure_routes(api):
     api.add_route('/organizations/{organization_code}/processes/{process_instance_id}', organization_process.Item())
     api.add_route('/organizations/{organization_code}/itServices', organization_it_service.Collection())
     api.add_route('/organizations/{organization_code}/itServices/{it_service_instance_id}', organization_it_service.Item())
+    api.add_route('/organizations/{organization_code}/itServices/{it_service_instance_id}/itAssets', organization_it_service_it_asset.Collection())
+    api.add_route('/organizations/{organization_code}/itServices/{it_service_instance_id}/itAssets/{it_asset_instance_id}', organization_it_service_it_asset.Item())
     api.add_route('/organizations/{organization_code}/itAssets', organization_it_asset.Collection())
     api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}', organization_it_asset.Item())
     api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/vulnerabilities', organization_it_asset_vulnerability.Collection())

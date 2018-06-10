@@ -92,7 +92,7 @@ class Item:
 
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
-        :param organization_code: The code of organization containing the process.
+        :param organization_code: The code of organization.
         :param it_asset_instance_id: The id of IT asset instance to be patched.
         """
         session = Session()
