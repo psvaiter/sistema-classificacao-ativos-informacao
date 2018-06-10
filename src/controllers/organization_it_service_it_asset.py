@@ -94,7 +94,18 @@ class Item:
         :param it_service_instance_id: The id of the IT service instance from which the IT asset should be removed.
         :param it_asset_instance_id: The id of the IT asset instance to be removed.
         """
-        pass
+        session = Session()
+        try:
+            # Route params are checked in two steps
+            it_service_instance = find_it_service_instance(it_service_instance_id, organization_code, session)
+            item = find_it_service_it_asset(it_asset_instance_id, it_service_instance_id, session)
+            if it_service_instance is None or item is None:
+                raise falcon.HTTPNotFound()
+
+            session.delete(item)
+            session.commit()
+        finally:
+            session.close()
 
 
 def validate_post(request_media, organization_code, it_service_instance_id, session):
