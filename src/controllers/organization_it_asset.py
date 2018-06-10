@@ -136,7 +136,7 @@ class Item:
 def validate_post(request_media, organization_code, session):
     errors = []
 
-    # Validate IT asset id
+    # Validate IT asset instance id
     # -----------------------------------------------------
     it_asset_id = request_media.get('it_asset_id')
     if it_asset_id is None:

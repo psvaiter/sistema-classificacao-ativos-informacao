@@ -1,7 +1,9 @@
 import falcon
 
+from errors import build_error, Message
+from .extensions import  HTTPUnprocessableEntity
 from .utils import get_collection_page
-from models import Session, OrganizationITServiceITAsset, OrganizationITService
+from models import Session, OrganizationITServiceITAsset, OrganizationITService, RatingLevel, OrganizationITAsset
 
 
 class Collection:
@@ -45,7 +47,26 @@ class Collection:
         :param organization_code: The code of the organization.
         :param it_service_instance_id: The id of the IT service instance.
         """
-        pass
+        session = Session()
+        try:
+            it_service_instance = find_it_service_instance(it_service_instance_id, organization_code, session)
+            if it_service_instance is None:
+                raise falcon.HTTPNotFound()
+
+            errors = validate_post(req.media, organization_code, it_service_instance_id, session)
+            if errors:
+                raise HTTPUnprocessableEntity(errors)
+
+            accepted_fields = ['it_asset_instance_id', 'relevance_level_id']
+            item = OrganizationITServiceITAsset().fromdict(req.media, only=accepted_fields)
+            item.it_service_instance = it_service_instance
+            session.add(item)
+            session.commit()
+
+            resp.status = falcon.HTTP_CREATED
+            resp.media = {'data': custom_asdict(item)}
+        finally:
+            session.close()
 
 
 class Item:
@@ -76,18 +97,53 @@ class Item:
         pass
 
 
+def validate_post(request_media, organization_code, it_service_instance_id, session):
+    errors = []
+
+    # Validate IT asset instance id
+    # It MUST exist in organization and MUST NOT already exist in organization IT service
+    # -----------------------------------------------------
+    it_asset_instance_id = request_media.get('it_asset_instance_id')
+    if it_asset_instance_id is None:
+        errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name='itAssetInstanceId'))
+    elif not find_it_asset_in_organization(it_asset_instance_id, organization_code, session):
+        errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='itAssetInstanceId'))
+    elif find_it_service_it_asset(it_asset_instance_id, it_service_instance_id, session):
+        errors.append(build_error(Message.ERR_FIELD_VALUE_ALREADY_EXISTS, field_name='itServiceInstanceId/itAssetInstanceId'))
+
+    # Validate relevance level if informed
+    # -----------------------------------------------------
+    relevance_level_id = request_media.get('relevance_level_id')
+    if relevance_level_id and not session.query(RatingLevel).get(relevance_level_id):
+        errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='relevanceLevelId'))
+
+    return errors
+
+
 def find_it_service_instance(it_service_instance_id, organization_code, session):
     query = session \
         .query(OrganizationITService) \
         .filter(OrganizationITService.organization_id == organization_code) \
         .filter(OrganizationITService.instance_id == it_service_instance_id)
-
     return query.first()
+
+
+def find_it_asset_in_organization(it_asset_instance_id, organization_code, session):
+    query = session \
+        .query(OrganizationITAsset) \
+        .filter(OrganizationITAsset.organization_id == organization_code) \
+        .filter(OrganizationITAsset.instance_id == it_asset_instance_id)
+    return query.first()
+
+
+def find_it_service_it_asset(it_asset_instance_id, it_service_instance_id, session):
+    return session.query(OrganizationITServiceITAsset) \
+        .get((it_service_instance_id, it_asset_instance_id))
 
 
 def custom_asdict(dictable_model):
     exclude = None
     include = {
-        'it_asset': {'only': ['id', 'name']}
+        # 'it_asset': {'only': ['id', 'name']}
     }
     return dictable_model.asdict(follow=include, exclude=exclude)
