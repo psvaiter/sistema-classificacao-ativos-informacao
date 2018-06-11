@@ -244,8 +244,8 @@ class OrganizationITServiceITAsset(DbModel):
 
     it_service_instance = relationship(OrganizationITService, lazy='joined')
     it_service = association_proxy("it_service_instance", "it_service")
-    # it_asset_instance = relationship(OrganizationITAsset, lazy='joined')
-    # it_asset = association_proxy("it_asset_instance", "it_asset")
+    it_asset_instance = relationship(OrganizationITAsset, lazy='joined')
+    it_asset = association_proxy("it_asset_instance", "it_asset")
 
 
 class OrganizationSecurityThreat(DbModel):
