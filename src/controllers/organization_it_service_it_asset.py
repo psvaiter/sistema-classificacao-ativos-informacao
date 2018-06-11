@@ -2,7 +2,7 @@ import falcon
 
 from errors import build_error, Message
 from .extensions import  HTTPUnprocessableEntity
-from .utils import get_collection_page
+from .utils import get_collection_page, patch_item
 from models import Session, OrganizationITServiceITAsset, OrganizationITService, RatingLevel, OrganizationITAsset
 
 
@@ -70,7 +70,7 @@ class Collection:
 
 
 class Item:
-    """GET, PATCH and DELETE an IT asset from an organization's IT service instance."""
+    """PATCH and DELETE an IT asset of/from an organization's IT service instance."""
 
     def on_patch(self, req, resp, organization_code, it_service_instance_id, it_asset_instance_id):
         """Updates (partially) the relationship IT service-IT asset requested.
@@ -82,7 +82,27 @@ class Item:
         :param it_service_instance_id: The id of the IT service instance to be patched.
         :param it_asset_instance_id: The id of the IT asset instance to be patched.
         """
-        pass
+        session = Session()
+        try:
+            # Route params are checked in two steps:
+            # 1st step: check if IT service is in organization
+            # 2nd step: check if IT asset is in organization IT service
+            it_service_instance = find_it_service_instance(it_service_instance_id, organization_code, session)
+            it_service_asset = find_it_service_it_asset(it_asset_instance_id, it_service_instance_id, session)
+            if it_service_instance is None or it_service_asset is None:
+                raise falcon.HTTPNotFound()
+
+            errors = validate_patch(req.media, organization_code, session)
+            if errors:
+                raise HTTPUnprocessableEntity(errors)
+
+            patch_item(it_service_asset, req.media, only=['relevance_level_id'])
+            session.commit()
+
+            resp.status = falcon.HTTP_OK
+            resp.media = {'data': custom_asdict(it_service_asset)}
+        finally:
+            session.close()
 
     def on_delete(self, req, resp, organization_code, it_service_instance_id, it_asset_instance_id):
         """Removes an instance of IT asset from an organization IT service.
@@ -96,13 +116,15 @@ class Item:
         """
         session = Session()
         try:
-            # Route params are checked in two steps
+            # Route params are checked in two steps:
+            # 1st step: check if IT service is in organization
+            # 2nd step: check if IT asset is in organization IT service
             it_service_instance = find_it_service_instance(it_service_instance_id, organization_code, session)
-            item = find_it_service_it_asset(it_asset_instance_id, it_service_instance_id, session)
-            if it_service_instance is None or item is None:
+            it_service_asset = find_it_service_it_asset(it_asset_instance_id, it_service_instance_id, session)
+            if it_service_instance is None or it_service_asset is None:
                 raise falcon.HTTPNotFound()
 
-            session.delete(item)
+            session.delete(it_service_asset)
             session.commit()
         finally:
             session.close()
@@ -127,6 +149,25 @@ def validate_post(request_media, organization_code, it_service_instance_id, sess
     relevance_level_id = request_media.get('relevance_level_id')
     if relevance_level_id and not session.query(RatingLevel).get(relevance_level_id):
         errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='relevanceLevelId'))
+
+    return errors
+
+
+def validate_patch(request_media, organization_code, session):
+    errors = []
+
+    if not request_media:
+        errors.append(build_error(Message.ERR_NO_CONTENT))
+        return errors
+
+    # Validate relevance level id if informed
+    # -----------------------------------------------------
+    if 'relevance_level_id' in request_media:
+        relevance_level_id = request_media.get('relevance_level_id')
+
+        # This value CAN be null if informed...
+        if relevance_level_id and not session.query(RatingLevel).get(relevance_level_id):
+            errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='relevanceLevelId'))
 
     return errors
 
