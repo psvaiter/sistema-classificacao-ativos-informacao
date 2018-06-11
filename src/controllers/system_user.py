@@ -54,6 +54,7 @@ class Collection:
             session.add(item)
             session.commit()
             resp.status = falcon.HTTP_CREATED
+            resp.location = req.relative_uri
             resp.media = {'data': custom_asdict(item)}
         finally:
             session.close()
