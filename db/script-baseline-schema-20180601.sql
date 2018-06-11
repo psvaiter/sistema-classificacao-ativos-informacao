@@ -484,23 +484,15 @@ DEFAULT CHARACTER SET = utf8;
 -- Table `db_information_asset_security`.`organization_it_service_it_asset`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `db_information_asset_security`.`organization_it_service_it_asset` (
-  `organization_it_service_it_asset_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `organization_id` INT(11) NOT NULL,
   `organization_it_service_id` INT(11) NOT NULL,
   `organization_it_asset_id` INT(11) NOT NULL,
   `relevance_level_id` INT(11) NULL DEFAULT NULL,
   `created_on` DATETIME(3) NOT NULL,
   `last_modified_on` DATETIME(3) NOT NULL,
-  PRIMARY KEY (`organization_it_service_it_asset_id`),
-  INDEX `IX_organization_id` (`organization_id` ASC),
+  PRIMARY KEY (`organization_it_service_id`, `organization_it_asset_id`),
   INDEX `IX_organization_it_service_id` (`organization_it_service_id` ASC),
   INDEX `IX_organization_it_asset_id` (`organization_it_asset_id` ASC),
   INDEX `IX_rating_level_id` (`relevance_level_id` ASC),
-  CONSTRAINT `FK_organization_it_service_it_asset__organization`
-    FOREIGN KEY (`organization_id`)
-    REFERENCES `db_information_asset_security`.`organization` (`organization_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `FK_organization_it_service_it_asset__organization_it_asset`
     FOREIGN KEY (`organization_it_asset_id`)
     REFERENCES `db_information_asset_security`.`organization_it_asset` (`organization_it_asset_id`)
