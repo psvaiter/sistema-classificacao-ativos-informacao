@@ -48,3 +48,4 @@ class Message(Enum):
     ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL = "IT asset category id must be informed."
     ERR_IT_ASSET_CATEGORY_ID_ALREADY_EXISTS = "IT asset category id already exists."
     ERR_IT_ASSET_CATEGORY_ID_INVALID = "Invalid IT asset category id."
+    ERR_ORGANIZATION_SECURITY_THREAT_ID_INVALID = "Security threat id is invalid or doesn't exist in organization."
