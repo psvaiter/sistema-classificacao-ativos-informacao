@@ -284,7 +284,11 @@ class OrganizationVulnerabilityControl(DbModel):
 
     id = Column("organization_vulnerability_control_id", Integer, primary_key=True)
     organization_it_asset_vulnerability_id = Column(Integer, ForeignKey(OrganizationITAssetVulnerability.id), nullable=False)
+    mitigation_control_id = Column(Integer, ForeignKey(MitigationControl.id), nullable=False)
     mitigating_it_asset_id = Column(Integer, ForeignKey(OrganizationITAsset.instance_id))
     description = Column(String)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    mitigation_control = relationship(MitigationControl, lazy='joined')
+    mitigating_it_asset = relationship(OrganizationITAsset, lazy='joined')
