@@ -51,10 +51,10 @@ def configure_routes(api):
     api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}', organization_it_asset.Item())
     api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/vulnerabilities', organization_it_asset_vulnerability.Collection())
     api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/vulnerabilities/{security_threat_id}', organization_it_asset_vulnerability.Item())
+    api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/vulnerabilities/{security_threat_id}/controls', organization_vulnerability_control.Collection())
+    api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/vulnerabilities/{security_threat_id}/controls/{control_id}', organization_vulnerability_control.Item())
     api.add_route('/organizations/{organization_code}/securityThreats', organization_security_threat.Collection())
     api.add_route('/organizations/{organization_code}/securityThreats/{security_threat_id}', organization_security_threat.Item())
-    api.add_route('/organizations/{organization_code}/vulnerabilityControls', organization_vulnerability_control.Collection())
-    api.add_route('/organizations/{organization_code}/vulnerabilityControls/{control_id}', organization_vulnerability_control.Item())
 
     # Routes for system management and access control
     # api.add_route('/management/healthcheck', system_healthcheck.Item())
