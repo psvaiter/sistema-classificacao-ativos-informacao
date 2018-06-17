@@ -283,7 +283,7 @@ class OrganizationVulnerabilityControl(DbModel):
     __tablename__ = "organization_vulnerability_control"
 
     id = Column("organization_vulnerability_control_id", Integer, primary_key=True)
-    controlled_it_asset_id = Column(Integer, ForeignKey(OrganizationITAsset.instance_id))
+    organization_it_asset_vulnerability_id = Column(Integer, ForeignKey(OrganizationITAssetVulnerability.id), nullable=False)
     mitigating_it_asset_id = Column(Integer, ForeignKey(OrganizationITAsset.instance_id))
     description = Column(String)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
