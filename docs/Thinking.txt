@@ -1,0 +1,105 @@
+KNOW YOUR WEAKNESS (Knoweak)
+
+A system for controling the risks of information security incidents.
+---
+Um sistema para controle de riscos de incidentes de segurança da informação.
+
+Objetivo do sistema é avaliar os riscos resultantes de incidentes relacionados 
+com ativos de TI da organização.
+
+O risco é calculado através do produto `Impacto` x `Probabilidade` do incidente
+acontecer.
+
+### Impacto
+
+Para calcular o impacto é necessário elencar dentro de um contexto definido
+as áreas a serem analisadas, os macroprocessos de cada área, os processos de
+cada macroprocesso, os serviços de TI necessários para a implementação de cada
+processo e os ativos necessários para cada serviço.
+
+Precisamos também saber da relevância de cada processo para o negócio da
+organização (Rp), as relevâncias dos serviços com relação aos processos em 
+questão (Rs) e as relevâncias dos ativos com relação aos serviços em questão 
+(Ra), classificados de 1 a 5, onde 1 é muito baixo e 5 é muito alto.
+
+```
+I = Rp/5 . Rs/5 . Ra/5
+```
+
+### Probabilidade
+
+Para calcular a probabilidade de um incidente ocorrer, é preciso elencar as
+ameaças referentes a cada ativo e quanto aquele ativo está exposto a elas.
+
+As ameaças afetam os ativos que suportam serviços de TI, e isso pode acontecer
+em graus diferentes, classificados de 1 a 5, onde 1 é muito baixo e 5 é muito alto.
+Os ativos possuem vulnerabilidades com relação a uma ou mais ameaças que podem 
+ser mitigadas implantando controles sobre eles.
+
+Podemos estimar a probabilidade pela fórmula abaixo.
+```
+P = Ga/5 . Gv/5
+```
+
+### Principais conceitos
+
+Organização
+Departamento
+Macroprocesso
+Processo
+Serviço de TI
+Ativos de TI
+Instância de...
+Ameaças
+Vulnerabilidades
+Controles mitigatórios
+Análises
+Projeto de análises
+Usuário e permissões
+
+
+### Requisitos do sistema
+
+Para ordenar o desenvolvimento, precisamos conhecer quais as premissas básicas 
+sobre o sistema. Conhecendo elas, podemos partir para a especificação técnica.
+
+Como premissas, o sistema deve:
+- permitir cadastrar usuários para controle de acesso;
+- permitir cadastrar organizações;
+- permitir cadastrar departamentos (áreas) em uma organização;
+- permitir usar departamentos existentes em novas organizações;
+- não permitir que existam dois departamentos de mesmo nome na mesma organização;
+- permitir cadastrar macroprocessos dentro de um departamento de uma organização;
+- permitir usar macroprocessos existentes em departamentos de uma organização;
+- não permitir que existam dois macroprocessos iguais na organização;
+- permitir cadastrar processos dentro de um macroprocesso de uma organização;
+- permitir usar processos existentes em macroprocessos de uma organização;
+- não permitir que existam dois processos de mesmo nome na mesma instância de macroprocesso;
+- permitir cadastrar serviços de TI dentro de um processo de uma organização;
+- permitir usar serviços de TI existentes em processos de uma organização;
+- não permitir que existam dois serviços de TI de mesmo identificador na mesma instância de processo;
+- permitir cadastrar ativos de TI para um serviço de TI de uma organização;
+- permitir usar ativos de TI existentes em serviços de uma organização;
+- não permitir que existam dois ativos de TI de mesmo identificador na mesma instância de serviço;
+- permitir que se defina relevância de ativo de TI em relação a serviço de TI;
+- permitir que se defina relevância de serviço de TI em relação a processo;
+- permitir que se defina relevância de processo em relação à organização;
+- permitir cadastrar ameaças;
+- permitir que se defina o grau da ameaça (grau de exposição) para uma organização;     
+    O grau da ameaça independe dos ativos que ela pode afetar. Representa a exposição
+    de uma organização a uma ameaça. Não pode ser generalizado para todas as 
+    organizações porque uma ameaça existe em níveis diferentes dependendo da localização 
+    ou do ramo da organização, ou até mesmo nem existir. Por exemplo: Não podemos
+    dizer que a ameaça "Inundação" possui um grau elevado em todos os locais, então
+    dependendo de onde está localizada a organização estará definido um grau de ameaça.
+    A ausência do relacionamento caracteriza ausência da ameaça.
+- permitir que se defina o grau de vulnerabilidade de um ativo de TI de uma organização em relação a uma ameaça;
+- disponibilizar graduação básica para relevância, vulnerabilidade, ameaça e probabilidade de 1 a 5 (1- muito baixo, 2 - baixo, 3 - médio, 4- alto, 5 - muito alto)
+- permitir criar uma análise para os parâmetros definidos em uma organização;
+- permitir criar uma simulação de análise, ondes os valores podem ser alterados livremente sem afetar os parâmetros originais;
+- permitir cadastrar controles mitigatórios para ativos de TI;
+    Os controles são aplicados a ativos de uma organização, e não causam atualização automática dos graus de vulnerabilidade.
+- permitir consultar análises antigas;
+- não permitir que análises antigas sejam alteradas;
+- permitir que qualquer item de uma organização seja removido sem impactar as análises já existentes;
+
