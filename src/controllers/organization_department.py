@@ -61,7 +61,7 @@ class Collection:
             session.commit()
 
             resp.status = falcon.HTTP_CREATED
-            resp.location = req.relative_uri
+            resp.location = req.relative_uri + f'/{item.department_id}'
             resp.media = {'data': custom_asdict(item)}
         finally:
             session.close()
