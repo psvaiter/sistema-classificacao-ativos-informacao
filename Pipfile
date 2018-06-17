@@ -14,9 +14,9 @@ dictalchemy = "*"
 inflection = "*"
 bcrypt = "*"
 falcon-cors = "*"
+waitress = "*"
+gunicorn = "*"
 
 
 [dev-packages]
 
-waitress = "*"
-gunicorn = "*"

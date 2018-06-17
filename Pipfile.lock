@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2392f27f18187aee001563e3c08fdec2044567de8b59f8adb47d15f8caa42274"
+            "sha256": "412a0380a8fbdeb89deebbd1debcd0c6d6b6d04da631f78f39387334f5ab96e5"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -11,7 +11,7 @@
             "platform_python_implementation": "CPython",
             "platform_release": "10",
             "platform_system": "Windows",
-            "platform_version": "10.0.16299",
+            "platform_version": "10.0.17134",
             "python_full_version": "3.6.4",
             "python_version": "3.6",
             "sys_platform": "win32"
@@ -112,6 +112,13 @@
             ],
             "version": "==1.1.7"
         },
+        "gunicorn": {
+            "hashes": [
+                "sha256:7ef2b828b335ed58e3b64ffa84caceb0a7dd7c5ca12f217241350dec36a1d5dc",
+                "sha256:bc59005979efb6d2dd7d5ba72d99f8a8422862ad17ff3a16e900684630dd2a10"
+            ],
+            "version": "==19.8.1"
+        },
         "inflection": {
             "hashes": [
                 "sha256:18ea7fb7a7d152853386523def08736aa8c32636b047ade55f7578c4edeb16ca"
@@ -126,10 +133,10 @@
         },
         "pymysql": {
             "hashes": [
-                "sha256:04fa19fad017fdb21394fad2878c1d6bd346959d4fbfd1b66050a09fc636a321",
-                "sha256:32da4a66397077d42908e449688f2ec71c2b18892a6cd04f03ab2aa828a70f40"
+                "sha256:2e77a2a193b1d21d51934c4ca055c88971eb6c6fc6e381b428c081bc14b215f8",
+                "sha256:34e19bfff13e8b2ffc38a68f9ad064609d48f3d46320e8ab8184af527e662629"
             ],
-            "version": "==0.8.0"
+            "version": "==0.8.1"
         },
         "python-mimeparse": {
             "hashes": [
@@ -147,18 +154,9 @@
         },
         "sqlalchemy": {
             "hashes": [
-                "sha256:7cb00cc9b9f92ef8b4391c8a2051f81eeafefe32d63c6b395fd51401e9a39edb"
+                "sha256:2d5f08f714a886a1382c18be501e614bce50d362384dc089474019ce0768151c"
             ],
-            "version": "==1.2.6"
-        }
-    },
-    "develop": {
-        "gunicorn": {
-            "hashes": [
-                "sha256:75af03c99389535f218cc596c7de74df4763803f7b63eb09d77e92b3956b36c6",
-                "sha256:eee1169f0ca667be05db3351a0960765620dad53f53434262ff8901b68a1b622"
-            ],
-            "version": "==19.7.1"
+            "version": "==1.2.8"
         },
         "waitress": {
             "hashes": [
@@ -167,5 +165,6 @@
             ],
             "version": "==1.1.0"
         }
-    }
+    },
+    "develop": {}
 }
