@@ -3,7 +3,7 @@ from controllers import extensions, department, macroprocess, process, \
     organization, organization_department, organization_macroprocess, organization_process, \
     organization_it_service, organization_it_asset, organization_it_service_it_asset, \
     organization_security_threat, organization_vulnerability_control, organization_it_asset_vulnerability, \
-    system_user, system_user_role, system_role
+    system_user, system_user_role, system_role, system
 
 
 def configure_media_handlers(api):
@@ -16,6 +16,8 @@ def configure_media_handlers(api):
 
 
 def configure_routes(api):
+    api.add_route('/version', system.AppInfo())
+
     # Add routes for data in catalog
     api.add_route('/departments', department.Collection())
     api.add_route('/departments/{department_id}', department.Item())
