@@ -1,9 +1,9 @@
 import falcon
 
-from errors import build_error, Message
+from knoweak.errors import build_error, Message
 from .extensions import  HTTPUnprocessableEntity
 from .utils import get_collection_page, patch_item
-from models import Session, OrganizationITServiceITAsset, OrganizationITService, RatingLevel, OrganizationITAsset
+from ..models import Session, OrganizationITServiceITAsset, OrganizationITService, RatingLevel, OrganizationITAsset
 
 
 class Collection:

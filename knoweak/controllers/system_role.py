@@ -1,9 +1,10 @@
 import falcon
-import app_constants as constants
+
+from knoweak import app_constants as constants
+from knoweak.errors import Message, build_error
 from .extensions import HTTPUnprocessableEntity
 from .utils import get_collection_page, validate_str, patch_item, validate_number
-from errors import Message, build_error
-from models import Session, SystemAdministrativeRole
+from ..models import Session, SystemAdministrativeRole
 
 
 class Collection:

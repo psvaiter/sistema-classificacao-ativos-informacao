@@ -3,10 +3,10 @@ Utility and helper methods to be used in controllers.
 """
 import math
 import numbers
-import app_constants
 from datetime import datetime
 from dictalchemy import asdict
-from errors import build_error, Message
+from knoweak import app_constants
+from knoweak.errors import build_error, Message
 
 
 def get_collection_page(req, query, asdict_func=None):

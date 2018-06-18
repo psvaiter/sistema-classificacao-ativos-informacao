@@ -1,8 +1,9 @@
 import falcon
+
+from knoweak.errors import Message, build_error
 from .extensions import HTTPUnprocessableEntity
 from .utils import get_collection_page
-from errors import Message, build_error
-from models import Session, OrganizationMacroprocess, Organization, BusinessMacroprocess, OrganizationDepartment
+from ..models import Session, OrganizationMacroprocess, Organization, BusinessMacroprocess, OrganizationDepartment
 
 
 class Collection:

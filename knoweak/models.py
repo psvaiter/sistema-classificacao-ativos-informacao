@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from dictalchemy import make_class_dictable
 from datetime import datetime
-from settings import conn_string
+from knoweak.settings import conn_string
 
 # Setup database connector
 engine = create_engine(conn_string, echo=True)

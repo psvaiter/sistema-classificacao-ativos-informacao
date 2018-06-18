@@ -1,11 +1,10 @@
 import falcon
-from datetime import datetime
 
-import app_constants as constants
+from knoweak import app_constants
+from knoweak.errors import Message, build_error
 from .extensions import HTTPUnprocessableEntity
 from .utils import get_collection_page, validate_str, patch_item
-from errors import Message, build_error
-from models import Session, BusinessDepartment
+from ..models import Session, BusinessDepartment
 
 
 class Collection:
@@ -108,7 +107,7 @@ def validate_post(request_media, session):
     name = request_media.get('name')
     error = validate_str('name', name,
                          is_mandatory=True,
-                         max_length=constants.GENERAL_NAME_MAX_LENGTH,
+                         max_length=app_constants.GENERAL_NAME_MAX_LENGTH,
                          exists_strategy=exists_name(name, session))
     if error:
         errors.append(error)
@@ -129,7 +128,7 @@ def validate_patch(request_media, session):
         name = request_media.get('name')
         error = validate_str('name', name,
                              is_mandatory=True,
-                             max_length=constants.GENERAL_NAME_MAX_LENGTH,
+                             max_length=app_constants.GENERAL_NAME_MAX_LENGTH,
                              exists_strategy=exists_name(name, session))
         if error:
             errors.append(error)

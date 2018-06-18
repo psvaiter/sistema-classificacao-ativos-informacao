@@ -1,9 +1,9 @@
-from controllers import extensions, department, macroprocess, process, \
-    it_service, it_asset, it_asset_category, security_threat, mitigation_control, \
-    organization, organization_department, organization_macroprocess, organization_process, \
-    organization_it_service, organization_it_asset, organization_it_service_it_asset, \
-    organization_security_threat, organization_vulnerability_control, organization_it_asset_vulnerability, \
-    system_user, system_user_role, system_role, system
+from .controllers import (extensions, department, macroprocess, process, it_service, it_asset, it_asset_category,
+                          security_threat, mitigation_control, organization, organization_department,
+                          organization_macroprocess, organization_process, organization_it_service,
+                          organization_it_asset, organization_it_service_it_asset, organization_security_threat,
+                          organization_vulnerability_control, organization_it_asset_vulnerability,
+                          system_user, system_user_role, system_role, system)
 
 
 def configure_media_handlers(api):

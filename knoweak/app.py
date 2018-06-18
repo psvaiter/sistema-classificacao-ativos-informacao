@@ -1,5 +1,5 @@
 import falcon
-import app_setup
+from knoweak import app_setup
 from wsgiref import simple_server
 from falcon_cors import CORS
 
