@@ -46,12 +46,17 @@ class Collection:
         """
         session = Session()
         try:
-            item = session.query(Organization).get(organization_code)
-            if item is None:
+            organization = session.query(Organization).get(organization_code)
+            if organization is None:
                 raise falcon.HTTPNotFound()
 
-            # code here
+            accepted_fields = ['description', 'analysis_performed_on']
+            item = OrganizationAnalysis().fromdict(req.media, only=accepted_fields)
+            item.organization_id = organization_code
 
+            # TODO: process_analysis(item)
+
+            session.add(item)
             session.commit()
             resp.status = falcon.HTTP_CREATED
             resp.location = req.relative_uri + f'/{item.id}'
