@@ -297,7 +297,7 @@ class OrganizationVulnerabilityControl(DbModel):
 class OrganizationAnalysis(DbModel):
     __tablename__ = "organization_analysis"
 
-    id = Column("analysis_id", Integer, primary_key=True)
+    id = Column("organization_analysis_id", Integer, primary_key=True)
     organization_id = Column(Integer, ForeignKey(Organization.id), nullable=False)
     description = Column(String)
     analysis_performed_on = Column(DateTime, nullable=False, default=datetime.utcnow)
@@ -308,8 +308,8 @@ class OrganizationAnalysis(DbModel):
 class OrganizationAnalysisDetail(DbModel):
     __tablename__ = "organization_analysis_detail"
 
-    id = Column("analysis_detail_id", Integer, primary_key=True)
-    analysis_id = Column(Integer, ForeignKey(OrganizationAnalysis.id), nullable=False)
+    id = Column("organization_analysis_detail_id", Integer, primary_key=True)
+    organization_analysis_id = Column(Integer, ForeignKey(OrganizationAnalysis.id), nullable=False)
     department_name = Column(String, nullable=False)
     macroprocess_name = Column(String, nullable=False)
     process_name = Column(String, nullable=False)
