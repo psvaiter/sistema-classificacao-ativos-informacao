@@ -58,6 +58,10 @@ class Collection:
 
             session.add(item)
             session.commit()
+
+            # fill location of analysis details
+            item.details_location = req.relative_uri + f'/{item.id}/details'
+
             resp.status = falcon.HTTP_CREATED
             resp.location = req.relative_uri + f'/{item.id}'
             resp.media = {'data': custom_asdict(item)}
@@ -67,4 +71,5 @@ class Collection:
 
 def custom_asdict(dictable_model):
     exclude = ['organization_id']
-    return dictable_model.asdict(exclude=exclude)
+    include = ['details_location']
+    return dictable_model.asdict(include=include, exclude=exclude)

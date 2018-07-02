@@ -304,6 +304,8 @@ class OrganizationAnalysis(DbModel):
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
+    details_location = None
+
 
 class OrganizationAnalysisDetail(DbModel):
     __tablename__ = "organization_analysis_detail"
