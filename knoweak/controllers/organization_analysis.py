@@ -24,9 +24,7 @@ class Collection:
                 .query(OrganizationAnalysis)\
                 .order_by(OrganizationAnalysis.created_on)
 
-            data, paging = get_collection_page(req, query)
-            for analysis in data:
-                analysis.details_location = req.relative_uri + f'/{analysis.id}'
+            data, paging = get_collection_page(req, query, get_custom_asdict(req.relative_uri))
 
             resp.media = {
                 'data': data,
@@ -59,17 +57,21 @@ class Collection:
             session.add(item)
             session.commit()
 
-            # fill location of analysis details
-            item.details_location = req.relative_uri + f'/{item.id}/details'
-
             resp.status = falcon.HTTP_CREATED
             resp.location = req.relative_uri + f'/{item.id}'
-            resp.media = {'data': custom_asdict(item)}
+            resp.media = {'data': get_custom_asdict(req.relative_uri)(item)}
         finally:
             session.close()
 
 
-def custom_asdict(dictable_model):
-    exclude = ['organization_id']
-    include = ['details_location']
-    return dictable_model.asdict(include=include, exclude=exclude)
+def get_custom_asdict(relative_uri):
+    """Returns a function that maps a model object to a dict.
+
+    :param relative_uri: Relative URI to build the location of analysis details on final dict.
+    :return: Function that receives a model an returns a dict.
+    """
+    def custom_asdict(analysis):
+        analysis.details_location = relative_uri + f'/{analysis.id}/details'
+        return analysis.asdict(include=['details_location'], exclude=['organization_id'])
+
+    return custom_asdict
