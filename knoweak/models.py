@@ -292,3 +292,14 @@ class OrganizationVulnerabilityControl(DbModel):
 
     mitigation_control = relationship(MitigationControl, lazy='joined')
     mitigating_it_asset = relationship(OrganizationITAsset, lazy='joined')
+
+
+class OrganizationAnalysis(DbModel):
+    __tablename__ = "organization_analysis"
+
+    id = Column("analysis_id", Integer, primary_key=True)
+    organization_id = Column(Integer, ForeignKey(Organization.id), nullable=False)
+    description = Column(String)
+    analysis_performed_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
