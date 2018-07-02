@@ -23,7 +23,8 @@ class Collection:
                 raise falcon.HTTPNotFound()
 
             query = session\
-                .query(OrganizationAnalysis)\
+                .query(OrganizationAnalysis) \
+                .filter(OrganizationAnalysis.organization_id == organization_code) \
                 .order_by(OrganizationAnalysis.created_on)
 
             data, paging = get_collection_page(req, query, custom_asdict)
