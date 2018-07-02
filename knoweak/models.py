@@ -303,3 +303,24 @@ class OrganizationAnalysis(DbModel):
     analysis_performed_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+
+class OrganizationAnalysisDetail(DbModel):
+    __tablename__ = "organization_analysis_detail"
+
+    id = Column("analysis_detail_id", Integer, primary_key=True)
+    analysis_id = Column(Integer, ForeignKey(OrganizationAnalysis.id), nullable=False)
+    department_name = Column(String, nullable=False)
+    macroprocess_name = Column(String, nullable=False)
+    process_name = Column(String, nullable=False)
+    process_relevance = Column(Integer, nullable=False)
+    it_service_name = Column(String, nullable=False)
+    it_service_relevance = Column(Integer, nullable=False)
+    it_asset_name = Column(String, nullable=False)
+    it_asset_relevance = Column(Integer, nullable=False)
+    calculated_impact = Column(Float, nullable=False)
+    security_threat_name = Column(String, nullable=False)
+    security_threat_level = Column(Integer, nullable=False)
+    it_asset_vulnerability_level = Column(Integer, nullable=False)
+    calculated_probability = Column(Float, nullable=False)
+    calculated_risk = Column(Float, nullable=False)
