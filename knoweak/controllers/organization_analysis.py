@@ -1,7 +1,7 @@
 import falcon
 
 from .utils import get_collection_page
-from knoweak.models import Session, Organization
+from knoweak.models import Session, Organization, OrganizationAnalysis
 
 
 class Collection:
@@ -20,10 +20,14 @@ class Collection:
             if item is None:
                 raise falcon.HTTPNotFound()
 
-            # code here
-            query = None
+            query = session\
+                .query(OrganizationAnalysis)\
+                .order_by(OrganizationAnalysis.created_on)
 
             data, paging = get_collection_page(req, query)
+            for analysis in data:
+                analysis.details_location = req.relative_uri + f'/{analysis.id}'
+
             resp.media = {
                 'data': data,
                 'paging': paging
@@ -54,3 +58,8 @@ class Collection:
             resp.media = {'data': item.asdict()}
         finally:
             session.close()
+
+
+def custom_asdict(dictable_model):
+    exclude = ['organization_id']
+    return dictable_model.asdict(exclude=exclude)
