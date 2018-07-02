@@ -5,80 +5,10 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
 -- -----------------------------------------------------
--- Schema db_information_asset_security
+-- Schema knoweak
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `db_information_asset_security` DEFAULT CHARACTER SET utf8 ;
-USE `db_information_asset_security` ;
-
--- -----------------------------------------------------
--- Table `organization`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `organization` (
-  `organization_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `tax_id` VARCHAR(16) NOT NULL,
-  `legal_name` VARCHAR(128) NOT NULL,
-  `trade_name` VARCHAR(128) NULL DEFAULT NULL,
-  `created_on` DATETIME(3) NOT NULL,
-  `last_modified_on` DATETIME(3) NOT NULL,
-  PRIMARY KEY (`organization_id`),
-  UNIQUE INDEX `UQ_taxi_id_legal_name_trade_name` (`tax_id` ASC, `legal_name` ASC, `trade_name` ASC),
-  INDEX `IX_tax_id` (`tax_id` ASC),
-  INDEX `IX_legal_name` (`legal_name` ASC),
-  INDEX `IX_trade_name` (`trade_name` ASC))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
--- Table `analysis`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `analysis` (
-  `analysis_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `organization_id` INT(11) NOT NULL,
-  `description` VARCHAR(1024) NULL DEFAULT NULL,
-  `analysis_performed_on` DATETIME(3) NOT NULL,
-  `created_on` DATETIME(3) NOT NULL,
-  `last_modified_on` DATETIME(3) NOT NULL,
-  PRIMARY KEY (`analysis_id`),
-  INDEX `IX_organization_id` (`organization_id` ASC),
-  CONSTRAINT `FK_analysis__organization`
-    FOREIGN KEY (`organization_id`)
-    REFERENCES `organization` (`organization_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
--- Table `analysis_detail`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `analysis_detail` (
-  `analysis_detail_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `analysis_id` INT(11) NOT NULL,
-  `department_name` VARCHAR(128) NOT NULL,
-  `macroprocess_name` VARCHAR(128) NOT NULL,
-  `process_name` VARCHAR(128) NOT NULL,
-  `process_relevance` INT(11) NOT NULL,
-  `it_service_name` VARCHAR(128) NOT NULL,
-  `it_service_relevance` INT(11) NOT NULL,
-  `it_asset_name` VARCHAR(128) NOT NULL,
-  `it_asset_relevance` INT(11) NOT NULL,
-  `calculated_impact` DECIMAL(6,3) NOT NULL,
-  `security_threat_name` VARCHAR(128) NOT NULL,
-  `security_threat_level` INT(11) NOT NULL,
-  `it_asset_vulnerability_level` INT(11) NOT NULL,
-  `calculated_probability` DECIMAL(6,3) NOT NULL,
-  `calculated_risk` DECIMAL(6,3) NOT NULL,
-  PRIMARY KEY (`analysis_detail_id`),
-  INDEX `IX_analysis_id` (`analysis_id` ASC),
-  CONSTRAINT `FK_analysis_detail__analysis`
-    FOREIGN KEY (`analysis_id`)
-    REFERENCES `analysis` (`analysis_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
+CREATE SCHEMA IF NOT EXISTS `knoweak` DEFAULT CHARACTER SET utf8;
+USE `knoweak`;
 
 
 -- -----------------------------------------------------
@@ -216,6 +146,77 @@ CREATE TABLE IF NOT EXISTS `mitigation_control` (
   `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`mitigation_control_id`),
   UNIQUE INDEX `UQ_name` (`name` ASC))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `organization`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `organization` (
+  `organization_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `tax_id` VARCHAR(16) NOT NULL,
+  `legal_name` VARCHAR(128) NOT NULL,
+  `trade_name` VARCHAR(128) NULL DEFAULT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
+  PRIMARY KEY (`organization_id`),
+  UNIQUE INDEX `UQ_taxi_id_legal_name_trade_name` (`tax_id` ASC, `legal_name` ASC, `trade_name` ASC),
+  INDEX `IX_tax_id` (`tax_id` ASC),
+  INDEX `IX_legal_name` (`legal_name` ASC),
+  INDEX `IX_trade_name` (`trade_name` ASC))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `organization_analysis`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `organization_analysis` (
+  `organization_analysis_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `organization_id` INT(11) NOT NULL,
+  `description` VARCHAR(1024) NULL DEFAULT NULL,
+  `analysis_performed_on` DATETIME(3) NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
+  PRIMARY KEY (`organization_analysis_id`),
+  INDEX `IX_organization_id` (`organization_id` ASC),
+  CONSTRAINT `FK_organization_analysis__organization`
+    FOREIGN KEY (`organization_id`)
+    REFERENCES `organization` (`organization_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `organization_analysis_detail`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `organization_analysis_detail` (
+  `organization_analysis_detail_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `organization_analysis_id` INT(11) NOT NULL,
+  `department_name` VARCHAR(128) NOT NULL,
+  `macroprocess_name` VARCHAR(128) NOT NULL,
+  `process_name` VARCHAR(128) NOT NULL,
+  `process_relevance` INT(11) NOT NULL,
+  `it_service_name` VARCHAR(128) NOT NULL,
+  `it_service_relevance` INT(11) NOT NULL,
+  `it_asset_name` VARCHAR(128) NOT NULL,
+  `it_asset_relevance` INT(11) NOT NULL,
+  `calculated_impact` DECIMAL(6,3) NOT NULL,
+  `security_threat_name` VARCHAR(128) NOT NULL,
+  `security_threat_level` INT(11) NOT NULL,
+  `it_asset_vulnerability_level` INT(11) NOT NULL,
+  `calculated_probability` DECIMAL(6,3) NOT NULL,
+  `calculated_risk` DECIMAL(6,3) NOT NULL,
+  PRIMARY KEY (`organization_analysis_detail_id`),
+  INDEX `IX_organization_analysis_id` (`organization_analysis_id` ASC),
+  CONSTRAINT `FK_organization_analysis_detail__organization_analysis`
+    FOREIGN KEY (`organization_analysis_id`)
+    REFERENCES `organization_analysis` (`organization_analysis_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
