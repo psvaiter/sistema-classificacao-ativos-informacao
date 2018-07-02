@@ -18,8 +18,8 @@ class Collection:
         """
         session = Session()
         try:
-            item = session.query(Organization).get(organization_code)
-            if item is None:
+            organization = session.query(Organization).get(organization_code)
+            if organization is None:
                 raise falcon.HTTPNotFound()
 
             query = session\
