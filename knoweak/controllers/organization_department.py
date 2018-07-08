@@ -138,5 +138,5 @@ def find_organization_department(department_id, organization_code, session):
 
 
 def custom_asdict(dictable_model):
-    include = {'department': {'only': ['id', 'name']}}
-    return dictable_model.asdict(follow=include, exclude=['department_id'])
+    follow = {'department': {'only': ['id', 'name']}}
+    return dictable_model.asdict(follow=follow, exclude=['department_id'])

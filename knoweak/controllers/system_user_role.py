@@ -81,7 +81,7 @@ def find_user_role(user_id, role_id, session):
 
 def custom_asdict(dictable_model):
     exclude = ['role_id']
-    include = {
+    follow = {
         'role': {'only': ['id', 'name']}
     }
-    return dictable_model.asdict(follow=include, exclude=exclude)
+    return dictable_model.asdict(follow=follow, exclude=exclude)

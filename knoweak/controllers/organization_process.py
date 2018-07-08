@@ -212,7 +212,7 @@ def find_process_instance(process_instance_id, organization_id, session):
 
 def custom_asdict(dictable_model):
     exclude = ['organization_id', 'process_id']
-    include = {
+    follow = {
         'process': {'only': ['id', 'name']}
     }
-    return dictable_model.asdict(follow=include, exclude=exclude)
+    return dictable_model.asdict(follow=follow, exclude=exclude)

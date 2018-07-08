@@ -196,9 +196,9 @@ def find_it_service_it_asset(it_asset_instance_id, it_service_instance_id, sessi
 
 def custom_asdict(dictable_model):
     exclude = None
-    include = {
+    follow = {
         'it_asset_instance': {'only': ['external_identifier'], 'follow': {
             'it_asset': {'only': ['id', 'name']}
         }}
     }
-    return dictable_model.asdict(follow=include, exclude=exclude)
+    return dictable_model.asdict(follow=follow, exclude=exclude)

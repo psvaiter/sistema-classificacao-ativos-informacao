@@ -161,8 +161,8 @@ def find_organization_macroprocess(macroprocess_id, department_id, organization_
 
 def custom_asdict(dictable_model):
     exclude = ['organization_id', 'department_id', 'macroprocess_id']
-    include = {
+    follow = {
         'department': {'only': ['id', 'name']},
         'macroprocess': {'only': ['id', 'name']}
     }
-    return dictable_model.asdict(follow=include, exclude=exclude)
+    return dictable_model.asdict(follow=follow, exclude=exclude)

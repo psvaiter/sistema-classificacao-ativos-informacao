@@ -186,5 +186,5 @@ def find_organization_security_threat(security_threat_id, organization_code, ses
 
 def custom_asdict(dictable_model):
     exclude = ['organization_id', 'security_threat_id']
-    include = {'security_threat': {'only': ['id', 'name']}}
-    return dictable_model.asdict(follow=include, exclude=exclude)
+    follow = {'security_threat': {'only': ['id', 'name']}}
+    return dictable_model.asdict(follow=follow, exclude=exclude)

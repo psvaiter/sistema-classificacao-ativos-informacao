@@ -249,7 +249,7 @@ def add_roles(user, roles):
 
 
 def custom_asdict(dictable_model):
-    include = {
+    follow = {
         'roles': {'only': ['id', 'name']}
     }
-    return dictable_model.asdict(follow=include, exclude=['hashed_password'])
+    return dictable_model.asdict(follow=follow, exclude=['hashed_password'])
