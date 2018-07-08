@@ -3,7 +3,9 @@ import falcon
 import app_constants
 from .extensions import HTTPUnprocessableEntity
 from .utils import get_collection_page, validate_str
-from knoweak.models import Session, Organization, OrganizationAnalysis
+from knoweak.models import Session, Organization, OrganizationAnalysis, OrganizationITAsset, OrganizationITService, \
+    OrganizationProcess, OrganizationMacroprocess, OrganizationDepartment, OrganizationAnalysisDetail, \
+    OrganizationITServiceITAsset, OrganizationITAssetVulnerability, OrganizationSecurityThreat
 
 
 class Collection:
@@ -57,8 +59,7 @@ class Collection:
             accepted_fields = ['description', 'analysis_performed_on']
             item = OrganizationAnalysis().fromdict(req.media, only=accepted_fields)
             item.organization_id = organization_code
-
-            # TODO: process_analysis(item)
+            item.total_processed_items = process_analysis(session, item, organization_code)
 
             session.add(item)
             session.commit()
@@ -87,5 +88,59 @@ def validate_post(request_media, organization_code, session):
     return errors
 
 
+def process_analysis(session, analysis, organization_id, scopes=None):
+    query = session\
+        .query(OrganizationITServiceITAsset,
+               OrganizationProcess,
+               OrganizationMacroprocess,
+               OrganizationDepartment,
+               OrganizationSecurityThreat,
+               OrganizationITAssetVulnerability)\
+        .join(OrganizationITAsset)\
+        .join(OrganizationITService)\
+        .join(OrganizationProcess)\
+        .join(OrganizationMacroprocess)\
+        .join(OrganizationDepartment)\
+        .join(Organization)\
+        .join(OrganizationSecurityThreat)\
+        .join(OrganizationITAssetVulnerability)\
+        .filter(OrganizationITServiceITAsset.relevance_level_id > 0)\
+        .filter(OrganizationITService.relevance_level_id > 0)\
+        .filter(OrganizationProcess.relevance_level_id > 0) \
+        .filter(OrganizationSecurityThreat.threat_level_id > 0) \
+        .filter(OrganizationITAssetVulnerability.vulnerability_level_id > 0) \
+        .filter(Organization.id == organization_id)
+
+    result = query.all()
+    total_processed_items = 0
+    for item in result:
+        detail = OrganizationAnalysisDetail()
+
+        # Get the names to consolidate
+        detail.it_asset_name = item.OrganizationITServiceITAsset.it_asset.name
+        detail.it_service_name = item.OrganizationITServiceITAsset.it_service.name
+        detail.process_name = item.OrganizationProcess.process.name
+        detail.macroprocess_name = item.OrganizationMacroprocess.macroprocess.name
+        detail.department_name = item.OrganizationDepartment.department.name
+        detail.security_threat_name = item.OrganizationSecurityThreat.security_threat.name
+
+        # Get the relevance, vulnerability and threat levels for calculations
+        detail.it_asset_relevance = item.OrganizationITServiceITAsset.relevance_level_id
+        detail.it_service_relevance = item.OrganizationITServiceITAsset.it_service_instance.relevance_level_id
+        detail.process_relevance = item.OrganizationProcess.relevance_level_id
+        detail.security_threat_level = item.OrganizationSecurityThreat.threat_level_id
+        detail.it_asset_vulnerability_level = item.OrganizationITAssetVulnerability.vulnerability_level_id
+
+        # Calculate risk (R = Impact * Probability)
+        detail.calculated_impact = (detail.it_asset_relevance / 5) * (detail.it_service_relevance / 5) * (detail.process_relevance / 5)
+        detail.calculated_probability = (detail.it_asset_vulnerability_level / 5) * (detail.security_threat_level / 5)
+        detail.calculated_risk = detail.calculated_impact * detail.calculated_probability
+
+        analysis.details.append(detail)
+        total_processed_items += 1
+
+    return total_processed_items
+
+
 def custom_asdict(dictable_model):
-    return dictable_model.asdict(exclude=['organization_id'])
+    return dictable_model.asdict(include=['total_processed_items'], exclude=['organization_id'])
