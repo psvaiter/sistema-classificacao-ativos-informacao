@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Float, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Float
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
@@ -186,8 +186,8 @@ class OrganizationMacroprocess(DbModel):
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    department = relationship(BusinessDepartment, lazy='joined')
-    macroprocess = relationship(BusinessMacroprocess, lazy='joined')
+    department = relationship(BusinessDepartment, lazy='joined', innerjoin=True)
+    macroprocess = relationship(BusinessMacroprocess, lazy='joined', innerjoin=True)
 
 
 class OrganizationProcess(DbModel):
@@ -201,7 +201,7 @@ class OrganizationProcess(DbModel):
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    process = relationship(BusinessProcess, lazy='joined')
+    process = relationship(BusinessProcess, lazy='joined', innerjoin=True)
 
 
 class OrganizationITService(DbModel):
@@ -215,7 +215,7 @@ class OrganizationITService(DbModel):
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    it_service = relationship(ITService, lazy='joined')
+    it_service = relationship(ITService, lazy='joined', innerjoin=True)
     # organization_it_assets = relationship("OrganizationITAsset", secondary="OrganizationITServiceITAsset")
     # it_assets = association_proxy("organization_it_assets", "it_asset")
 
@@ -230,7 +230,7 @@ class OrganizationITAsset(DbModel):
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    it_asset = relationship(ITAsset, lazy='joined')
+    it_asset = relationship(ITAsset, lazy='joined', innerjoin=True)
 
 
 class OrganizationITServiceITAsset(DbModel):
@@ -242,9 +242,9 @@ class OrganizationITServiceITAsset(DbModel):
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    it_service_instance = relationship(OrganizationITService, lazy='joined')
+    it_service_instance = relationship(OrganizationITService, lazy='joined', innerjoin=True)
     it_service = association_proxy("it_service_instance", "it_service")
-    it_asset_instance = relationship(OrganizationITAsset, lazy='joined')
+    it_asset_instance = relationship(OrganizationITAsset, lazy='joined', innerjoin=True)
     it_asset = association_proxy("it_asset_instance", "it_asset")
 
 
@@ -259,7 +259,7 @@ class OrganizationSecurityThreat(DbModel):
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    security_threat = relationship(SecurityThreat, lazy='joined')
+    security_threat = relationship(SecurityThreat, lazy='joined', innerjoin=True)
 
 
 class OrganizationITAssetVulnerability(DbModel):
@@ -272,10 +272,10 @@ class OrganizationITAssetVulnerability(DbModel):
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    organization_security_threat = relationship(OrganizationSecurityThreat, lazy='joined')
+    organization_security_threat = relationship(OrganizationSecurityThreat, lazy='joined', innerjoin=True)
     security_threat = association_proxy('organization_security_threat', 'security_threat')
 
-    it_asset_instance = relationship(OrganizationITAsset, lazy='joined')
+    it_asset_instance = relationship(OrganizationITAsset, lazy='joined', innerjoin=True)
     it_asset = association_proxy('it_asset_instance', 'it_asset')
 
 
@@ -290,7 +290,7 @@ class OrganizationVulnerabilityControl(DbModel):
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    mitigation_control = relationship(MitigationControl, lazy='joined')
+    mitigation_control = relationship(MitigationControl, lazy='joined', innerjoin=True)
     mitigating_it_asset = relationship(OrganizationITAsset, lazy='joined')
 
 
