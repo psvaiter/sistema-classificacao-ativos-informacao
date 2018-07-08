@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Float
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Float, ForeignKeyConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
@@ -189,6 +189,12 @@ class OrganizationMacroprocess(DbModel):
     department = relationship(BusinessDepartment, lazy='joined', innerjoin=True)
     macroprocess = relationship(BusinessMacroprocess, lazy='joined', innerjoin=True)
 
+    __table_args__ = (
+        ForeignKeyConstraint(
+            [organization_id, department_id],
+            [OrganizationDepartment.organization_id, OrganizationDepartment.department_id]
+        ),
+    )
 
 class OrganizationProcess(DbModel):
     __tablename__ = "organization_process"
