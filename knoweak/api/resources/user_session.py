@@ -1,6 +1,10 @@
+import os
 import bcrypt
+import jwt
 
-from datetime import datetime
+from datetime import datetime, timedelta
+
+from api import constants
 from knoweak.api.utils import validate_str
 from knoweak.api.errors import build_error, Message
 from knoweak.api.extensions import HTTPUnprocessableEntity, HTTPUnauthorized
@@ -37,8 +41,17 @@ class Login:
             if errors:
                 raise HTTPUnauthorized(errors)
 
-            # Login successful
-            resp.media = {'access_token': 'fake'}
+            # Login successful. Issuing access token...
+            access_token = jwt.encode({
+                'iss': 'knoweak-api',
+                'iat': datetime.utcnow(),
+                'exp': datetime.utcnow() + timedelta(seconds=constants.SESSION_TIMEOUT_IN_SECONDS),
+                'sub': user.id,
+                'name': user.full_name,
+                'email': user.email
+            }, os.environ.get('ACCESS_TOKEN_SECRET'))
+
+            resp.media = {'access_token': access_token.decode('utf-8')}
         finally:
             session.close()
 
