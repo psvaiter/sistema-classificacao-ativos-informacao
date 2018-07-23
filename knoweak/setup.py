@@ -90,4 +90,3 @@ def configure_routes(api):
     api.add_route('/user/users/{user_id}', system_user.Item())
     api.add_route('/user/users/{user_id}/roles/{role_id}', system_user_role.Item())
     api.add_route('/login', user_session.Login())
-    api.add_route('/logout', user_session.Logout())

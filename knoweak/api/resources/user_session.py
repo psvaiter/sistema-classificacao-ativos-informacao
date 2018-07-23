@@ -4,7 +4,6 @@ import jwt
 
 from datetime import datetime, timedelta
 
-from api import constants
 from knoweak.api.utils import validate_str
 from knoweak.api.errors import build_error, Message
 from knoweak.api.extensions import HTTPUnprocessableEntity, HTTPUnauthorized
@@ -41,33 +40,14 @@ class Login:
             if errors:
                 raise HTTPUnauthorized(errors)
 
-            # Login successful. Issuing access token...
-            access_token = jwt.encode({
-                'iss': 'knoweak-api',
-                'iat': datetime.utcnow(),
-                'exp': datetime.utcnow() + timedelta(seconds=constants.SESSION_TIMEOUT_IN_SECONDS),
-                'sub': user.id,
-                'name': user.full_name,
-                'email': user.email
-            }, os.environ.get('ACCESS_TOKEN_SECRET'))
+            # Login successful
+            id_token = generate_id_token(user)
+            access_token = generate_access_token(user)
 
-            resp.media = {'access_token': access_token.decode('utf-8')}
-        finally:
-            session.close()
-
-
-class Logout:
-
-    def on_post(self, req, resp):
-        """Logout a user by invalidating open session.
-
-        :param req: See Falcon Request documentation.
-        :param resp: See Falcon Response documentation.
-        """
-        session = Session()
-        try:
-            # Find and delete token
-            resp.media = {}
+            resp.media = {
+                'id_token': id_token,
+                'access_token': access_token
+            }
         finally:
             session.close()
 
@@ -117,3 +97,29 @@ def authenticate_user(request_media, session):
             return errors, user
 
         return errors, user
+
+
+def generate_access_token(user):
+    payload = {
+        'iss': 'knoweak-api',
+        'aud': 'knoweak-api',
+        'iat': datetime.utcnow(),
+        'exp': datetime.utcnow() + timedelta(seconds=int(os.environ.get('ACCESS_TOKEN_EXPIRATION_IN_SECONDS'))),
+        'sub': user.id
+    }
+    access_token = jwt.encode(payload, os.environ.get('ACCESS_TOKEN_SECRET'))
+    return access_token.decode('utf-8')
+
+
+def generate_id_token(user):
+    payload = {
+        'iss': 'knoweak-api',
+        'aud': 'knoweak-web',
+        'iat': datetime.utcnow(),
+        'exp': datetime.utcnow() + timedelta(seconds=int(os.environ.get('ID_TOKEN_EXPIRATION_IN_SECONDS'))),
+        'sub': user.id,
+        'name': user.full_name,
+        'email': user.email
+    }
+    id_token = jwt.encode(payload, os.environ.get('ID_TOKEN_SECRET'))
+    return id_token.decode('utf-8')
