@@ -604,9 +604,6 @@ CREATE TABLE IF NOT EXISTS `system_user` (
   `hashed_password` VARBINARY(64) NOT NULL,
   `created_on` DATETIME(3) NOT NULL,
   `last_modified_on` DATETIME(3) NOT NULL,
-  `last_logged_in_on` DATETIME(3) NULL DEFAULT NULL,
-  `last_login_attempted_on` DATETIME(3) NULL DEFAULT NULL,
-  `failed_login_attempt_count` INT(11) NULL DEFAULT '0',
   `locked_out_on` DATETIME(3) NULL DEFAULT NULL,
   `blocked_on` DATETIME(3) NULL DEFAULT NULL,
   PRIMARY KEY (`system_user_id`),
@@ -646,7 +643,7 @@ DEFAULT CHARACTER SET = utf8;
 -- Table `system_user_login`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `system_user_login` (
-  `system_user_login_id` INT(11) NOT NULL,
+  `system_user_login_id` INT(11) NOT NULL AUTO_INCREMENT,
   `system_user_id` INT(11) NOT NULL,
   `attempted_on` DATETIME(3) NOT NULL,
   `was_successful` BIT(1) NOT NULL,

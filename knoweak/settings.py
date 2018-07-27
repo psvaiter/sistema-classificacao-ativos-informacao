@@ -8,4 +8,3 @@ DATABASE = {
     'db_name': os.environ.get('DB_NAME', 'knoweak')
 }
 
-conn_string = "mysql+pymysql://{username}:{password}@{host}:{port}/{db_name}".format(**DATABASE)
