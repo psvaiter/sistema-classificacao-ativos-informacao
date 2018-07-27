@@ -117,9 +117,9 @@ def validate_post(request_media, organization_code, session):
     # -----------------------------------------------------
     department_id = request_media.get('id')
     if department_id is None:
-        errors.append(build_error(Message.ERR_DEPARTMENT_ID_CANNOT_BE_NULL, field_name='id'))
+        errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name='id'))
     elif not session.query(BusinessDepartment).get(department_id):
-        errors.append(build_error(Message.ERR_DEPARTMENT_ID_INVALID, field_name='id'))
+        errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='id'))
 
     # Validate department in organization
     # -----------------------------------------------------
