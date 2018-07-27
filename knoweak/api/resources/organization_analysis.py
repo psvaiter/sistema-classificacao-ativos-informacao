@@ -74,6 +74,32 @@ class Collection:
             session.close()
 
 
+class Item:
+    """GET and PATCH an organization analysis."""
+
+    def on_get(self, req, resp, organization_code, analysis_id):
+        """GETs a single analysis of an organization.
+
+        :param req: See Falcon Request documentation.
+        :param resp: See Falcon Response documentation.
+        :param organization_code: The code of organization.
+        :param analysis_id: The analysis id.
+        """
+        session = Session()
+        try:
+            item = session\
+                .query(OrganizationAnalysis)\
+                .filter(OrganizationAnalysis.organization_id == organization_code)\
+                .filter(OrganizationAnalysis.id == analysis_id)\
+                .first()
+            if item is None:
+                raise falcon.HTTPNotFound()
+
+            resp.media = {'data': read_response_asdict(item)}
+        finally:
+            session.close()
+
+
 def validate_post(request_media, organization_code, session):
     errors = []
 

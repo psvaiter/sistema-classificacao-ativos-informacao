@@ -80,6 +80,7 @@ def configure_routes(api):
     api.add_route('/organizations/{organization_code}/securityThreats', organization_security_threat.Collection())
     api.add_route('/organizations/{organization_code}/securityThreats/{security_threat_id}', organization_security_threat.Item())
     api.add_route('/organizations/{organization_code}/analyses', organization_analysis.Collection())
+    api.add_route('/organizations/{organization_code}/analyses/{analysis_id}', organization_analysis.Item())
     api.add_route('/organizations/{organization_code}/analyses/{analysis_id}/details', organization_analysis_details.Collection())
 
     # Routes for system user and access control
