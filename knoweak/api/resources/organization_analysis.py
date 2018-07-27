@@ -1,8 +1,9 @@
 import falcon
 
 from knoweak.api import constants
+from knoweak.api.errors import build_error, Message
 from knoweak.api.extensions import HTTPUnprocessableEntity
-from knoweak.api.utils import get_collection_page, validate_str
+from knoweak.api.utils import get_collection_page, validate_str, patch_item
 from knoweak.db import Session
 from knoweak.db.models.organization import (
     Organization, OrganizationAnalysis, OrganizationITAsset, OrganizationITService,
@@ -32,7 +33,7 @@ class Collection:
                 .filter(OrganizationAnalysis.organization_id == organization_code) \
                 .order_by(OrganizationAnalysis.created_on.desc())
 
-            data, paging = get_collection_page(req, query, read_response_asdict)
+            data, paging = get_collection_page(req, query, custom_asdict)
             resp.media = {
                 'data': data,
                 'paging': paging
@@ -55,7 +56,7 @@ class Collection:
             if organization is None:
                 raise falcon.HTTPNotFound()
 
-            errors = validate_post(req.media, organization_code, session)
+            errors = validate_post(req.media)
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
@@ -83,24 +84,46 @@ class Item:
         :param req: See Falcon Request documentation.
         :param resp: See Falcon Response documentation.
         :param organization_code: The code of organization.
-        :param analysis_id: The analysis id.
+        :param analysis_id: The id of the analysis to retrieve.
         """
         session = Session()
         try:
-            item = session\
-                .query(OrganizationAnalysis)\
-                .filter(OrganizationAnalysis.organization_id == organization_code)\
-                .filter(OrganizationAnalysis.id == analysis_id)\
-                .first()
+            item = find_organization_analysis(analysis_id, organization_code, session)
             if item is None:
                 raise falcon.HTTPNotFound()
 
-            resp.media = {'data': read_response_asdict(item)}
+            resp.media = {'data': custom_asdict(item)}
+        finally:
+            session.close()
+
+    def on_patch(self, req, resp, organization_code, analysis_id):
+        """Updates (only allowed properties of) an analysis.
+
+        :param req: See Falcon Request documentation.
+        :param resp: See Falcon Response documentation.
+        :param organization_code: The code of organization.
+        :param analysis_id: The id of the analysis to be patched.
+        """
+        session = Session()
+        try:
+            analysis = find_organization_analysis(analysis_id, organization_code, session)
+            if analysis is None:
+                raise falcon.HTTPNotFound()
+
+            errors = validate_patch(req.media)
+            if errors:
+                raise HTTPUnprocessableEntity(errors)
+
+            patch_item(analysis, req.media, only=['description'])
+            session.commit()
+
+            resp.status = falcon.HTTP_OK
+            resp.media = {'data': custom_asdict(analysis)}
         finally:
             session.close()
 
 
-def validate_post(request_media, organization_code, session):
+def validate_post(request_media):
     errors = []
 
     # Validate description if informed
@@ -115,6 +138,32 @@ def validate_post(request_media, organization_code, session):
     # Cannot be in the future
 
     return errors
+
+
+def validate_patch(request_media):
+    errors = []
+
+    if not request_media:
+        errors.append(build_error(Message.ERR_NO_CONTENT))
+        return errors
+
+    # Validate description if informed
+    # -----------------------------------------------------
+    if 'description' in request_media:
+        description = request_media.get('description')
+        error = validate_str('description', description, max_length=constants.GENERAL_DESCRIPTION_MAX_LENGTH)
+        if error:
+            errors.append(error)
+
+    return errors
+
+
+def find_organization_analysis(analysis_id, organization_code, session):
+    query = session \
+        .query(OrganizationAnalysis) \
+        .filter(OrganizationAnalysis.organization_id == organization_code) \
+        .filter(OrganizationAnalysis.id == analysis_id)
+    return query.first()
 
 
 def process_analysis(session, analysis, organization_id, scopes=None):
@@ -171,7 +220,7 @@ def process_analysis(session, analysis, organization_id, scopes=None):
     return total_processed_items
 
 
-def read_response_asdict(dictable_model):
+def custom_asdict(dictable_model):
     return dictable_model.asdict(exclude=['organization_id'])
 
 
