@@ -30,9 +30,9 @@ class Collection:
             query = session\
                 .query(OrganizationAnalysis) \
                 .filter(OrganizationAnalysis.organization_id == organization_code) \
-                .order_by(OrganizationAnalysis.created_on)
+                .order_by(OrganizationAnalysis.created_on.desc())
 
-            data, paging = get_collection_page(req, query, custom_asdict)
+            data, paging = get_collection_page(req, query, read_response_asdict)
             resp.media = {
                 'data': data,
                 'paging': paging
@@ -69,7 +69,7 @@ class Collection:
 
             resp.status = falcon.HTTP_CREATED
             resp.location = req.relative_uri + f'/{item.id}'
-            resp.media = {'data': custom_asdict(item)}
+            resp.media = {'data': create_response_asdict(item)}
         finally:
             session.close()
 
@@ -145,5 +145,9 @@ def process_analysis(session, analysis, organization_id, scopes=None):
     return total_processed_items
 
 
-def custom_asdict(dictable_model):
+def read_response_asdict(dictable_model):
+    return dictable_model.asdict(exclude=['organization_id'])
+
+
+def create_response_asdict(dictable_model):
     return dictable_model.asdict(include=['total_processed_items'], exclude=['organization_id'])
