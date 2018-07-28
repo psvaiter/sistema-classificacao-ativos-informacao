@@ -3,7 +3,7 @@ import falcon
 from knoweak.api import constants as constants
 from knoweak.api.errors import Message, build_error
 from knoweak.api.extensions import HTTPUnprocessableEntity
-from knoweak.api.utils import get_collection_page, validate_str, patch_item
+from knoweak.api.utils import get_collection_page, validate_str, patch_item, validate_number
 from knoweak.db import Session
 from knoweak.db.models.catalog import ITAssetCategory
 
@@ -113,18 +113,15 @@ def validate_post(request_media, session):
     if error:
         errors.append(error)
 
-    # Category id is mandatory and must be valid and available
+    # Category id is mandatory, must be valid and must be available
     # -----------------------------------------------------
-    out_field_name = 'id'
     category_id = request_media.get('id')
-    if category_id is None:
-        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL, field_name=out_field_name))
-    elif not isinstance(category_id, int):
-        errors.append(build_error(Message.ERR_INVALID_VALUE_TYPE, field_name=out_field_name))
-    elif category_id <= 0:
-        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_INVALID, field_name=out_field_name))
-    elif session.query(ITAssetCategory).get(category_id) is not None:
-        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_ALREADY_EXISTS, field_name=out_field_name))
+    error = validate_number('id', category_id,
+                            is_mandatory=True,
+                            min_value=1,
+                            exists_strategy=lambda: session.query(ITAssetCategory).get(category_id))
+    if errors:
+        errors.append(error)
 
     return errors
 

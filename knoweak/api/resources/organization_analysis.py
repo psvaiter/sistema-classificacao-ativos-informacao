@@ -1,9 +1,10 @@
 import falcon
+from sqlalchemy import and_, or_
 
 from knoweak.api import constants
 from knoweak.api.errors import build_error, Message
 from knoweak.api.extensions import HTTPUnprocessableEntity
-from knoweak.api.utils import get_collection_page, validate_str, patch_item
+from knoweak.api.utils import get_collection_page, validate_str, patch_item, validate_number
 from knoweak.db import Session
 from knoweak.db.models.organization import (
     Organization, OrganizationAnalysis, OrganizationITAsset, OrganizationITService,
@@ -60,10 +61,11 @@ class Collection:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
+            scopes = remove_redundant_scopes(req.media.get('scopes'))
             accepted_fields = ['description', 'analysis_performed_on']
             item = OrganizationAnalysis().fromdict(req.media, only=accepted_fields)
             item.organization_id = organization_code
-            item.total_processed_items = process_analysis(session, item, organization_code)
+            item.total_processed_items = process_analysis(session, item, organization_code, scopes)
 
             session.add(item)
             session.commit()
@@ -137,7 +139,28 @@ def validate_post(request_media):
     # Must be a valid ISO 8601 string
     # Cannot be in the future
 
-    return errors
+    # Validate scopes if informed
+    # -----------------------------------------------------
+    scopes = request_media.get('scopes')
+    for i, scope in enumerate(scopes):
+
+        scope_i = f'scopes[{i}]'
+
+        # departmentId is the minimum scope that must be informed
+        if scope.get('department_id') is None:
+            errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name=f'{scope_i}.departmentId'))
+
+        # macroprocessId cannot be null when processId is filled
+        if scope.get('macroprocess_id') is None and scope.get('process_id') is not None:
+            errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name=f'{scope_i}.macroprocessId'))
+
+        # Validate if values are numbers greater than 0
+        errors.append(validate_number(f'{scope_i}.departmentId', scope.get('department_id'), min_value=1))
+        errors.append(validate_number(f'{scope_i}.macroprocessId', scope.get('macroprocess_id'), min_value=1))
+        errors.append(validate_number(f'{scope_i}.processId', scope.get('process_id'), min_value=1))
+
+    # Remove None's before returning
+    return [err for err in errors if err is not None]
 
 
 def validate_patch(request_media):
@@ -156,6 +179,56 @@ def validate_patch(request_media):
             errors.append(error)
 
     return errors
+
+
+def remove_redundant_scopes(requested_scopes):
+    """Remove redundant scopes by ignoring those of which parent levels have been
+    already been chosen as a whole and putting the remaining ones in a separate list.
+
+    :param requested_scopes: Scopes as it came from request.
+    :return: The remaining scopes
+    """
+    if not requested_scopes:
+        return None
+
+    whole_departments = []
+    whole_macroprocesses = []
+    whole_processes = []
+    remaining_scopes = []
+
+    # 1st pass: collect whole departments
+    for scope in requested_scopes:
+        if scope.get('department_id') is not None:
+            if scope.get('department_id') in whole_departments:
+                continue
+            if scope.get('macroprocess_id') is None and scope.get('process_id') is None:
+                whole_departments.append(scope.get('department_id'))
+                remaining_scopes.append(scope)
+
+    # 2nd pass: collect whole macroprocesses
+    for scope in requested_scopes:
+        if scope.get('macroprocess_id') is not None:
+            if scope.get('department_id') in whole_departments:
+                continue
+            if scope.get('macroprocess_id') in whole_macroprocesses:
+                continue
+            if scope.get('process_id') is None:
+                whole_macroprocesses.append(scope.get('macroprocess_id'))
+                remaining_scopes.append(scope)
+
+    # 3rd pass: collect whole processes
+    for scope in requested_scopes:
+        if scope.get('process_id') is not None:
+            if scope.get('department_id') in whole_departments:
+                continue
+            if scope.get('macroprocess_id') in whole_macroprocesses:
+                continue
+            if scope.get('process_id') in whole_processes:
+                continue
+            whole_processes.append(scope.get('process_id'))
+            remaining_scopes.append(scope)
+
+    return remaining_scopes
 
 
 def find_organization_analysis(analysis_id, organization_code, session):
@@ -189,7 +262,9 @@ def process_analysis(session, analysis, organization_id, scopes=None):
         .filter(OrganizationITAssetVulnerability.vulnerability_level_id > 0) \
         .filter(Organization.id == organization_id)
 
+    append_filters_from_scopes(query, scopes)
     result = query.all()
+
     total_processed_items = 0
     for item in result:
         detail = OrganizationAnalysisDetail()
@@ -218,6 +293,33 @@ def process_analysis(session, analysis, organization_id, scopes=None):
         total_processed_items += 1
 
     return total_processed_items
+
+
+def append_filters_from_scopes(query, scopes):
+    if not scopes:
+        return
+
+    conditions = []
+    for scope in scopes:
+        if scope.get('process_id') is not None:
+            conditions.append(and_(
+                OrganizationDepartment.department_id == scope.get('department_id'),
+                OrganizationMacroprocess.macroprocess_id == scope.get('macroprocess_id'),
+                OrganizationProcess.process_id == scope.get('process_id'),
+            ))
+        elif scope.get('macroprocess_id') is not None:
+            conditions.append(and_(
+                OrganizationDepartment.department_id == scope.get('department_id'),
+                OrganizationMacroprocess.macroprocess_id == scope.get('macroprocess_id'),
+            ))
+        elif scope.get('department_id') is not None:
+            conditions.append(
+                OrganizationDepartment.department_id == scope.get('department_id')
+            )
+
+    if conditions:
+        query.filter(or_(*conditions))
+    return
 
 
 def custom_asdict(dictable_model):

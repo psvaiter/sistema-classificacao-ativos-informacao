@@ -124,9 +124,9 @@ def validate_post(request_media, session):
     # -----------------------------------------------------
     category_id = request_media.get('category_id')
     if category_id is None:
-        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL, field_name='categoryId'))
+        errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name='categoryId'))
     elif not session.query(ITAssetCategory).get(category_id):
-        errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_INVALID, field_name='categoryId'))
+        errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='categoryId'))
 
     return errors
 
@@ -164,9 +164,9 @@ def validate_patch(request_media, session):
 
         # Cannot be null if informed and must be valid
         if category_id is None:
-            errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_CANNOT_BE_NULL, field_name='categoryId'))
+            errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name='categoryId'))
         elif not session.query(ITAssetCategory).get(category_id):
-            errors.append(build_error(Message.ERR_IT_ASSET_CATEGORY_ID_INVALID, field_name='categoryId'))
+            errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='categoryId'))
 
     return errors
 

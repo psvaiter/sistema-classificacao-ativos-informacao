@@ -127,7 +127,7 @@ def validate_post(request_media, organization_code, session):
     if department_id is None:
         errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name='departmentId'))
     elif not find_organization_department(department_id, organization_code, session):
-        errors.append(build_error(Message.ERR_DEPARTMENT_ID_INVALID, field_name='departmentId'))
+        errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='departmentId'))
 
     # Validate macroprocess id and if it's already in department
     # -----------------------------------------------------
