@@ -1,4 +1,5 @@
 import falcon
+from sqlalchemy import and_, or_
 
 from knoweak.api import constants
 from knoweak.api.errors import build_error, Message
@@ -295,7 +296,30 @@ def process_analysis(session, analysis, organization_id, scopes=None):
 
 
 def append_filters_from_scopes(query, scopes):
-    pass
+    if not scopes:
+        return
+
+    conditions = []
+    for scope in scopes:
+        if scope.get('process_id') is not None:
+            conditions.append(and_(
+                OrganizationDepartment.department_id == scope.get('department_id'),
+                OrganizationMacroprocess.macroprocess_id == scope.get('macroprocess_id'),
+                OrganizationProcess.process_id == scope.get('process_id'),
+            ))
+        elif scope.get('macroprocess_id') is not None:
+            conditions.append(and_(
+                OrganizationDepartment.department_id == scope.get('department_id'),
+                OrganizationMacroprocess.macroprocess_id == scope.get('macroprocess_id'),
+            ))
+        elif scope.get('department_id') is not None:
+            conditions.append(
+                OrganizationDepartment.department_id == scope.get('department_id')
+            )
+
+    if conditions:
+        query.filter(or_(*conditions))
+    return
 
 
 def custom_asdict(dictable_model):
