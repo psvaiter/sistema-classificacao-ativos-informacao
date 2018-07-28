@@ -181,9 +181,8 @@ def validate_patch(request_media):
 
 
 def remove_redundant_scopes(requested_scopes):
-    """Remove logic:
-        - Look for department only items and eliminates all more specific
-        - Look for department + macroprocess only items and eliminates all more specific
+    """Remove redundant scopes by ignoring those of which parent levels have been
+    already been chosen as a whole and putting the remaining ones in a separate list.
 
     :param requested_scopes: Scopes as it came from request.
     :return: The remaining scopes
@@ -193,31 +192,42 @@ def remove_redundant_scopes(requested_scopes):
 
     whole_departments = []
     whole_macroprocesses = []
+    whole_processes = []
+    remaining_scopes = []
 
     # 1st pass: collect whole departments
-    # Removing now can affect indices. Also, higher levels may be after more specific ones,
-    # making it difficult to go back and remove.
     for scope in requested_scopes:
         if scope.get('department_id') is not None:
+            if scope.get('department_id') in whole_departments:
+                continue
             if scope.get('macroprocess_id') is None and scope.get('process_id') is None:
                 whole_departments.append(scope.get('department_id'))
+                remaining_scopes.append(scope)
 
-    # 2nd pass: remove what's already comprehended by whole departments
+    # 2nd pass: collect whole macroprocesses
     for scope in requested_scopes:
-        if scope.get('department_id') in whole_departments and scope.get('macroprocess_id') is not None:
-            del requested_scopes[scope]
+        if scope.get('macroprocess_id') is not None:
+            if scope.get('department_id') in whole_departments:
+                continue
+            if scope.get('macroprocess_id') in whole_macroprocesses:
+                continue
+            if scope.get('process_id') is None:
+                whole_macroprocesses.append(scope.get('macroprocess_id'))
+                remaining_scopes.append(scope)
 
-    # 3rd pass: collect whole macroprocesses
+    # 3rd pass: collect whole processes
     for scope in requested_scopes:
-        if scope.get('macroprocess_id') is not None and scope.get('process_id') is None:
-            whole_macroprocesses.append(scope.get('macroprocess_id'))
+        if scope.get('process_id') is not None:
+            if scope.get('department_id') in whole_departments:
+                continue
+            if scope.get('macroprocess_id') in whole_macroprocesses:
+                continue
+            if scope.get('process_id') in whole_processes:
+                continue
+            whole_processes.append(scope.get('process_id'))
+            remaining_scopes.append(scope)
 
-    # 4th pass: remove what's already comprehended by whole macroprocesses
-    for scope in requested_scopes:
-        if scope.get('macroprocess_id') in whole_macroprocesses and scope.get('process_id') is not None:
-            del requested_scopes[scope]
-
-    return requested_scopes
+    return remaining_scopes
 
 
 def find_organization_analysis(analysis_id, organization_code, session):
