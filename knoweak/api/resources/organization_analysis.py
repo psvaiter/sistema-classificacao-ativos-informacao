@@ -60,7 +60,7 @@ class Collection:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
-            scopes = prepare_scopes(req.media.get('scopes'))
+            scopes = remove_redundant_scopes(req.media.get('scopes'))
             accepted_fields = ['description', 'analysis_performed_on']
             item = OrganizationAnalysis().fromdict(req.media, only=accepted_fields)
             item.organization_id = organization_code
@@ -180,8 +180,44 @@ def validate_patch(request_media):
     return errors
 
 
-def prepare_scopes(requested_scopes):
-    return None
+def remove_redundant_scopes(requested_scopes):
+    """Remove logic:
+        - Look for department only items and eliminates all more specific
+        - Look for department + macroprocess only items and eliminates all more specific
+
+    :param requested_scopes: Scopes as it came from request.
+    :return: The remaining scopes
+    """
+    if not requested_scopes:
+        return None
+
+    whole_departments = []
+    whole_macroprocesses = []
+
+    # 1st pass: collect whole departments
+    # Removing now can affect indices. Also, higher levels may be after more specific ones,
+    # making it difficult to go back and remove.
+    for scope in requested_scopes:
+        if scope.get('department_id') is not None:
+            if scope.get('macroprocess_id') is None and scope.get('process_id') is None:
+                whole_departments.append(scope.get('department_id'))
+
+    # 2nd pass: remove what's already comprehended by whole departments
+    for scope in requested_scopes:
+        if scope.get('department_id') in whole_departments and scope.get('macroprocess_id') is not None:
+            del requested_scopes[scope]
+
+    # 3rd pass: collect whole macroprocesses
+    for scope in requested_scopes:
+        if scope.get('macroprocess_id') is not None and scope.get('process_id') is None:
+            whole_macroprocesses.append(scope.get('macroprocess_id'))
+
+    # 4th pass: remove what's already comprehended by whole macroprocesses
+    for scope in requested_scopes:
+        if scope.get('macroprocess_id') in whole_macroprocesses and scope.get('process_id') is not None:
+            del requested_scopes[scope]
+
+    return requested_scopes
 
 
 def find_organization_analysis(analysis_id, organization_code, session):
@@ -215,7 +251,9 @@ def process_analysis(session, analysis, organization_id, scopes=None):
         .filter(OrganizationITAssetVulnerability.vulnerability_level_id > 0) \
         .filter(Organization.id == organization_id)
 
+    append_filters_from_scopes(query, scopes)
     result = query.all()
+
     total_processed_items = 0
     for item in result:
         detail = OrganizationAnalysisDetail()
@@ -244,6 +282,10 @@ def process_analysis(session, analysis, organization_id, scopes=None):
         total_processed_items += 1
 
     return total_processed_items
+
+
+def append_filters_from_scopes(query, scopes):
+    pass
 
 
 def custom_asdict(dictable_model):
