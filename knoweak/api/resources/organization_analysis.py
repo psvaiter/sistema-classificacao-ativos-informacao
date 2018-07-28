@@ -142,6 +142,7 @@ def validate_post(request_media):
     # Validate scopes if informed
     # -----------------------------------------------------
     scopes = request_media.get('scopes')
+    scopes = [] if not scopes else scopes
     for i, scope in enumerate(scopes):
 
         scope_i = f'scopes[{i}]'
