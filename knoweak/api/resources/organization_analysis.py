@@ -3,7 +3,7 @@ import falcon
 from knoweak.api import constants
 from knoweak.api.errors import build_error, Message
 from knoweak.api.extensions import HTTPUnprocessableEntity
-from knoweak.api.utils import get_collection_page, validate_str, patch_item
+from knoweak.api.utils import get_collection_page, validate_str, patch_item, validate_number
 from knoweak.db import Session
 from knoweak.db.models.organization import (
     Organization, OrganizationAnalysis, OrganizationITAsset, OrganizationITService,
@@ -60,10 +60,11 @@ class Collection:
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
+            scopes = prepare_scopes(req.media.get('scopes'))
             accepted_fields = ['description', 'analysis_performed_on']
             item = OrganizationAnalysis().fromdict(req.media, only=accepted_fields)
             item.organization_id = organization_code
-            item.total_processed_items = process_analysis(session, item, organization_code)
+            item.total_processed_items = process_analysis(session, item, organization_code, scopes)
 
             session.add(item)
             session.commit()
@@ -137,7 +138,28 @@ def validate_post(request_media):
     # Must be a valid ISO 8601 string
     # Cannot be in the future
 
-    return errors
+    # Validate scopes if informed
+    # -----------------------------------------------------
+    scopes = request_media.get('scopes')
+    for i, scope in enumerate(scopes):
+
+        scope_i = f'scopes[{i}]'
+
+        # departmentId is the minimum scope that must be informed
+        if scope.get('department_id') is None:
+            errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name=f'{scope_i}.departmentId'))
+
+        # macroprocessId cannot be null when processId is filled
+        if scope.get('macroprocess_id') is None and scope.get('process_id') is not None:
+            errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name=f'{scope_i}.macroprocessId'))
+
+        # Validate if values are numbers greater than 0
+        errors.append(validate_number(f'{scope_i}.departmentId', scope.get('department_id'), min_value=1))
+        errors.append(validate_number(f'{scope_i}.macroprocessId', scope.get('macroprocess_id'), min_value=1))
+        errors.append(validate_number(f'{scope_i}.processId', scope.get('process_id'), min_value=1))
+
+    # Remove None's before returning
+    return [err for err in errors if err is not None]
 
 
 def validate_patch(request_media):
@@ -156,6 +178,10 @@ def validate_patch(request_media):
             errors.append(error)
 
     return errors
+
+
+def prepare_scopes(requested_scopes):
+    return None
 
 
 def find_organization_analysis(analysis_id, organization_code, session):
