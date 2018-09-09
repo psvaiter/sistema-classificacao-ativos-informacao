@@ -28,7 +28,9 @@ class Collection:
                 .join(OrganizationAnalysis) \
                 .filter(OrganizationAnalysis.organization_id == organization_code) \
                 .filter(OrganizationAnalysis.id == analysis_id) \
-                .order_by(OrganizationAnalysisDetail.calculated_risk.desc())
+                .order_by(OrganizationAnalysisDetail.calculated_risk.desc(),
+                          OrganizationAnalysisDetail.calculated_impact.desc(),
+                          OrganizationAnalysisDetail.calculated_probability.desc())
 
             data, paging = get_collection_page(req, query, custom_asdict)
             resp.media = {
