@@ -154,8 +154,8 @@ def find_organization_department(department_id, organization_code, session):
 def find_organization_macroprocess(macroprocess_id, department_id, organization_code, session):
     query = session \
         .query(OrganizationMacroprocess)\
-        .filter(OrganizationDepartment.organization_id == organization_code,
-                OrganizationDepartment.department_id == department_id,
+        .filter(OrganizationMacroprocess.organization_id == organization_code,
+                OrganizationMacroprocess.department_id == department_id,
                 OrganizationMacroprocess.macroprocess_id == macroprocess_id)
 
     return query.first()
