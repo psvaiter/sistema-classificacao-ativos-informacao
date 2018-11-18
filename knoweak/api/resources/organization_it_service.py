@@ -31,6 +31,11 @@ class Collection:
                 .filter(OrganizationITService.organization_id == organization_code)\
                 .order_by(OrganizationITService.created_on)
 
+            # Handle optional filters
+            process_instance_id = req.get_param_as_int('processInstanceId')
+            if process_instance_id:
+                query = query.filter(OrganizationITService.process_instance_id == process_instance_id)
+
             data, paging = get_collection_page(req, query, custom_asdict)
             resp.media = {
                 'data': data,
