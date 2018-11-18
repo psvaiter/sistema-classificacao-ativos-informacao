@@ -31,6 +31,11 @@ class Collection:
                 .filter(OrganizationProcess.organization_id == organization_code)\
                 .order_by(OrganizationProcess.created_on)
 
+            # Handle optional filters
+            macroprocess_instance_id = req.get_param_as_int('macroprocessInstanceId')
+            if macroprocess_instance_id:
+                query = query.filter(OrganizationProcess.macroprocess_instance_id == macroprocess_instance_id)
+
             data, paging = get_collection_page(req, query, custom_asdict)
             resp.media = {
                 'data': data,
