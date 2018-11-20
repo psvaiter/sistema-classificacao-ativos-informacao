@@ -33,11 +33,6 @@ class Collection:
                 .filter(OrganizationITService.instance_id == it_service_instance_id) \
                 .order_by(OrganizationITServiceITAsset.created_on)
 
-            # Handle optional filters
-            it_service_instance_id = req.get_param_as_int('itServiceInstanceId')
-            if it_service_instance_id:
-                query = query.filter(OrganizationITServiceITAsset.it_service_instance_id == it_service_instance_id)
-
             data, paging = get_collection_page(req, query, custom_asdict)
             resp.media = {
                 'data': data,
