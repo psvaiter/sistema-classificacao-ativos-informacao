@@ -28,7 +28,7 @@ class Collection:
             # Build query to fetch items
             query = session\
                 .query(OrganizationSecurityThreat)\
-                .filter(Organization.id == organization_code)\
+                .filter(OrganizationSecurityThreat.organization_id == organization_code)\
                 .order_by(OrganizationSecurityThreat.created_on)\
 
             data, paging = get_collection_page(req, query, custom_asdict)
