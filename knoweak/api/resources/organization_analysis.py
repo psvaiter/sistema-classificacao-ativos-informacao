@@ -124,6 +124,25 @@ class Item:
         finally:
             session.close()
 
+    def on_delete(self, req, resp, organization_code, analysis_id):
+        """Deletes an analysis and all its details.
+
+        :param req: See Falcon Request documentation.
+        :param resp: See Falcon Response documentation.
+        :param organization_code: The code of organization.
+        :param analysis_id: The id of the analysis to be deleted.
+        """
+        session = Session()
+        try:
+            analysis = find_organization_analysis(analysis_id, organization_code, session)
+            if analysis is None:
+                raise falcon.HTTPNotFound()
+
+            session.delete(analysis)
+            session.commit()
+        finally:
+            session.close()
+
 
 def validate_post(request_media):
     errors = []
