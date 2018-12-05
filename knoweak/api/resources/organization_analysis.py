@@ -62,7 +62,7 @@ class Collection:
                 raise HTTPUnprocessableEntity(errors)
 
             scopes = remove_redundant_scopes(req.media.get('scopes'))
-            accepted_fields = ['description', 'analysis_performed_on']
+            accepted_fields = ['description']
             item = OrganizationAnalysis().fromdict(req.media, only=accepted_fields)
             item.organization_id = organization_code
             item.total_processed_items = process_analysis(session, item, organization_code, scopes)
@@ -134,10 +134,6 @@ def validate_post(request_media):
     error = validate_str('description', description, max_length=constants.GENERAL_DESCRIPTION_MAX_LENGTH)
     if error:
         errors.append(error)
-
-    # TODO: validate datetime that analysis was performed if informed
-    # Must be a valid ISO 8601 string
-    # Cannot be in the future
 
     # Validate scopes if informed
     # -----------------------------------------------------

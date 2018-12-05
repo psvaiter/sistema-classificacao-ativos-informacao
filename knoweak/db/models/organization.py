@@ -164,11 +164,10 @@ class OrganizationAnalysis(DbModel):
     id = Column("organization_analysis_id", Integer, primary_key=True)
     organization_id = Column(Integer, ForeignKey(Organization.id), nullable=False)
     description = Column(String)
-    analysis_performed_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    details = relationship("OrganizationAnalysisDetail")
+    details = relationship("OrganizationAnalysisDetail", passive_deletes=True)
 
 
 class OrganizationAnalysisDetail(DbModel):
