@@ -19,7 +19,7 @@ class Collection:
         """
         session = Session()
         try:
-            query = session.query(BusinessMacroprocess).order_by(BusinessMacroprocess.created_on)
+            query = session.query(BusinessMacroprocess).order_by(BusinessMacroprocess.name)
 
             data, paging = get_collection_page(req, query)
             resp.media = {

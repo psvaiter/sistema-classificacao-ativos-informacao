@@ -21,7 +21,7 @@ class Collection:
         """
         session = Session()
         try:
-            query = session.query(SystemUser).order_by(SystemUser.created_on)
+            query = session.query(SystemUser).order_by(SystemUser.full_name)
 
             data, paging = get_collection_page(req, query, custom_asdict)
             resp.media = {

@@ -19,7 +19,7 @@ class Collection:
         """
         session = Session()
         try:
-            query = session.query(ITAsset).order_by(ITAsset.created_on)
+            query = session.query(ITAsset).order_by(ITAsset.name)
 
             data, paging = get_collection_page(req, query)
             resp.media = {

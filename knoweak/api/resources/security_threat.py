@@ -19,7 +19,7 @@ class Collection:
         """
         session = Session()
         try:
-            query = session.query(SecurityThreat).order_by(SecurityThreat.created_on)
+            query = session.query(SecurityThreat).order_by(SecurityThreat.name)
 
             data, paging = get_collection_page(req, query)
             resp.media = {

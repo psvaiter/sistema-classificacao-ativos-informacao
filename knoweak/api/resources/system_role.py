@@ -19,7 +19,7 @@ class Collection:
         """
         session = Session()
         try:
-            query = session.query(SystemAdministrativeRole).order_by(SystemAdministrativeRole.created_on)
+            query = session.query(SystemAdministrativeRole).order_by(SystemAdministrativeRole.name)
 
             data, paging = get_collection_page(req, query)
             resp.media = {

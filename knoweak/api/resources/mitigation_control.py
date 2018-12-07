@@ -19,7 +19,7 @@ class Collection:
         """
         session = Session()
         try:
-            query = session.query(MitigationControl).order_by(MitigationControl.created_on)
+            query = session.query(MitigationControl).order_by(MitigationControl.name)
 
             data, paging = get_collection_page(req, query)
             resp.media = {

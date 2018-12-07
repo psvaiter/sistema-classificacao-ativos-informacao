@@ -19,7 +19,7 @@ class Collection:
         """
         session = Session()
         try:
-            query = session.query(BusinessDepartment).order_by(BusinessDepartment.created_on)
+            query = session.query(BusinessDepartment).order_by(BusinessDepartment.name)
 
             data, paging = get_collection_page(req, query)
             resp.media = {
