@@ -1,4 +1,5 @@
 import falcon
+from sqlalchemy import func
 
 from knoweak.api import constants as constants
 from knoweak.api.errors import Message, build_error
@@ -105,7 +106,7 @@ class Item:
             if it_asset_instance is None:
                 raise falcon.HTTPNotFound()
 
-            errors = validate_patch(req.media, organization_code, session)
+            errors = validate_patch(req.media, it_asset_instance, organization_code, session)
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
@@ -140,7 +141,7 @@ class Item:
 def validate_post(request_media, organization_code, session):
     errors = []
 
-    # Validate IT asset instance id
+    # Validate IT asset id
     # -----------------------------------------------------
     it_asset_id = request_media.get('it_asset_id')
     if it_asset_id is None:
@@ -149,18 +150,19 @@ def validate_post(request_media, organization_code, session):
         errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='itAssetId'))
 
     # Validate external identifier if informed
+    # There MUST NOT exist the same (IT asset id + external identifier) combination in organization
     # -----------------------------------------------------
     external_identifier = request_media.get('external_identifier')
     error = validate_str('externalIdentifier', external_identifier, max_length=constants.GENERAL_NAME_MAX_LENGTH)
     if error:
         errors.append(error)
-
-    # TODO: validate if an IT asset with the same external identifier already exists in organization
+    elif exists_it_asset(session, organization_code, it_asset_id, external_identifier):
+        errors.append(build_error(Message.ERR_FIELD_VALUE_ALREADY_EXISTS, field_name='externalIdentifier'))
 
     return errors
 
 
-def validate_patch(request_media, organization_code, session):
+def validate_patch(request_media, it_asset_instance, organization_code, session):
     errors = []
 
     if not request_media:
@@ -168,14 +170,19 @@ def validate_patch(request_media, organization_code, session):
         return errors
 
     # Validate external identifier if informed
+    # There MUST NOT exist the same (IT asset id + external identifier) combination in organization except itself
     # -----------------------------------------------------
     if 'external_identifier' in request_media:
         external_identifier = request_media.get('external_identifier')
         error = validate_str('externalIdentifier', external_identifier, max_length=constants.GENERAL_NAME_MAX_LENGTH)
         if error:
             errors.append(error)
-
-    # TODO: validate if an IT asset with the same external identifier already exists in organization
+        elif exists_it_asset(session,
+                             organization_code,
+                             it_asset_instance.it_asset_id,
+                             external_identifier,
+                             except_instance_id=it_asset_instance.instance_id):
+            errors.append(build_error(Message.ERR_FIELD_VALUE_ALREADY_EXISTS, field_name='externalIdentifier'))
 
     return errors
 
@@ -187,6 +194,19 @@ def find_it_asset_instance(it_asset_instance_id, organization_id, session):
         .filter(OrganizationITAsset.organization_id == organization_id)
 
     return query.first()
+
+
+def exists_it_asset(session, organization_code, it_asset_id, external_identifier, except_instance_id=None):
+    query = session\
+        .query(func.count(OrganizationITAsset.instance_id))\
+        .filter(OrganizationITAsset.organization_id == organization_code)\
+        .filter(OrganizationITAsset.it_asset_id == it_asset_id)\
+        .filter(OrganizationITAsset.external_identifier == external_identifier)
+
+    if except_instance_id is not None:
+        query = query.filter(OrganizationITAsset.instance_id != except_instance_id)
+
+    return query.scalar()
 
 
 def custom_asdict(dictable_model):
