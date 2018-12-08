@@ -88,11 +88,13 @@ def validate_number(field_name, field_value, is_mandatory=False,
         Default is None.
     :param max_value: Maximum value considered valid (inclusive).
         Default is None.
-    :param exists_strategy: A function that returns something or True when value
-        already exists. If the function returns None or False, the value is
-        considered new and validation will pass. If function is None, this
+    :param exists_strategy: A function that returns True (or something) when
+        value already exists. If the function returns None or False, the value
+        is considered new and validation will pass. If function is None, this
         validation will be skipped.
         Default is None.
+
+        Note: The function will not be executed if field value is None.
     :return: A dict containing an error code, a message and the field name.
     """
     # Field was not informed...
@@ -136,11 +138,13 @@ def validate_str(field_name, field_value, is_mandatory=False, min_length=None, m
     :param max_length: Maximum length allowed. An error is returned if len(field_value)
         is above this value. When None, this validation will be skipped.
         Default is None.
-    :param exists_strategy: A function that returns something or True when value
-        already exists. If the function returns None or False, the value is
-        considered new and validation will pass. If function is None, this
+    :param exists_strategy: A function that returns True (or something) when
+        value already exists. If the function returns None or False, the value
+        is considered new and validation will pass. If function is None, this
         validation will be skipped.
         Default is None.
+
+        Note: The function will not be executed if field value is None.
     :return: A dict containing an error code, a message and the field name.
     """
     # Field was not informed...
