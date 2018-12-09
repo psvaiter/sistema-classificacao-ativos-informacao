@@ -67,6 +67,9 @@ class Collection:
             item.organization_id = organization_code
             item.total_processed_items = process_analysis(session, item, organization_code, scopes)
 
+            if item.total_processed_items == 0:
+                raise HTTPUnprocessableEntity([build_error(Message.ERR_NO_ITEMS_TO_ANALYZE)])
+
             session.add(item)
             session.commit()
 
