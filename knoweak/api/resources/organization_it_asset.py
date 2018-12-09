@@ -177,11 +177,7 @@ def validate_patch(request_media, it_asset_instance, organization_code, session)
         error = validate_str('externalIdentifier', external_identifier, max_length=constants.GENERAL_NAME_MAX_LENGTH)
         if error:
             errors.append(error)
-        elif exists_it_asset(session,
-                             organization_code,
-                             it_asset_instance.it_asset_id,
-                             external_identifier,
-                             except_instance_id=it_asset_instance.instance_id):
+        elif exists_other_it_asset(session, organization_code, it_asset_instance, external_identifier):
             errors.append(build_error(Message.ERR_FIELD_VALUE_ALREADY_EXISTS, field_name='externalIdentifier'))
 
     return errors
@@ -196,15 +192,23 @@ def find_it_asset_instance(it_asset_instance_id, organization_id, session):
     return query.first()
 
 
-def exists_it_asset(session, organization_code, it_asset_id, external_identifier, except_instance_id=None):
+def exists_it_asset(session, organization_code, it_asset_id, external_identifier):
     query = session\
         .query(func.count(OrganizationITAsset.instance_id))\
         .filter(OrganizationITAsset.organization_id == organization_code)\
         .filter(OrganizationITAsset.it_asset_id == it_asset_id)\
         .filter(OrganizationITAsset.external_identifier == external_identifier)
 
-    if except_instance_id is not None:
-        query = query.filter(OrganizationITAsset.instance_id != except_instance_id)
+    return query.scalar()
+
+
+def exists_other_it_asset(session, organization_code, it_asset_instance, external_identifier):
+    query = session\
+        .query(func.count(OrganizationITAsset.instance_id))\
+        .filter(OrganizationITAsset.organization_id == organization_code)\
+        .filter(OrganizationITAsset.it_asset_id == it_asset_instance.it_asset_id)\
+        .filter(OrganizationITAsset.external_identifier == external_identifier)\
+        .filter(OrganizationITAsset.instance_id != it_asset_instance.instance_id)
 
     return query.scalar()
 
