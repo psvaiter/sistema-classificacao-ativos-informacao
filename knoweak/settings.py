@@ -8,3 +8,6 @@ DATABASE = {
     'db_name': os.environ.get('DB_NAME', 'knoweak')
 }
 
+AUTH = {
+    'disabled': os.environ.get('AUTH_DISABLED', False)
+}
