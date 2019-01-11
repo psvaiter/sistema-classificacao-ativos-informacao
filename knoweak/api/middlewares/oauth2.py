@@ -6,15 +6,19 @@ from knoweak.settings import AUTH
 
 class OAuth2:
 
-    def __init__(self):
-        pass
+    def __init__(self, free_access_routes=None):
+        self.free_access_routes = free_access_routes or []
 
     def process_resource(self, req, resp, resource, params):
         if AUTH['disabled']:
             return
+        if req.method == 'OPTIONS':
+            return  # CORS support
+        if req.path in self.free_access_routes:
+            return
 
         auth_header_parts = _validate_header(req)
-        decoded_token = _validate_token(auth_header_parts)
+        decoded_token = _validate_token(auth_header_parts[1])
         _validate_scopes(resource, decoded_token)
 
 
@@ -32,9 +36,9 @@ def _validate_header(req):
     return auth_header_parts
 
 
-def _validate_token(auth_header_parts):
+def _validate_token(token):
     try:
-        decoded_token = jwt.decode(auth_header_parts[1], key='', algorithms='HS256')
+        decoded_token = jwt.decode(token, key='', algorithms='HS256')
     except Exception as e:
         raise falcon.HTTPUnauthorized(description=f'Invalid authentication token. {str(e)}.')
     return decoded_token
