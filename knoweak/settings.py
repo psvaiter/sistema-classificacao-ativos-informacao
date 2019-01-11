@@ -9,5 +9,6 @@ DATABASE = {
 }
 
 AUTH = {
-    'disabled': os.environ.get('AUTH_DISABLED', False)
+    'disabled': os.environ.get('AUTH_DISABLED', False),
+    'secret_key': os.environ.get('AUTH_SECRET_KEY', '')
 }
