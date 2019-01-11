@@ -11,5 +11,5 @@ DATABASE = {
 
 AUTH = {
     'disabled': bool(strtobool(os.environ.get('AUTH_DISABLED', 'No'))),
-    'secret_key': os.environ.get('AUTH_SECRET_KEY', '')
+    'secret_key': os.environ.get('ACCESS_TOKEN_SECRET_KEY', '')
 }
