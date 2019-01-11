@@ -33,7 +33,7 @@ def configure_cors_middleware():
 
 
 def configure_auth_middleware():
-    return OAuth2()
+    return OAuth2(free_access_routes=['/version'])
 
 
 def configure_media_handlers(api):
