@@ -4,7 +4,7 @@ import jwt
 from knoweak.settings import AUTH
 
 
-class OAuth2:
+class AuthenticationMiddleware:
 
     def __init__(self, free_access_routes=None):
         self.free_access_routes = free_access_routes or []
