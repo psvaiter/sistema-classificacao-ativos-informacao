@@ -1,4 +1,5 @@
 import os
+from distutils.util import strtobool
 
 DATABASE = {
     'host': os.environ.get('DB_HOST', 'localhost'),
@@ -9,6 +10,6 @@ DATABASE = {
 }
 
 AUTH = {
-    'disabled': os.environ.get('AUTH_DISABLED', False),
+    'disabled': bool(strtobool(os.environ.get('AUTH_DISABLED', 'No'))),
     'secret_key': os.environ.get('AUTH_SECRET_KEY', '')
 }
