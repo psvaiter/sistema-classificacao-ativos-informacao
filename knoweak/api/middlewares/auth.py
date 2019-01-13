@@ -56,17 +56,17 @@ def _validate_scopes(resource, decoded_token):
 
 def read_token_scopes(decoded_token):
     """
-    Read the scopes from a decoded token. They're expected to be in 'scopes' attribute.
+    Read the scopes from a decoded token. They're expected to be in 'scope' attribute.
     The value can be either a string with scopes separated by space or a list of scopes.
 
-        Example 1: { "scopes": "read:organizations create:analysis" }
+        Example 1: { "scope": "read:organizations create:analysis" }
 
-        Example 2: { "scopes": ["read:organizations", "create:analysis"] }
+        Example 2: { "scope": ["read:organizations", "create:analysis"] }
 
     :param decoded_token: The decoded token.
     :return A list with token scopes or an empty list.
     """
-    token_scopes = decoded_token.get('scopes', [])
+    token_scopes = decoded_token.get('scope', [])
     if isinstance(token_scopes, str):
         token_scopes = token_scopes.split(' ')
     elif not isinstance(token_scopes, list):
