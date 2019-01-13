@@ -45,30 +45,10 @@ def _validate_token(token):
 
 
 def _validate_scopes(resource, decoded_token):
-    token_scopes = read_token_scopes(decoded_token)
+    token_scopes = decoded_token.get('scope', '').split(' ')
 
     # Validate against scopes registered in resource.
     # If a resource does not have at least one scope, it doesn't have any access restrictions.
     allowed_scopes = getattr(resource, 'auth', {}).get('allowed_scopes', [])
     if allowed_scopes and not set(allowed_scopes).issubset(token_scopes):
-        raise falcon.HTTPForbidden(description='Check your permissions to access the resource.')
-
-
-def read_token_scopes(decoded_token):
-    """
-    Read the scopes from a decoded token. They're expected to be in 'scope' attribute.
-    The value can be either a string with scopes separated by space or a list of scopes.
-
-        Example 1: { "scope": "read:organizations create:analysis" }
-
-        Example 2: { "scope": ["read:organizations", "create:analysis"] }
-
-    :param decoded_token: The decoded token.
-    :return A list with token scopes or an empty list.
-    """
-    token_scopes = decoded_token.get('scope', [])
-    if isinstance(token_scopes, str):
-        token_scopes = token_scopes.split(' ')
-    elif not isinstance(token_scopes, list):
-        token_scopes = []
-    return token_scopes
+        raise falcon.HTTPForbidden(description='Check your permissions to access this resource.')
