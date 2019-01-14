@@ -38,7 +38,7 @@ def _validate_header(req):
 
 def _validate_token(token):
     try:
-        decoded_token = jwt.decode(token, key=AUTH['secret_key'], algorithms='HS256')
+        decoded_token = jwt.decode(token, key=AUTH['secret_key'], algorithms='HS256', options={'verify_aud': False})
     except Exception as e:
         raise falcon.HTTPUnauthorized(description=f'Invalid access token. {str(e)}.')
     return decoded_token
