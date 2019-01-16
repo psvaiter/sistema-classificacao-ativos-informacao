@@ -118,6 +118,7 @@ def validate_post(request_media, session):
     legal_name = request_media.get('legal_name')
     error = validate_str('legalName', legal_name,
                          is_mandatory=True,
+                         min_length=constants.GENERAL_NAME_MIN_LENGTH,
                          max_length=constants.GENERAL_NAME_MAX_LENGTH)
     if error:
         errors.append(error)
@@ -126,6 +127,7 @@ def validate_post(request_media, session):
     # -----------------------------------------------------
     trade_name = request_media.get('trade_name')
     error = validate_str('tradeName', trade_name,
+                         min_length=constants.GENERAL_NAME_MIN_LENGTH,
                          max_length=constants.GENERAL_NAME_MAX_LENGTH)
     if error:
         errors.append(error)
@@ -157,6 +159,7 @@ def validate_patch(request_media, session):
         legal_name = request_media.get('legal_name')
         error = validate_str('legalName', legal_name,
                              is_mandatory=True,
+                             min_length=constants.GENERAL_NAME_MIN_LENGTH,
                              max_length=constants.GENERAL_NAME_MAX_LENGTH)
         if error:
             errors.append(error)
@@ -166,6 +169,7 @@ def validate_patch(request_media, session):
     if 'trade_name' in request_media:
         trade_name = request_media.get('trade_name')
         error = validate_str('tradeName', trade_name,
+                             min_length=constants.GENERAL_NAME_MIN_LENGTH,
                              max_length=constants.GENERAL_NAME_MAX_LENGTH)
         if error:
             errors.append(error)
