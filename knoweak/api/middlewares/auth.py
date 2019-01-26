@@ -19,7 +19,10 @@ class AuthenticationMiddleware:
 
         auth_header_parts = _validate_header(req)
         decoded_token = _validate_token(auth_header_parts[1])
-        _validate_scopes(resource, decoded_token)
+
+        req.user = {
+            'scope': decoded_token.get('scope')
+        }
 
 
 def _validate_header(req):
@@ -44,11 +47,26 @@ def _validate_token(token):
     return decoded_token
 
 
-def _validate_scopes(resource, decoded_token):
-    token_scopes = decoded_token.get('scope', '').split(' ')
+def check_scope(req, resp, resource, params, allowed_scope=None):
+    """Falcon hook.
+    Checks if allowed scope registered for responder (or for resource) exist in requested scope.
+    If yes, the request will continue to be processed. Otherwise, it will raise a 403 (Forbidden) error.
 
-    # Validate against scopes registered in resource.
-    # If a resource does not have at least one scope, it doesn't have any access restrictions.
-    allowed_scopes = getattr(resource, 'auth', {}).get('allowed_scopes', [])
-    if allowed_scopes and not set(allowed_scopes).issubset(token_scopes):
-        raise falcon.HTTPForbidden(description='Check your permissions to access this resource.')
+    :param req: Falcon.Request object from which the requested scope will be retrieved.
+    :param resp: Not used. Mandatory for hook functions.
+    :param resource: Not used. Mandatory for hook functions.
+    :param params: Not used. Mandatory for hook functions.
+    :param allowed_scope: The permission(s) allowed for Falcon responder or for entire resource.
+        It must be a string with permissions separated by space.
+        If None (default) or empty, there will be no access restriction and the effect will be the
+        same as if the hook was not applied.
+    """
+    if not allowed_scope or AUTH['disabled']:
+        return
+
+    user = getattr(req, 'user', {})
+    requested_scopes = user.get('scope', '').split(' ')
+    allowed_scopes = allowed_scope.split(' ')
+
+    if not set(allowed_scopes).issubset(requested_scopes):
+        raise falcon.HTTPForbidden(description='Check your permission to perform this action.')
