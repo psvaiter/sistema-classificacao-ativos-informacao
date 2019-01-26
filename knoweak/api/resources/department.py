@@ -3,6 +3,7 @@ import falcon
 from knoweak.api import constants
 from knoweak.api.errors import Message, build_error
 from knoweak.api.extensions import HTTPUnprocessableEntity
+from knoweak.api.middlewares.auth import check_scope
 from knoweak.api.utils import get_collection_page, validate_str, patch_item
 from knoweak.db import Session
 from knoweak.db.models.catalog import BusinessDepartment
@@ -11,6 +12,7 @@ from knoweak.db.models.catalog import BusinessDepartment
 class Collection:
     """GET and POST departments in catalog."""
 
+    @falcon.before(check_scope, 'read:catalog')
     def on_get(self, req, resp):
         """GETs a paged collection of departments available.
 
@@ -29,6 +31,7 @@ class Collection:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'create:catalog')
     def on_post(self, req, resp):
         """Creates a new department in catalog.
 
@@ -56,6 +59,7 @@ class Collection:
 class Item:
     """GET and PATCH a department in catalog."""
 
+    @falcon.before(check_scope, 'read:catalog')
     def on_get(self, req, resp, department_id):
         """GETs a single department by id.
 
@@ -73,6 +77,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'update:catalog')
     def on_patch(self, req, resp, department_id):
         """Updates (partially) the department requested.
         All entities that reference the department will be affected by the update.
