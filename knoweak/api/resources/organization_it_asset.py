@@ -4,6 +4,7 @@ from sqlalchemy import func
 from knoweak.api import constants as constants
 from knoweak.api.errors import Message, build_error
 from knoweak.api.extensions import HTTPUnprocessableEntity
+from knoweak.api.middlewares.auth import check_scope
 from knoweak.api.utils import get_collection_page, patch_item, validate_str
 from knoweak.db import Session
 from knoweak.db.models.catalog import ITAsset
@@ -13,6 +14,7 @@ from knoweak.db.models.organization import Organization, OrganizationITAsset
 class Collection:
     """GET and POST IT assets of an organization."""
 
+    @falcon.before(check_scope, 'read:organizations')
     def on_get(self, req, resp, organization_code):
         """GETs a paged collection of IT assets of an organization.
 
@@ -40,6 +42,7 @@ class Collection:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_post(self, req, resp, organization_code):
         """Adds a IT asset to an organization's IT service.
 
@@ -73,6 +76,7 @@ class Collection:
 class Item:
     """GET and DELETE an organization's IT asset instance."""
 
+    @falcon.before(check_scope, 'read:organizations')
     def on_get(self, req, resp, organization_code, it_asset_instance_id):
         """GETs a single instance of IT asset of an organization.
 
@@ -91,6 +95,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_patch(self, req, resp, organization_code, it_asset_instance_id):
         """Updates (partially) the IT asset instance requested.
         All entities that reference the IT asset instance will be affected by the update.
@@ -118,6 +123,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_delete(self, req, resp, organization_code, it_asset_instance_id):
         """Removes an IT asset from an organization's IT service instance.
 

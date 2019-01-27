@@ -2,6 +2,7 @@ import falcon
 
 from knoweak.api.errors import Message, build_error
 from knoweak.api.extensions import HTTPUnprocessableEntity
+from knoweak.api.middlewares.auth import check_scope
 from knoweak.api.utils import get_collection_page, patch_item
 from knoweak.db import Session
 from knoweak.db.models.catalog import SecurityThreat
@@ -12,6 +13,7 @@ from knoweak.db.models.system import RatingLevel
 class Collection:
     """GET and POST security threats of an organization."""
 
+    @falcon.before(check_scope, 'read:organizations')
     def on_get(self, req, resp, organization_code):
         """GETs a paged collection of security threats of an organization.
 
@@ -39,6 +41,7 @@ class Collection:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_post(self, req, resp, organization_code):
         """Adds a security threat to an organization.
 
@@ -72,6 +75,7 @@ class Collection:
 class Item:
     """GET, PATCH and DELETE an organization security threat."""
 
+    @falcon.before(check_scope, 'read:organizations')
     def on_get(self, req, resp, organization_code, security_threat_id):
         """GETs a single security threat of an organization.
 
@@ -90,6 +94,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_patch(self, req, resp, organization_code, security_threat_id):
         """Updates (partially) the security threat requested.
         All entities that reference the security threat will be affected by the update.
@@ -117,6 +122,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_delete(self, req, resp, organization_code, security_threat_id):
         """Removes a security threat from an organization (hehe not really).
 

@@ -2,6 +2,7 @@ import falcon
 
 from knoweak.api.errors import Message, build_error
 from knoweak.api.extensions import HTTPUnprocessableEntity
+from knoweak.api.middlewares.auth import check_scope
 from knoweak.api.utils import get_collection_page
 from knoweak.db import Session
 from knoweak.db.models.catalog import BusinessMacroprocess
@@ -11,6 +12,7 @@ from knoweak.db.models.organization import Organization, OrganizationMacroproces
 class Collection:
     """GET and POST macroprocesses of an organization."""
 
+    @falcon.before(check_scope, 'read:organizations')
     def on_get(self, req, resp, organization_code):
         """GETs a paged collection of macroprocesses of an organization.
 
@@ -43,6 +45,7 @@ class Collection:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_post(self, req, resp, organization_code):
         """Adds a macroprocess to an organization.
 
@@ -77,6 +80,7 @@ class Collection:
 class Item:
     """GET and DELETE an organization macroprocess instance."""
 
+    @falcon.before(check_scope, 'read:organizations')
     def on_get(self, req, resp, organization_code, macroprocess_instance_id):
         """GETs a single macroprocess of an organization department.
 
@@ -99,6 +103,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_delete(self, req, resp, organization_code, macroprocess_instance_id):
         """Removes a macroprocess from an organization department.
 

@@ -2,6 +2,7 @@ import falcon
 
 from knoweak.api.errors import Message, build_error
 from knoweak.api.extensions import HTTPUnprocessableEntity
+from knoweak.api.middlewares.auth import check_scope
 from knoweak.api.utils import get_collection_page, patch_item
 from knoweak.db import Session
 from knoweak.db.models.catalog import BusinessProcess
@@ -12,6 +13,7 @@ from knoweak.db.models.system import RatingLevel
 class Collection:
     """GET and POST processes of an organization."""
 
+    @falcon.before(check_scope, 'read:organizations')
     def on_get(self, req, resp, organization_code):
         """GETs a paged collection of processes of an organization.
 
@@ -44,6 +46,7 @@ class Collection:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_post(self, req, resp, organization_code):
         """Adds a process to an organization's macroprocess.
 
@@ -77,6 +80,7 @@ class Collection:
 class Item:
     """GET, PATCH and DELETE an organization's process instance."""
 
+    @falcon.before(check_scope, 'read:organizations')
     def on_get(self, req, resp, organization_code, process_instance_id):
         """GETs a single instance of process of an organization.
 
@@ -95,6 +99,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_patch(self, req, resp, organization_code, process_instance_id):
         """Updates (partially) the process instance requested.
         All entities that reference the process instance will be affected by the update.
@@ -122,6 +127,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_delete(self, req, resp, organization_code, process_instance_id):
         """Removes a process from an organization's macroprocess instance.
 
