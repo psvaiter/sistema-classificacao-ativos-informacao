@@ -23,7 +23,7 @@ class Collection:
         try:
             query = session.query(ITAsset).order_by(ITAsset.name)
 
-            data, paging = get_collection_page(req, query)
+            data, paging = get_collection_page(req, query, custom_asdict)
             resp.media = {
                 'data': data,
                 'paging': paging
@@ -182,3 +182,8 @@ def exists_name(name, session):
             .filter(ITAsset.name == name) \
             .first()
     return exists
+
+
+def custom_asdict(dictable_model):
+    follow = {'category': {'only': ['id', 'name']}}
+    return dictable_model.asdict(follow=follow, exclude=['category_id'])
