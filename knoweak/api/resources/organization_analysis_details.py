@@ -1,6 +1,7 @@
 import falcon
 
 from knoweak.api.utils import get_collection_page
+from knoweak.api.middlewares.auth import check_scope
 from knoweak.db import Session
 from knoweak.db.models.organization import OrganizationAnalysis, OrganizationAnalysisDetail
 
@@ -8,6 +9,7 @@ from knoweak.db.models.organization import OrganizationAnalysis, OrganizationAna
 class Collection:
     """GET the details of an analysis."""
 
+    @falcon.before(check_scope, 'read:analyses')
     def on_get(self, req, resp, organization_code, analysis_id):
         """GETs a paged collection of details of a specific analysis from an organization.
 
