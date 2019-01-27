@@ -3,6 +3,7 @@ import falcon
 from knoweak.api import constants as constants
 from knoweak.api.errors import Message, build_error
 from knoweak.api.extensions import HTTPUnprocessableEntity
+from knoweak.api.middlewares.auth import check_scope
 from knoweak.api.utils import get_collection_page, validate_str, patch_item, validate_number
 from knoweak.db import Session
 from knoweak.db.models.catalog import ITAssetCategory
@@ -11,6 +12,7 @@ from knoweak.db.models.catalog import ITAssetCategory
 class Collection:
     """GET and POST IT asset categories in catalog."""
 
+    @falcon.before(check_scope, 'read:catalog')
     def on_get(self, req, resp):
         """GETs a paged collection of IT asset categories available.
 
@@ -29,6 +31,7 @@ class Collection:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'create:catalog')
     def on_post(self, req, resp):
         """Creates a new IT asset category in catalog.
 
@@ -56,6 +59,7 @@ class Collection:
 class Item:
     """GET and PATCH an IT asset category in catalog."""
 
+    @falcon.before(check_scope, 'read:catalog')
     def on_get(self, req, resp, it_asset_category_id):
         """GETs a single IT asset by id.
 
@@ -73,6 +77,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'update:catalog')
     def on_patch(self, req, resp, it_asset_category_id):
         """Updates (partially) the IT asset category requested.
         All entities that reference the IT asset category will be affected by the update.
