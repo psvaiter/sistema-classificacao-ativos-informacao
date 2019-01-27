@@ -3,6 +3,7 @@ from sqlalchemy.orm import joinedload
 
 from knoweak.api.errors import Message, build_error
 from knoweak.api.extensions import HTTPUnprocessableEntity
+from knoweak.api.middlewares.auth import check_scope
 from knoweak.api.utils import get_collection_page
 from knoweak.db import Session
 from knoweak.db.models.organization import Organization, OrganizationDepartment, BusinessDepartment
@@ -11,6 +12,7 @@ from knoweak.db.models.organization import Organization, OrganizationDepartment,
 class Collection:
     """GET and POST departments of an organization."""
 
+    @falcon.before(check_scope, 'read:organizations')
     def on_get(self, req, resp, organization_code):
         """GETs a paged collection of departments of an organization.
 
@@ -39,6 +41,7 @@ class Collection:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_post(self, req, resp, organization_code):
         """Adds a department to an organization.
 
@@ -72,6 +75,7 @@ class Collection:
 class Item:
     """GET and DELETE an organization department."""
 
+    @falcon.before(check_scope, 'read:organizations')
     def on_get(self, req, resp, organization_code, department_id):
         """GETs a single department of an organization.
 
@@ -90,6 +94,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_delete(self, req, resp, organization_code, department_id):
         """Removes a department from an organization.
 

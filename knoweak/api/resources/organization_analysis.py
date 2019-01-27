@@ -4,6 +4,7 @@ from sqlalchemy import and_, or_
 from knoweak.api import constants
 from knoweak.api.errors import build_error, Message
 from knoweak.api.extensions import HTTPUnprocessableEntity
+from knoweak.api.middlewares.auth import check_scope
 from knoweak.api.utils import get_collection_page, validate_str, patch_item, validate_number
 from knoweak.db import Session
 from knoweak.db.models.organization import (
@@ -16,6 +17,7 @@ from knoweak.db.models.organization import (
 class Collection:
     """GET and POST organization analyses."""
 
+    @falcon.before(check_scope, 'read:analyses')
     def on_get(self, req, resp, organization_code):
         """GETs a paged collection of analyses of an organization.
 
@@ -42,6 +44,7 @@ class Collection:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'create:analyses')
     def on_post(self, req, resp, organization_code):
         """Creates a new analysis for the organization considering the already filled values
         for relevance, vulnerability and security threat levels in processes, IT services,
@@ -83,6 +86,7 @@ class Collection:
 class Item:
     """GET and PATCH an organization analysis."""
 
+    @falcon.before(check_scope, 'read:analyses')
     def on_get(self, req, resp, organization_code, analysis_id):
         """GETs a single analysis of an organization.
 
@@ -101,6 +105,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'update:analyses')
     def on_patch(self, req, resp, organization_code, analysis_id):
         """Updates (only allowed properties of) an analysis.
 
@@ -127,6 +132,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'delete:analyses')
     def on_delete(self, req, resp, organization_code, analysis_id):
         """Deletes an analysis and all its details.
 

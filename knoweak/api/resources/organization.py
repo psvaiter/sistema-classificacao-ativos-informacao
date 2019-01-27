@@ -3,6 +3,7 @@ import falcon
 from knoweak.api import constants as constants
 from knoweak.api.errors import Message, build_error
 from knoweak.api.extensions import HTTPUnprocessableEntity
+from knoweak.api.middlewares.auth import check_scope
 from knoweak.api.utils import get_collection_page, validate_str, patch_item
 from knoweak.db import Session
 from knoweak.db.models.organization import Organization
@@ -11,6 +12,7 @@ from knoweak.db.models.organization import Organization
 class Collection:
     """GET and POST organizations."""
 
+    @falcon.before(check_scope, 'read:organizations')
     def on_get(self, req, resp):
         """GETs a paged collection of organizations.
 
@@ -29,6 +31,7 @@ class Collection:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'create:organizations')
     def on_post(self, req, resp):
         """Creates a new organization.
 
@@ -57,6 +60,7 @@ class Collection:
 class Item:
     """GET and PATCH an organization."""
 
+    @falcon.before(check_scope, 'read:organizations')
     def on_get(self, req, resp, organization_code):
         """GETs a single organization by its code.
 
@@ -74,6 +78,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'update:organizations')
     def on_patch(self, req, resp, organization_code):
         """Updates (partially) the organization.
 

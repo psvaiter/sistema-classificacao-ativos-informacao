@@ -1,5 +1,7 @@
 from datetime import datetime
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
+
 from knoweak.db.models import DbModel
 
 
@@ -57,6 +59,8 @@ class ITAsset(DbModel):
     description = Column(String)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    category = relationship(ITAssetCategory, lazy='joined', innerjoin=True)
 
 
 class SecurityThreat(DbModel):

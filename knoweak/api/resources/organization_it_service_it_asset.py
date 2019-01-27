@@ -2,6 +2,7 @@ import falcon
 
 from knoweak.api.errors import build_error, Message
 from knoweak.api.extensions import HTTPUnprocessableEntity
+from knoweak.api.middlewares.auth import check_scope
 from knoweak.api.utils import get_collection_page, patch_item
 from knoweak.db import Session
 from knoweak.db.models.organization import OrganizationITServiceITAsset, OrganizationITService, OrganizationITAsset
@@ -11,6 +12,7 @@ from knoweak.db.models.system import RatingLevel
 class Collection:
     """GET and POST instances of IT assets from/into an organization's IT service."""
 
+    @falcon.before(check_scope, 'read:organizations')
     def on_get(self, req, resp, organization_code, it_service_instance_id):
         """ GETs a paged collection of IT assets in an organization IT service.
 
@@ -41,6 +43,7 @@ class Collection:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_post(self, req, resp, organization_code, it_service_instance_id):
         """Adds an instance of IT asset to an organization IT service.
 
@@ -75,6 +78,7 @@ class Collection:
 class Item:
     """PATCH and DELETE an IT asset of/from an organization's IT service instance."""
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_patch(self, req, resp, organization_code, it_service_instance_id, it_asset_instance_id):
         """Updates (partially) the relationship IT service-IT asset requested.
         All entities that reference the relationship will be affected by the update.
@@ -107,6 +111,7 @@ class Item:
         finally:
             session.close()
 
+    @falcon.before(check_scope, 'manage:organizations')
     def on_delete(self, req, resp, organization_code, it_service_instance_id, it_asset_instance_id):
         """Removes an instance of IT asset from an organization IT service.
         It doesn't remove the IT asset from the organization.
@@ -192,7 +197,8 @@ def find_it_asset_in_organization(it_asset_instance_id, organization_code, sessi
 
 
 def find_it_service_it_asset(it_asset_instance_id, it_service_instance_id, session):
-    return session.query(OrganizationITServiceITAsset) \
+    return session \
+        .query(OrganizationITServiceITAsset) \
         .get((it_service_instance_id, it_asset_instance_id))
 
 

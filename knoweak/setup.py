@@ -1,6 +1,7 @@
 import falcon
 from falcon_cors import CORS
 
+from .api.middlewares.auth import AuthenticationMiddleware
 from .api import extensions
 from .api.resources import (
     department, macroprocess, process, it_service, it_asset, it_asset_category, security_threat, mitigation_control,
@@ -14,18 +15,14 @@ from .api.resources import (
 
 def get_api():
     api = falcon.API(
-        middleware=[configure_cors_middleware()]
+        middleware=[
+            CORS(allow_all_origins=True, allow_all_headers=True, allow_all_methods=True).middleware,
+            AuthenticationMiddleware(free_access_routes=['/version'])
+        ]
     )
     configure_media_handlers(api)
     configure_routes(api)
     return api
-
-
-def configure_cors_middleware():
-    cors = CORS(allow_all_origins=True,
-                allow_all_headers=True,
-                allow_all_methods=True)
-    return cors.middleware
 
 
 def configure_media_handlers(api):
