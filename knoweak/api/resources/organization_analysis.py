@@ -165,8 +165,7 @@ def validate_post(request_media):
 
     # Validate scopes if informed
     # -----------------------------------------------------
-    scopes = request_media.get('scopes')
-    scopes = [] if not scopes else scopes
+    scopes = request_media.get('scopes') or []
     for i, scope in enumerate(scopes):
 
         scope_i = f'scopes[{i}]'
@@ -287,7 +286,7 @@ def process_analysis(session, analysis, organization_id, scopes=None):
         .filter(OrganizationITAssetVulnerability.vulnerability_level_id > 0) \
         .filter(Organization.id == organization_id)
 
-    append_filters_from_scopes(query, scopes)
+    query = add_filters_for_scopes(query, scopes)
     result = query.all()
 
     total_processed_items = 0
@@ -320,9 +319,9 @@ def process_analysis(session, analysis, organization_id, scopes=None):
     return total_processed_items
 
 
-def append_filters_from_scopes(query, scopes):
+def add_filters_for_scopes(query, scopes):
     if not scopes:
-        return
+        return query
 
     conditions = []
     for scope in scopes:
@@ -343,8 +342,9 @@ def append_filters_from_scopes(query, scopes):
             )
 
     if conditions:
-        query.filter(or_(*conditions))
-    return
+        query = query.filter(or_(*conditions))
+
+    return query
 
 
 def custom_asdict(dictable_model):
