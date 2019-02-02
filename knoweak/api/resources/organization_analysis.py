@@ -278,12 +278,14 @@ def process_analysis(session, analysis, organization_id, scopes=None):
         .join(OrganizationDepartment)\
         .join(Organization)\
         .join(OrganizationSecurityThreat)\
-        .join(OrganizationITAssetVulnerability)\
+        .join(OrganizationITAssetVulnerability,
+              and_(OrganizationITAssetVulnerability.organization_security_threat_id == OrganizationSecurityThreat.id,
+                   OrganizationITAssetVulnerability.it_asset_instance_id == OrganizationITAsset.instance_id))\
         .filter(OrganizationITServiceITAsset.relevance_level_id > 0)\
         .filter(OrganizationITService.relevance_level_id > 0)\
-        .filter(OrganizationProcess.relevance_level_id > 0) \
-        .filter(OrganizationSecurityThreat.threat_level_id > 0) \
-        .filter(OrganizationITAssetVulnerability.vulnerability_level_id > 0) \
+        .filter(OrganizationProcess.relevance_level_id > 0)\
+        .filter(OrganizationSecurityThreat.threat_level_id > 0)\
+        .filter(OrganizationITAssetVulnerability.vulnerability_level_id > 0)\
         .filter(Organization.id == organization_id)
 
     query = add_filters_for_scopes(query, scopes)
