@@ -159,7 +159,7 @@ def validate_post(request_media):
     # Validate description if informed
     # -----------------------------------------------------
     description = request_media.get('description')
-    error = validate_str('description', description, max_length=constants.GENERAL_DESCRIPTION_MAX_LENGTH)
+    error = validate_str('description', description, max_length=constants.ANALYSIS_DESCRIPTION_MAX_LENGTH)
     if error:
         errors.append(error)
 
@@ -198,7 +198,7 @@ def validate_patch(request_media):
     # -----------------------------------------------------
     if 'description' in request_media:
         description = request_media.get('description')
-        error = validate_str('description', description, max_length=constants.GENERAL_DESCRIPTION_MAX_LENGTH)
+        error = validate_str('description', description, max_length=constants.ANALYSIS_DESCRIPTION_MAX_LENGTH)
         if error:
             errors.append(error)
 
