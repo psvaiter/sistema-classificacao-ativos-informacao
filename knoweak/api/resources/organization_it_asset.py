@@ -30,9 +30,10 @@ class Collection:
 
             # Build query to fetch items
             query = session\
-                .query(OrganizationITAsset) \
+                .query(OrganizationITAsset)\
+                .join(ITAsset)\
                 .filter(OrganizationITAsset.organization_id == organization_code)\
-                .order_by(OrganizationITAsset.created_on)
+                .order_by(ITAsset.name, OrganizationITAsset.external_identifier, OrganizationITAsset.created_on)
 
             data, paging = get_collection_page(req, query, custom_asdict)
             resp.media = {

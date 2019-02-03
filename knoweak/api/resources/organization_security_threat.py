@@ -30,8 +30,9 @@ class Collection:
             # Build query to fetch items
             query = session\
                 .query(OrganizationSecurityThreat)\
+                .join(SecurityThreat)\
                 .filter(OrganizationSecurityThreat.organization_id == organization_code)\
-                .order_by(OrganizationSecurityThreat.created_on)\
+                .order_by(SecurityThreat.name)\
 
             data, paging = get_collection_page(req, query, custom_asdict)
             resp.media = {
