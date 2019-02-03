@@ -111,9 +111,9 @@ def validate_number(field_name, field_value, is_mandatory=False,
 
     # Check min and/or max when requested
     if min_value and field_value < min_value:
-        return build_error(Message.ERR_FIELD_VALUE_BELOW_MIN, field_name=field_name)
+        return build_error(Message.ERR_FIELD_VALUE_BELOW_MIN, min_value, field_name=field_name)
     if max_value and field_value > max_value:
-        return build_error(Message.ERR_FIELD_VALUE_ABOVE_MAX, field_name=field_name)
+        return build_error(Message.ERR_FIELD_VALUE_ABOVE_MAX, max_value, field_name=field_name)
 
     # Must be unique
     if exists_strategy and exists_strategy():
@@ -169,9 +169,9 @@ def validate_str(field_name, field_value, is_mandatory=False, min_length=None, m
 
     # Length must be valid
     if min_length and len(field_value) < min_length:
-        return build_error(Message.ERR_FIELD_MIN_LENGTH, field_name=field_name)
+        return build_error(Message.ERR_FIELD_MIN_LENGTH, min_length, field_name=field_name)
     if max_length and len(field_value) > max_length:
-        return build_error(Message.ERR_FIELD_MAX_LENGTH, field_name=field_name)
+        return build_error(Message.ERR_FIELD_MAX_LENGTH, max_length, field_name=field_name)
 
     # Must be unique
     if exists_strategy and exists_strategy():
