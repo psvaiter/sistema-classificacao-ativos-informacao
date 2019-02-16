@@ -119,7 +119,6 @@ class OrganizationSecurityThreat(DbModel):
     organization_id = Column(Integer, ForeignKey(Organization.id), nullable=False)
     security_threat_id = Column(Integer, ForeignKey(SecurityThreat.id), nullable=False)
     threat_level_id = Column(Integer, ForeignKey(RatingLevel.id), nullable=False)
-    # threatening_organization_it_asset_id = Column(Integer, ForeignKey(), nullable=False)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
@@ -143,19 +142,17 @@ class OrganizationITAssetVulnerability(DbModel):
     it_asset = association_proxy('it_asset_instance', 'it_asset')
 
 
-class OrganizationVulnerabilityControl(DbModel):
-    __tablename__ = "organization_vulnerability_control"
+class OrganizationItAssetControl(DbModel):
+    __tablename__ = "organization_it_asset_control"
 
-    id = Column("organization_vulnerability_control_id", Integer, primary_key=True)
-    organization_it_asset_vulnerability_id = Column(Integer, ForeignKey(OrganizationITAssetVulnerability.id), nullable=False)
+    id = Column("organization_it_asset_control_id", Integer, primary_key=True)
+    organization_it_asset_id = Column(Integer, ForeignKey(OrganizationITAsset.instance_id), nullable=False)
     mitigation_control_id = Column(Integer, ForeignKey(MitigationControl.id), nullable=False)
-    mitigating_it_asset_id = Column(Integer, ForeignKey(OrganizationITAsset.instance_id))
     description = Column(String)
     created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_modified_on = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     mitigation_control = relationship(MitigationControl, lazy='joined', innerjoin=True)
-    mitigating_it_asset = relationship(OrganizationITAsset, lazy='joined')
 
 
 class OrganizationAnalysis(DbModel):

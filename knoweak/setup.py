@@ -7,7 +7,7 @@ from .api.resources import (
     department, macroprocess, process, it_service, it_asset, it_asset_category, security_threat, mitigation_control,
     organization, organization_department, organization_macroprocess, organization_process, organization_it_asset,
     organization_it_service, organization_it_service_it_asset, organization_security_threat,
-    organization_it_asset_vulnerability, organization_vulnerability_control,
+    organization_it_asset_vulnerability, organization_it_asset_control,
     organization_analysis, organization_analysis_details, system, system_user, system_role, system_user_role,
     user_session
 )
@@ -72,8 +72,8 @@ def configure_routes(api):
     api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}', organization_it_asset.Item())
     api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/vulnerabilities', organization_it_asset_vulnerability.Collection())
     api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/vulnerabilities/{security_threat_id}', organization_it_asset_vulnerability.Item())
-    api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/vulnerabilities/{security_threat_id}/controls', organization_vulnerability_control.Collection())
-    api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/vulnerabilities/{security_threat_id}/controls/{control_id}', organization_vulnerability_control.Item())
+    api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/controls', organization_it_asset_control.Collection())
+    api.add_route('/organizations/{organization_code}/itAssets/{it_asset_instance_id}/controls/{control_id}', organization_it_asset_control.Item())
     api.add_route('/organizations/{organization_code}/securityThreats', organization_security_threat.Collection())
     api.add_route('/organizations/{organization_code}/securityThreats/{security_threat_id}', organization_security_threat.Item())
     api.add_route('/organizations/{organization_code}/analyses', organization_analysis.Collection())
