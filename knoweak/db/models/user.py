@@ -21,7 +21,7 @@ class SystemUser(DbModel):
     locked_out_on = Column(DateTime)
     blocked_on = Column(DateTime)
 
-    user_roles = relationship("SystemUserAdministrativeRole", lazy='joined')
+    user_roles = relationship("SystemUserRole", lazy='joined')
     roles = association_proxy("user_roles", "role")
 
 
