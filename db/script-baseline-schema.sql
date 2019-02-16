@@ -54,38 +54,6 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `country`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `country` (
-  `iso_31661_numeric` INT(11) NOT NULL,
-  `iso_31661_alpha2` CHAR(2) NOT NULL,
-  `iso_31661_alpha3` CHAR(3) NOT NULL,
-  `name` VARCHAR(128) NOT NULL,
-  PRIMARY KEY (`iso_31661_numeric`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
--- Table `country_subdivision`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `country_subdivision` (
-  `country_subdivision_id` VARCHAR(6) NOT NULL,
-  `country_id` INT(11) NOT NULL,
-  `name` VARCHAR(128) NOT NULL,
-  `external_identifier` VARCHAR(16) NULL DEFAULT NULL,
-  PRIMARY KEY (`country_subdivision_id`),
-  INDEX `IX_country_id` (`country_id` ASC),
-  CONSTRAINT `FK_country_subdivision_country`
-    FOREIGN KEY (`country_id`)
-    REFERENCES `country` (`iso_31661_numeric`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
 -- Table `it_asset_category`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `it_asset_category` (
@@ -176,7 +144,6 @@ CREATE TABLE IF NOT EXISTS `organization_analysis` (
   `organization_analysis_id` INT(11) NOT NULL AUTO_INCREMENT,
   `organization_id` INT(11) NOT NULL,
   `description` VARCHAR(1024) NULL DEFAULT NULL,
-  `analysis_performed_on` DATETIME(3) NOT NULL,
   `created_on` DATETIME(3) NOT NULL,
   `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_analysis_id`),
@@ -215,7 +182,7 @@ CREATE TABLE IF NOT EXISTS `organization_analysis_detail` (
   CONSTRAINT `FK_organization_analysis_detail__organization_analysis`
     FOREIGN KEY (`organization_analysis_id`)
     REFERENCES `organization_analysis` (`organization_analysis_id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
@@ -274,6 +241,33 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
+-- Table `organization_it_asset_control`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `organization_it_asset_control` (
+  `organization_it_asset_control_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `organization_it_asset_id` INT(11) NOT NULL,
+  `mitigation_control_id` INT(11) NOT NULL,
+  `description` VARCHAR(255) NULL DEFAULT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
+  PRIMARY KEY (`organization_it_asset_control_id`),
+  INDEX `IX_mitigation_control_id` (`mitigation_control_id` ASC),
+  INDEX `IX_organization_it_asset_id` (`organization_it_asset_id` ASC),
+  CONSTRAINT `FK_organization_it_asset_control__mitigation_control`
+    FOREIGN KEY (`mitigation_control_id`)
+    REFERENCES `mitigation_control` (`mitigation_control_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_organization_it_asset_control__organization_it_asset`
+    FOREIGN KEY (`organization_it_asset_id`)
+    REFERENCES `organization_it_asset` (`organization_it_asset_id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
 -- Table `rating_level`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `rating_level` (
@@ -308,24 +302,17 @@ CREATE TABLE IF NOT EXISTS `organization_security_threat` (
   `organization_id` INT(11) NOT NULL,
   `security_threat_id` INT(11) NOT NULL,
   `threat_level_id` INT(11) NULL DEFAULT NULL,
-  `threatening_organization_it_asset_id` INT(11) NULL DEFAULT NULL,
   `created_on` DATETIME(3) NOT NULL,
   `last_modified_on` DATETIME(3) NOT NULL,
   PRIMARY KEY (`organization_security_threat_id`),
   UNIQUE INDEX `UQ_organization_id_security_threat_id` (`organization_id` ASC, `security_threat_id` ASC),
   INDEX `IX_organization_id` (`organization_id` ASC),
   INDEX `IX_security_threat_id` (`security_threat_id` ASC),
-  INDEX `IX_threatening_organization_it_asset_id` (`threatening_organization_it_asset_id` ASC),
   INDEX `IX_threat_level_id` (`threat_level_id` ASC),
   CONSTRAINT `FK_organization_security_threat__organization`
     FOREIGN KEY (`organization_id`)
     REFERENCES `organization` (`organization_id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_organization_security_threat__organization_it_asset`
-    FOREIGN KEY (`threatening_organization_it_asset_id`)
-    REFERENCES `organization_it_asset` (`organization_it_asset_id`)
-    ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_organization_security_threat__rating_level`
     FOREIGN KEY (`threat_level_id`)
@@ -395,7 +382,7 @@ CREATE TABLE IF NOT EXISTS `organization_macroprocess` (
   CONSTRAINT `FK_organization_macroprocess__organization_department`
     FOREIGN KEY (`organization_id` , `business_department_id`)
     REFERENCES `organization_department` (`organization_id` , `business_department_id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
@@ -514,82 +501,54 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `organization_location`
+-- Table `system_permission`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `organization_location` (
-  `organization_location_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `organization_id` INT(11) NOT NULL,
-  `latitude` DECIMAL(9,6) NULL DEFAULT NULL,
-  `longitude` DECIMAL(9,6) NULL DEFAULT NULL,
-  `postal_code` VARCHAR(16) NULL DEFAULT NULL,
-  `country_subdivision_id` VARCHAR(6) NULL DEFAULT NULL,
-  `city_name` VARCHAR(128) NULL DEFAULT NULL,
-  `street_address_1` VARCHAR(128) NULL DEFAULT NULL,
-  `street_address_2` VARCHAR(128) NULL DEFAULT NULL,
-  `created_on` DATETIME(3) NOT NULL,
-  `last_modified_on` DATETIME(3) NOT NULL,
-  PRIMARY KEY (`organization_location_id`),
-  INDEX `IX_organization_id` (`organization_id` ASC),
-  INDEX `IX_country_subdivision_id` (`country_subdivision_id` ASC),
-  CONSTRAINT `FK_organization_location__country_subdivision`
-    FOREIGN KEY (`country_subdivision_id`)
-    REFERENCES `country_subdivision` (`country_subdivision_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_organization_location__organization`
-    FOREIGN KEY (`organization_id`)
-    REFERENCES `organization` (`organization_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
--- Table `organization_vulnerability_control`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `organization_vulnerability_control` (
-  `organization_vulnerability_control_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `organization_it_asset_vulnerability_id` INT(11) NOT NULL,
-  `mitigation_control_id` INT(11) NOT NULL,
-  `mitigating_it_asset_id` INT(11) NULL DEFAULT NULL,
-  `description` VARCHAR(255) NULL DEFAULT NULL,
-  `created_on` DATETIME(3) NOT NULL,
-  `last_modified_on` DATETIME(3) NOT NULL,
-  PRIMARY KEY (`organization_vulnerability_control_id`),
-  INDEX `IX_mitigating_it_asset_id` (`mitigating_it_asset_id` ASC),
-  INDEX `IX_mitigation_control_id` (`mitigation_control_id` ASC),
-  INDEX `IX_organization_it_asset_vulnerability_id` (`organization_it_asset_vulnerability_id` ASC),
-  CONSTRAINT `FK_organization_vulnerability_control__it_asset_vulnerability`
-    FOREIGN KEY (`organization_it_asset_vulnerability_id`)
-    REFERENCES `organization_it_asset_vulnerability` (`organization_it_asset_vulnerability_id`)
-    ON DELETE CASCADE
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_organization_vulnerability_control__mitigating_it_asset`
-    FOREIGN KEY (`mitigating_it_asset_id`)
-    REFERENCES `organization_it_asset` (`organization_it_asset_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_organization_vulnerability_control__mitigation_control`
-    FOREIGN KEY (`mitigation_control_id`)
-    REFERENCES `mitigation_control` (`mitigation_control_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
--- Table `system_administrative_role`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `system_administrative_role` (
-  `system_administrative_role_id` INT(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `system_permission` (
+  `system_permission_id` INT(11) NOT NULL,
   `name` VARCHAR(128) NOT NULL,
   `description` VARCHAR(255) NULL DEFAULT NULL,
   `created_on` DATETIME(3) NOT NULL,
   `last_modified_on` DATETIME(3) NOT NULL,
-  PRIMARY KEY (`system_administrative_role_id`),
+  PRIMARY KEY (`system_permission_id`),
   UNIQUE INDEX `UQ_name` (`name` ASC))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `system_role`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `system_role` (
+  `system_role_id` INT(11) NOT NULL,
+  `name` VARCHAR(128) NOT NULL,
+  `description` VARCHAR(255) NULL DEFAULT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  `last_modified_on` DATETIME(3) NOT NULL,
+  PRIMARY KEY (`system_role_id`),
+  UNIQUE INDEX `UQ_name` (`name` ASC))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `system_role_permission`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `system_role_permission` (
+  `system_role_id` INT(11) NOT NULL,
+  `system_permission_id` INT(11) NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  PRIMARY KEY (`system_role_id`, `system_permission_id`),
+  INDEX `IX_system_permission_id` (`system_permission_id` ASC),
+  CONSTRAINT `FK_system_role_permission__system_permission`
+    FOREIGN KEY (`system_permission_id`)
+    REFERENCES `system_permission` (`system_permission_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_system_role_permission__system_role`
+    FOREIGN KEY (`system_role_id`)
+    REFERENCES `system_role` (`system_role_id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
@@ -613,33 +572,6 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `system_user_administrative_role`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `system_user_administrative_role` (
-  `system_user_administrative_role_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `system_user_id` INT(11) NOT NULL,
-  `system_administrative_role_id` INT(11) NOT NULL,
-  `created_on` DATETIME(3) NOT NULL,
-  `last_modified_on` DATETIME(3) NOT NULL,
-  PRIMARY KEY (`system_user_administrative_role_id`),
-  UNIQUE INDEX `UQ_system_user_administrative_role` (`system_user_id` ASC, `system_administrative_role_id` ASC),
-  INDEX `IX_user_role_system_user` (`system_user_id` ASC),
-  INDEX `IX_user_role_system_administrative_role` (`system_administrative_role_id` ASC),
-  CONSTRAINT `FK_user_role_system_administrative_role`
-    FOREIGN KEY (`system_administrative_role_id`)
-    REFERENCES `system_administrative_role` (`system_administrative_role_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_user_role_system_user`
-    FOREIGN KEY (`system_user_id`)
-    REFERENCES `system_user` (`system_user_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
 -- Table `system_user_login`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `system_user_login` (
@@ -653,6 +585,52 @@ CREATE TABLE IF NOT EXISTS `system_user_login` (
     FOREIGN KEY (`system_user_id`)
     REFERENCES `system_user` (`system_user_id`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `system_user_permission`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `system_user_permission` (
+  `system_user_id` INT(11) NOT NULL,
+  `system_permission_id` INT(11) NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  PRIMARY KEY (`system_user_id`, `system_permission_id`),
+  INDEX `IX_system_permission_id` (`system_permission_id` ASC),
+  CONSTRAINT `FK_system_user_permission__system_permission`
+    FOREIGN KEY (`system_permission_id`)
+    REFERENCES `system_permission` (`system_permission_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_system_user_permission__system_user`
+    FOREIGN KEY (`system_user_id`)
+    REFERENCES `system_user` (`system_user_id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table `system_user_role`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `system_user_role` (
+  `system_user_id` INT(11) NOT NULL,
+  `system_role_id` INT(11) NOT NULL,
+  `created_on` DATETIME(3) NOT NULL,
+  PRIMARY KEY (`system_user_id`, `system_role_id`),
+  INDEX `IX_system_role_id` (`system_role_id` ASC),
+  CONSTRAINT `FK_system_user_role__system_role`
+    FOREIGN KEY (`system_role_id`)
+    REFERENCES `system_role` (`system_role_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_system_user_role__system_user`
+    FOREIGN KEY (`system_user_id`)
+    REFERENCES `system_user` (`system_user_id`)
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
