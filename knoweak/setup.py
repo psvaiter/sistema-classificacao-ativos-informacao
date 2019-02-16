@@ -82,9 +82,9 @@ def configure_routes(api):
     api.add_route('/organizations/{organization_code}/analyses/{analysis_id}/details', organization_analysis_details.Collection())
 
     # Routes for system user and access control
-    api.add_route('/user/roles', system_role.Collection())
-    api.add_route('/user/roles/{role_id}', system_role.Item())
-    api.add_route('/user/users', system_user.Collection())
-    api.add_route('/user/users/{user_id}', system_user.Item())
-    api.add_route('/user/users/{user_id}/roles/{role_id}', system_user_role.Item())
+    api.add_route('/system/roles', system_role.Collection())
+    api.add_route('/system/roles/{role_id}', system_role.Item())
+    api.add_route('/system/users', system_user.Collection())
+    api.add_route('/system/users/{user_id}', system_user.Item())
+    api.add_route('/system/users/{user_id}/roles/{role_id}', system_user_role.Item())
     api.add_route('/login', user_session.Login())
