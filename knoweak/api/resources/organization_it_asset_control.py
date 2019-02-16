@@ -113,7 +113,7 @@ def validate_post(request_media, it_asset_instance_id, organization_code, sessio
         errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name='mitigationControlId'))
     elif not session.query(MitigationControl).get(mitigation_control_id):
         errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='mitigationControlId'))
-    elif find_it_asset_control(mitigation_control_id, it_asset_instance_id, organization_code, session):
+    elif find_mitigation_control_in_it_asset(mitigation_control_id, it_asset_instance_id, organization_code, session):
         errors.append(build_error(Message.ERR_FIELD_VALUE_ALREADY_EXISTS, field_name='mitigationControlId'))
 
     # Validate description if informed
@@ -126,7 +126,18 @@ def validate_post(request_media, it_asset_instance_id, organization_code, sessio
     return errors
 
 
-def find_it_asset_control(mitigation_control_id, it_asset_instance_id, organization_code, session):
+def find_it_asset_control(control_id, it_asset_instance_id, organization_code, session):
+    query = session \
+        .query(OrganizationItAssetControl) \
+        .join(OrganizationITAsset) \
+        .filter(OrganizationItAssetControl.id == control_id) \
+        .filter(OrganizationITAsset.instance_id == it_asset_instance_id) \
+        .filter(OrganizationITAsset.organization_id == organization_code)
+
+    return query.first()
+
+
+def find_mitigation_control_in_it_asset(mitigation_control_id, it_asset_instance_id, organization_code, session):
     query = session \
         .query(OrganizationItAssetControl) \
         .join(OrganizationITAsset) \
