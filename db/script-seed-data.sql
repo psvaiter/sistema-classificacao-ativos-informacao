@@ -3,18 +3,10 @@ insert into it_asset_category
 values 
 	(1, 'Hardware', @ts, @ts),
     (2, 'Software', @ts, @ts),
-    (3, 'Place / Infrastucture', @ts, @ts),
-    (4, 'People', @ts, @ts),
-    (5, 'Policy', @ts, @ts),
-    (6, 'Information', @ts, @ts);
-    
-set @ts = current_timestamp;
-insert into system_administrative_role
-values
-	(1, 'User Admin', NULL, @ts, @ts),
-    (2, 'Catalog Manager', NULL, @ts, @ts),
-    (3, 'Operator', NULL, @ts, @ts);
-
+    (3, 'Local / Infraestutura', @ts, @ts),		-- Place / Infrastucture
+    (4, 'Pessoas', @ts, @ts),					-- People
+    (5, 'Política', @ts, @ts), 					-- Policy
+    (6, 'Informação', @ts, @ts); 				-- Information
 
 insert into rating_level
 values
