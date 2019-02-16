@@ -31,7 +31,7 @@ class Collection:
             if organization_it_asset is None:
                 raise falcon.HTTPNotFound()
 
-            errors = validate_post(req.media, session)
+            errors = validate_post(req.media, it_asset_instance_id, organization_code, session)
             if errors:
                 raise HTTPUnprocessableEntity(errors)
 
@@ -73,7 +73,7 @@ class Item:
             session.close()
 
 
-def validate_post(request_media, session):
+def validate_post(request_media, it_asset_instance_id, organization_code, session):
     errors = []
 
     # Validate mitigation control id
@@ -83,6 +83,8 @@ def validate_post(request_media, session):
         errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name='mitigationControlId'))
     elif not session.query(MitigationControl).get(mitigation_control_id):
         errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='mitigationControlId'))
+    elif find_it_asset_control(mitigation_control_id, it_asset_instance_id, organization_code, session):
+        errors.append(build_error(Message.ERR_FIELD_VALUE_ALREADY_EXISTS, field_name='mitigationControlId'))
 
     # Validate description if informed
     # -----------------------------------------------------
@@ -94,13 +96,13 @@ def validate_post(request_media, session):
     return errors
 
 
-def find_it_asset_control(control_id, it_asset_instance_id, organization_code, session):
+def find_it_asset_control(mitigation_control_id, it_asset_instance_id, organization_code, session):
     query = session \
         .query(OrganizationItAssetControl) \
         .join(OrganizationITAsset) \
-        .filter(OrganizationItAssetControl.id == control_id) \
+        .filter(OrganizationItAssetControl.mitigation_control_id == mitigation_control_id) \
         .filter(OrganizationITAsset.instance_id == it_asset_instance_id) \
-        .filter(OrganizationSecurityThreat.organization_id == organization_code)
+        .filter(OrganizationITAsset.organization_id == organization_code)
 
     return query.first()
 
