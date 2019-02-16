@@ -5,6 +5,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
 
 from knoweak.db.models import DbModel
+from knoweak.db.models.system import SystemPermission, SystemRole
 
 
 class SystemUser(DbModel):
@@ -31,3 +32,23 @@ class SystemUserLogin(DbModel):
     system_user_id = Column(Integer, ForeignKey(SystemUser.id), nullable=False)
     attempted_on = Column(DateTime, nullable=False)
     was_successful = Column(Boolean, nullable=False)
+
+
+class SystemUserPermission(DbModel):
+    __tablename__ = "system_user_permission"
+
+    user_id = Column("system_user_id", Integer, ForeignKey(SystemUser.id), primary_key=True)
+    permission_id = Column("system_permission_id", Integer, ForeignKey(SystemPermission.id), primary_key=True)
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    permission = relationship(SystemPermission, lazy='joined')
+
+
+class SystemUserRole(DbModel):
+    __tablename__ = "system_user_role"
+
+    user_id = Column("system_user_id", Integer, ForeignKey(SystemUser.id), primary_key=True)
+    role_id = Column("system_role_id", Integer, ForeignKey(SystemRole.id), primary_key=True)
+    created_on = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    role = relationship(SystemRole, lazy='joined')

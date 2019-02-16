@@ -3,7 +3,8 @@ import falcon
 from knoweak.api.errors import Message, build_error
 from knoweak.api.extensions import HTTPUnprocessableEntity
 from knoweak.db import Session
-from knoweak.db.models.system import SystemAdministrativeRole, SystemUser, SystemUserAdministrativeRole
+from knoweak.db.models.system import SystemRole
+from knoweak.db.models.user import SystemUser, SystemUserRole
 
 
 class Item:
@@ -30,7 +31,7 @@ class Item:
             # Add role if not already there
             user_role = find_user_role(user_id, role_id, session)
             if not user_role:
-                user_role = SystemUserAdministrativeRole(user_id=user_id, role_id=role_id)
+                user_role = SystemUserRole(user_id=user_id, role_id=role_id)
                 session.add(user_role)
 
             session.commit()
@@ -66,7 +67,7 @@ def validate_put(request_media, user_id, role_id, session):
     # -----------------------------------------------------
     if not role_id:
         errors.append(build_error(Message.ERR_FIELD_CANNOT_BE_NULL, field_name='route:role_id'))
-    elif not session.query(SystemAdministrativeRole).get(role_id):
+    elif not session.query(SystemRole).get(role_id):
         errors.append(build_error(Message.ERR_FIELD_VALUE_INVALID, field_name='route:role_id'))
 
     return errors
@@ -74,9 +75,9 @@ def validate_put(request_media, user_id, role_id, session):
 
 def find_user_role(user_id, role_id, session):
     query = session \
-        .query(SystemUserAdministrativeRole) \
-        .filter(SystemUserAdministrativeRole.user_id == user_id) \
-        .filter(SystemUserAdministrativeRole.role_id == role_id)
+        .query(SystemUserRole) \
+        .filter(SystemUserRole.user_id == user_id) \
+        .filter(SystemUserRole.role_id == role_id)
     return query.first()
 
 

@@ -7,7 +7,8 @@ from knoweak.api.errors import Message, build_error
 from knoweak.api.extensions import HTTPUnprocessableEntity
 from knoweak.api.utils import get_collection_page, validate_str, patch_item
 from knoweak.db import Session
-from knoweak.db.models.system import SystemUser, SystemAdministrativeRole, SystemUserAdministrativeRole
+from knoweak.db.models.system import SystemPermission, SystemRole
+from knoweak.db.models.user import SystemUser, SystemUserRole
 
 
 class Collection:
@@ -161,7 +162,7 @@ def validate_post(request_media, session):
     roles = request_media.get('roles')
     if roles:
         # Get the system roles (get scalars from tuples returned)
-        existing_roles = session.query(SystemAdministrativeRole.id).all()
+        existing_roles = session.query(SystemRole.id).all()
         existing_roles_ids = [role_id for (role_id,) in existing_roles]
 
         # Check if id informed exists
@@ -244,7 +245,7 @@ def add_roles(user, roles):
 
     user_roles = []
     for role in roles:
-        user_role = SystemUserAdministrativeRole(role_id=role['id'])
+        user_role = SystemUserRole(role_id=role['id'])
         user_roles.append(user_role)
     user.user_roles = user_roles
 

@@ -5,7 +5,7 @@ from knoweak.api.errors import Message, build_error
 from knoweak.api.extensions import HTTPUnprocessableEntity
 from knoweak.api.utils import get_collection_page, validate_str, patch_item, validate_number
 from knoweak.db import Session
-from knoweak.db.models.system import SystemAdministrativeRole
+from knoweak.db.models.system import SystemRole
 
 
 class Collection:
@@ -19,7 +19,7 @@ class Collection:
         """
         session = Session()
         try:
-            query = session.query(SystemAdministrativeRole).order_by(SystemAdministrativeRole.name)
+            query = session.query(SystemRole).order_by(SystemRole.name)
 
             data, paging = get_collection_page(req, query)
             resp.media = {
@@ -42,7 +42,7 @@ class Collection:
                 raise HTTPUnprocessableEntity(errors)
 
             # Copy fields from request to a SystemAdministrativeRole object
-            item = SystemAdministrativeRole().fromdict(req.media, only=['id', 'name', 'description'])
+            item = SystemRole().fromdict(req.media, only=['id', 'name', 'description'])
 
             session.add(item)
             session.commit()
@@ -65,7 +65,7 @@ class Item:
         """
         session = Session()
         try:
-            item = session.query(SystemAdministrativeRole).get(role_id)
+            item = session.query(SystemRole).get(role_id)
             if item is None:
                 raise falcon.HTTPNotFound()
 
@@ -83,7 +83,7 @@ class Item:
         """
         session = Session()
         try:
-            item = session.query(SystemAdministrativeRole).get(role_id)
+            item = session.query(SystemRole).get(role_id)
             if item is None:
                 raise falcon.HTTPNotFound()
 
@@ -164,15 +164,15 @@ def validate_patch(request_media, session):
 
 def exists_role_id(role_id, session):
     def exists():
-        return session.query(SystemAdministrativeRole.id) \
-            .filter(SystemAdministrativeRole.id == role_id) \
+        return session.query(SystemRole.id) \
+            .filter(SystemRole.id == role_id) \
             .first()
     return exists
 
 
 def exists_name(name, session):
     def exists():
-        return session.query(SystemAdministrativeRole.name) \
-            .filter(SystemAdministrativeRole.name == name) \
+        return session.query(SystemRole.name) \
+            .filter(SystemRole.name == name) \
             .first()
     return exists
