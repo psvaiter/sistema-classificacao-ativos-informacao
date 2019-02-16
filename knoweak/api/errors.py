@@ -13,9 +13,13 @@ def build_error(message_enum, message_args=None, field_name=None, lang="pt-BR"):
 
 
 def get_message(message_enum, message_args, lang):
-    if lang == "pt-BR":
-        return MessagePTBR[message_enum.name].value.format(message_args)
-    return message_enum.value.format(message_args)
+    try:
+        if lang == "pt-BR":
+            return MessagePTBR[message_enum.name].value.format(message_args)
+        return message_enum.value.format(message_args)
+    except KeyError:
+        # Fallback when key was not found for specific language
+        return message_enum.value.format(message_args)
 
 
 class Message(Enum):
