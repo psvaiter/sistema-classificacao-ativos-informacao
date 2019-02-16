@@ -17,7 +17,7 @@ def get_api():
     api = falcon.API(
         middleware=[
             CORS(allow_all_origins=True, allow_all_headers=True, allow_all_methods=True).middleware,
-            AuthenticationMiddleware(free_access_routes=['/version'])
+            AuthenticationMiddleware(free_access_routes=['/version', '/healthCheck'])
         ]
     )
     configure_media_handlers(api)
@@ -36,6 +36,7 @@ def configure_media_handlers(api):
 
 def configure_routes(api):
     api.add_route('/version', system.AppInfo())
+    api.add_route('/healthCheck', system.HealthCheck())
 
     # Add routes for data in catalog
     api.add_route('/departments', department.Collection())
@@ -81,7 +82,6 @@ def configure_routes(api):
     api.add_route('/organizations/{organization_code}/analyses/{analysis_id}/details', organization_analysis_details.Collection())
 
     # Routes for system user and access control
-    # api.add_route('/user/healthcheck', system_healthcheck.Item())
     api.add_route('/user/roles', system_role.Collection())
     api.add_route('/user/roles/{role_id}', system_role.Item())
     api.add_route('/user/users', system_user.Collection())
