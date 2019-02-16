@@ -3,17 +3,47 @@ import falcon
 from knoweak.api import constants as constants
 from knoweak.api.errors import build_error, Message
 from knoweak.api.middlewares.auth import check_scope
-from knoweak.api.utils import validate_str
+from knoweak.api.utils import validate_str, get_collection_page
 from knoweak.api.extensions import HTTPUnprocessableEntity
 from knoweak.db import Session
 from knoweak.db.models.catalog import MitigationControl
-from knoweak.db.models.organization import (
-    OrganizationSecurityThreat, OrganizationItAssetControl, OrganizationITAsset
-)
+from knoweak.db.models.organization import OrganizationItAssetControl, OrganizationITAsset
 
 
 class Collection:
-    """POST mitigation controls to organization IT assets."""
+    """GET and POST mitigation controls for organization IT assets."""
+
+    @falcon.before(check_scope, 'manage:organizations')
+    def on_get(self, req, resp, organization_code, it_asset_instance_id):
+        """List mitigation controls for an organization IT asset.
+
+        :param req: See Falcon Request documentation.
+        :param resp: See Falcon Response documentation.
+        :param organization_code: The code of the organization.
+        :param it_asset_instance_id: The id of the IT asset instance.
+        """
+        session = Session()
+        try:
+            organization_it_asset = find_organization_it_asset(it_asset_instance_id, organization_code, session)
+            if organization_it_asset is None:
+                raise falcon.HTTPNotFound()
+
+            # Build query to fetch items
+            query = session \
+                .query(OrganizationItAssetControl) \
+                .join(OrganizationITAsset) \
+                .join(MitigationControl) \
+                .filter(OrganizationITAsset.organization_id == organization_code) \
+                .filter(OrganizationITAsset.instance_id == it_asset_instance_id) \
+                .order_by(MitigationControl.name)
+
+            data, paging = get_collection_page(req, query, custom_asdict)
+            resp.media = {
+                'data': data,
+                'paging': paging
+            }
+        finally:
+            session.close()
 
     @falcon.before(check_scope, 'manage:organizations')
     def on_post(self, req, resp, organization_code, it_asset_instance_id):
