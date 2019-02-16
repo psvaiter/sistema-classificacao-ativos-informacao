@@ -1,12 +1,12 @@
 set @ts = current_timestamp;
 insert into it_asset_category 
 values 
-	(1, 'Hardware', @ts, @ts),
-    (2, 'Software', @ts, @ts),
-    (3, 'Local / Infraestutura', @ts, @ts),		-- Place / Infrastucture
-    (4, 'Pessoas', @ts, @ts),					-- People
-    (5, 'Política', @ts, @ts), 					-- Policy
-    (6, 'Informação', @ts, @ts); 				-- Information
+	(1, 'Informação', @ts, @ts), 				-- Information
+    (2, 'Política', @ts, @ts), 					-- Policy
+    (3, 'Pessoa', @ts, @ts),					-- People
+    (4, 'Ambiente / Infraestutura', @ts, @ts),	-- Environment / Infrastucture
+    (5, 'Hardware', @ts, @ts),
+    (6, 'Software', @ts, @ts);
 
 insert into rating_level
 values
