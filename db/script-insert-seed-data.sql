@@ -1,10 +1,12 @@
+USE `knoweak`;
+
 set @ts = current_timestamp;
 insert into it_asset_category 
 values 
 	(1, 'Informação', @ts, @ts), 				-- Information
     (2, 'Política', @ts, @ts), 					-- Policy
     (3, 'Pessoa', @ts, @ts),					-- People
-    (4, 'Ambiente / Infraestutura', @ts, @ts),	-- Environment / Infrastucture
+    (4, 'Ambiente / Infraestrutura', @ts, @ts),	-- Environment / Infrastructure
     (5, 'Hardware', @ts, @ts),
     (6, 'Software', @ts, @ts);
 
