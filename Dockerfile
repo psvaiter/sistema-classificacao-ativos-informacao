@@ -8,4 +8,4 @@ WORKDIR /code
 
 RUN pipenv install --system --deploy
 
-CMD gunicorn --bind 0.0.0.0:8000 knoweak.app:api
+CMD gunicorn --reload --bind 0.0.0.0:8000 knoweak.app:api
