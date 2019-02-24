@@ -20,5 +20,3 @@ services:
 
 volumes:
   db-data:
-    external: true
-    name: mysql1-vol
