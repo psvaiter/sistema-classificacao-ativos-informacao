@@ -9,8 +9,6 @@ services:
 
   database:
     volumes:
-      - ./db/script-create-database.sql:/docker-entrypoint-initdb.d/01.sql
-      - ./db/script-insert-seed-data.sql:/docker-entrypoint-initdb.d/02.sql
-      - ./db/script-create-dev-users.sql:/docker-entrypoint-initdb.d/03.sql
+      - ./db/script-create-dev-user.sql:/docker-entrypoint-initdb.d/10.sql
     environment:
       MYSQL_ROOT_PASSWORD: root
