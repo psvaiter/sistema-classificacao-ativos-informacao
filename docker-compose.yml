@@ -12,14 +12,11 @@ services:
       DB_PORT: 3306
 
   database:
-    image: "mysql/mysql-server:5.7"
+    build: ./db
     ports:
       - "3306:3306"
     volumes:
       - "db-data:/var/lib/mysql"
-      - ./db/script-create-database.sql:/docker-entrypoint-initdb.d/01.sql
-      - ./db/script-insert-seed-data.sql:/docker-entrypoint-initdb.d/02.sql
-      - ./db/script-create-app-user.sql:/docker-entrypoint-initdb.d/03.sql
 
 volumes:
   db-data:
