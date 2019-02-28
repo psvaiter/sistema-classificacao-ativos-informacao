@@ -6,6 +6,8 @@ services:
       - .:/code
     env_file:
       - .env
+    environment:
+      GUNICORN_CMD_ARGS: "--reload --bind :8001"
 
   database:
     volumes:
