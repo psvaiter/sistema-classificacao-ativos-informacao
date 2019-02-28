@@ -8,6 +8,10 @@ services:
       - .env
     environment:
       GUNICORN_CMD_ARGS: "--reload --bind :8001"
+      AUTH_DISABLED: yes
+      DB_USERNAME: KnoweakAppUser
+      DB_PASSWORD: app_pass
+      DB_NAME: knoweak
 
   database:
     volumes:
