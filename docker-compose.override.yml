@@ -8,13 +8,13 @@ services:
       - .env
     environment:
       GUNICORN_CMD_ARGS: "--reload --bind :8001"
-      AUTH_DISABLED: yes
+      AUTH_DISABLED: "yes"
       DB_USERNAME: KnoweakAppUser
       DB_PASSWORD: app_pass
       DB_NAME: knoweak
 
   database:
     volumes:
-      - ./db/scripts/create-dev-user.sql:/docker-entrypoint-initdb.d/10.sql
+      - ./db/scripts/create-dev-users.sql:/docker-entrypoint-initdb.d/10.sql
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
