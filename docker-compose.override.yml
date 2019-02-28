@@ -15,6 +15,6 @@ services:
 
   database:
     volumes:
-      - ./db/scripts/create-dev-users.sql:/docker-entrypoint-initdb.d/10.sql
+      - ./db/scripts/init-dev/10-create-dev-users.sql:/docker-entrypoint-initdb.d/10.sql
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
