@@ -124,7 +124,8 @@ def validate_post(request_media, session):
     error = validate_str('legalName', legal_name,
                          is_mandatory=True,
                          min_length=constants.GENERAL_NAME_MIN_LENGTH,
-                         max_length=constants.GENERAL_NAME_MAX_LENGTH)
+                         max_length=constants.GENERAL_NAME_MAX_LENGTH,
+                         exists_strategy=exists_legal_name(legal_name, session))
     if error:
         errors.append(error)
 
@@ -165,7 +166,8 @@ def validate_patch(request_media, session):
         error = validate_str('legalName', legal_name,
                              is_mandatory=True,
                              min_length=constants.GENERAL_NAME_MIN_LENGTH,
-                             max_length=constants.GENERAL_NAME_MAX_LENGTH)
+                             max_length=constants.GENERAL_NAME_MAX_LENGTH,
+                             exists_strategy=exists_legal_name(legal_name, session))
         if error:
             errors.append(error)
 
@@ -186,5 +188,13 @@ def exists_tax_id(tax_id, session):
     def exists():
         return session.query(Organization.tax_id) \
             .filter(Organization.tax_id == tax_id) \
+            .first()
+    return exists
+
+
+def exists_legal_name(legal_name, session):
+    def exists():
+        return session.query(Organization.legal_name) \
+            .filter(Organization.legal_name == legal_name) \
             .first()
     return exists
