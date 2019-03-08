@@ -3,9 +3,7 @@ version: '3.4'
 services:
   web:
     volumes:
-      - .:/code
-    env_file:
-      - .env
+      - ./knoweak:/knoweak
     environment:
       GUNICORN_CMD_ARGS: "--reload --bind :8001"
       AUTH_DISABLED: "yes"
