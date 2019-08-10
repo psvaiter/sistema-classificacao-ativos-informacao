@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-sqlalchemy = "*"
+sqlalchemy = "~=1.3"
 pymysql = "*"
-falcon = "*"
+falcon = "~=1.4"
 dictalchemy = "*"
 inflection = "*"
 bcrypt = "*"
